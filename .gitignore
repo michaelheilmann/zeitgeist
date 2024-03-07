@@ -1,0 +1,13 @@
+# CMake
+CMakeFiles
+cmake_install\.cmake
+
+# Visual Studio Community 2022
+x64
+MinSizeRel
+Debug
+Release
+RelWithDebInfo
+*\.vcxproj
+*\.vcxproj\.filters
+*\.vcxproj\.user

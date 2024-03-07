@@ -1,0 +1,21 @@
+// Copyright (c) 2024 Michael Heilmann. All rights reserved.
+#if !defined(ZEITGEIST_CONFIGURE_H_INCLUDED)
+#define ZEITGEIST_CONFIGURE_H_INCLUDED
+
+#define Zeitgeist_Configuration_InstructionSetArchitecture_X64 (1)
+#define Zeitgeist_Configuration_InstructionSetArchitecture_X86 (2)
+
+#define Zeitgeist_Configuration_InstructionSetArchitecture @Zeitgeist_Configuration_InstructionSetArchitecture@
+
+
+#define Zeitgeist_Configuration_OperatingSystem_Windows (1)
+#define Zeitgeist_Configuration_OperatingSystem_Linux (2)
+
+#define Zeitgeist_Configuration_OperatingSystem @Zeitgeist_Configuration_OperatingSystem@
+
+#define Zeitgeist_Configuration_CompilerC_Msvc (1)
+#define Zeitgeist_Configuration_CompilerC_Gcc (2)
+
+#define Zeitgeist_Configuration_CompilerC @Zeitgeist_Configuration_CompilerC@
+
+#endif // ZEITGEIST_CONFIGURE_H_INCLUDED
