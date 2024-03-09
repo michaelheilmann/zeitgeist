@@ -104,7 +104,7 @@ typedef struct Zeitgeist_String Zeitgeist_String;
 typedef struct Zeitgeist_Value Zeitgeist_Value;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
+	
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
@@ -150,45 +150,45 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 struct Zeitgeist_Value {
-  /**
-   * @since 0.1
-   * The tag indicates the value stored in this Zeitgeist_Value object.
-   * Must be the value of one of the Zeitgeist_Value_Tag symbolic constants.
-   */
-  uint8_t tag;
+	/**
+	 * @since 0.1
+	 * The tag indicates the value stored in this Zeitgeist_Value object.
+	 * Must be the value of one of the Zeitgeist_Value_Tag symbolic constants.
+	 */
+	uint8_t tag;
 
-  union {
-    /**
-     * @since 0.1
-     * Holds a Zeitgeist_ArrayList* value if tag is Zeitgeist_ValueTag_ArrayList.
-     */
-    Zeitgeist_ArrayList* arrayListValue;
-    /**
-     * @since 0.1
-     * Holds a Zeitgeist_Boolean value if tag is Zeitgeist_ValueTag_Boolean.
-     */
-    Zeitgeist_Boolean booleanValue;
-    /**
-     * @since 0.1
-     * Holds a Zeitgeist_Integer value if tag is Zeitgeist_ValueTag_Integer.
-     */
-    Zeitgeist_Integer integerValue;
-    /**
-     * @since 0.1
-     * Holds a Zeitgeist_Object* value if tag is Zeitgeist_ValueTag_Object.
-     */
-    Zeitgeist_Object* objectValue;
-    /**
-     * @since 0.1
-     * Holds a Zeitgeist_String* value if tag is Zeitgeist_ValueTag_String.
-     */
-    Zeitgeist_String* stringValue;
-    /**
-     * @since 0.1
-     * Holds the Zeitgeist_Void_Void value if tag is Zeitgeist_ValueTag_Void.
-     */
-    Zeitgeist_Void voidValue;
-  };
+	union {
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_ArrayList* value if tag is Zeitgeist_ValueTag_ArrayList.
+		 */
+		Zeitgeist_ArrayList* arrayListValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_Boolean value if tag is Zeitgeist_ValueTag_Boolean.
+		 */
+		Zeitgeist_Boolean booleanValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_Integer value if tag is Zeitgeist_ValueTag_Integer.
+		 */
+		Zeitgeist_Integer integerValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_Object* value if tag is Zeitgeist_ValueTag_Object.
+		 */
+		Zeitgeist_Object* objectValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_String* value if tag is Zeitgeist_ValueTag_String.
+		 */
+		Zeitgeist_String* stringValue;
+		/**
+		 * @since 0.1
+		 * Holds the Zeitgeist_Void_Void value if tag is Zeitgeist_ValueTag_Void.
+		 */
+		Zeitgeist_Void voidValue;
+	};
 };
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -201,10 +201,10 @@ struct Zeitgeist_Value {
  */
 void
 Zeitgeist_Value_visit
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_Value* value
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Value* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -216,9 +216,9 @@ Zeitgeist_Value_visit
  */
 bool
 Zeitgeist_Value_hasArrayList
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1 
@@ -228,10 +228,10 @@ Zeitgeist_Value_hasArrayList
  */
 void
 Zeitgeist_Value_setArrayList
-  (
-    Zeitgeist_Value *value,
-    Zeitgeist_ArrayList* arrayListValue
-  );
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_ArrayList* arrayListValue
+	);
 
 /**
  * @since 0.1
@@ -243,9 +243,9 @@ Zeitgeist_Value_setArrayList
  */
 Zeitgeist_ArrayList*
 Zeitgeist_Value_getArrayList
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -257,8 +257,8 @@ Zeitgeist_Value_getArrayList
  */
 bool
 Zeitgeist_Value_hasBoolean
-  (
-    Zeitgeist_Value const* value
+	(
+		Zeitgeist_Value const* value
  );
 
 /**
@@ -269,10 +269,10 @@ Zeitgeist_Value_hasBoolean
  */
 void
 Zeitgeist_Value_setBoolean
-  (
-    Zeitgeist_Value *value,
-    Zeitgeist_Boolean booleanValue
-  );
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_Boolean booleanValue
+	);
 
 /**
  * @since 0.1
@@ -284,9 +284,9 @@ Zeitgeist_Value_setBoolean
  */
 Zeitgeist_Boolean
 Zeitgeist_Value_getBoolean
-  (
-    Zeitgeist_Value* value
-  );
+	(
+		Zeitgeist_Value* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -298,9 +298,9 @@ Zeitgeist_Value_getBoolean
  */
 bool
 Zeitgeist_Value_hasInteger
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1 
@@ -310,10 +310,10 @@ Zeitgeist_Value_hasInteger
  */
 void
 Zeitgeist_Value_setInteger
-  (
-    Zeitgeist_Value *value,
-    Zeitgeist_Integer integerValue
-  );
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_Integer integerValue
+	);
 
 /**
  * @since 0.1
@@ -325,9 +325,9 @@ Zeitgeist_Value_setInteger
  */
 Zeitgeist_Integer
 Zeitgeist_Value_getInteger
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -339,9 +339,9 @@ Zeitgeist_Value_getInteger
  */
 bool
 Zeitgeist_Value_hasObject
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1 
@@ -351,10 +351,10 @@ Zeitgeist_Value_hasObject
  */
 void
 Zeitgeist_Value_setObject
-  (
-    Zeitgeist_Value* value,
-    Zeitgeist_Object* objectValue
-  );
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_Object* objectValue
+	);
 
 /**
  * @since 0.1
@@ -366,9 +366,9 @@ Zeitgeist_Value_setObject
  */
 Zeitgeist_Object*
 Zeitgeist_Value_getObject
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -380,9 +380,9 @@ Zeitgeist_Value_getObject
  */
 bool
 Zeitgeist_Value_hasString
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1 
@@ -392,10 +392,10 @@ Zeitgeist_Value_hasString
  */
 void
 Zeitgeist_Value_setString
-  (
-    Zeitgeist_Value* value,
-    Zeitgeist_String* stringValue
-  );
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_String* stringValue
+	);
 
 /**
  * @since 0.1
@@ -407,9 +407,9 @@ Zeitgeist_Value_setString
  */
 Zeitgeist_String*
 Zeitgeist_Value_getString
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -421,9 +421,9 @@ Zeitgeist_Value_getString
  */
 bool
 Zeitgeist_Value_hasVoid
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1 
@@ -433,10 +433,10 @@ Zeitgeist_Value_hasVoid
  */
 void
 Zeitgeist_Value_setVoid
-  (
-    Zeitgeist_Value *value,
-    Zeitgeist_Void voidValue
-  );
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_Void voidValue
+	);
 
 /**
  * @since 0.1
@@ -448,9 +448,9 @@ Zeitgeist_Value_setVoid
  */
 Zeitgeist_Void
 Zeitgeist_Value_getVoid
-  (
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_Value const* value
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

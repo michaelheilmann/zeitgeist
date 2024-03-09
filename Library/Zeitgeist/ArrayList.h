@@ -3,13 +3,16 @@
 #if !defined(ZEITGEIST_ARRAYLIST_H_INCLUDED)
 #define ZEITGEIST_ARRAYLIST_H_INCLUDED
 
+#if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	#include <stddef.h>
+#endif
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_ArrayList {
-  Zeitgeist_ArrayList* next;
-  size_t size;
-  size_t capacity;
-  Zeitgeist_Value* elements;
+	Zeitgeist_ArrayList* next;
+	size_t size;
+	size_t capacity;
+	Zeitgeist_Value* elements;
 };
 
 /**
@@ -21,9 +24,9 @@ struct Zeitgeist_ArrayList {
  */
 Zeitgeist_ArrayList*
 Zeitgeist_createArrayList
-  (
-    Zeitgeist_State* state
-  );
+	(
+		Zeitgeist_State* state
+	);
 
 /**
  * @since 0.1
@@ -40,11 +43,11 @@ Zeitgeist_createArrayList
  */
 Zeitgeist_Value
 Zeitgeist_ArrayList_getValue
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    size_t index
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		size_t index
+	);
 
 /**
  * @since 0.1
@@ -57,10 +60,10 @@ Zeitgeist_ArrayList_getValue
  */
 Zeitgeist_Value
 Zeitgeist_ArrayList_getSize
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList
+	);
 
 /**
  * @since 0.1
@@ -76,12 +79,12 @@ Zeitgeist_ArrayList_getSize
  */
 void
 Zeitgeist_ArrayList_insertValue
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    size_t index,
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		size_t index,
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1
@@ -95,11 +98,11 @@ Zeitgeist_ArrayList_insertValue
  */
 void
 Zeitgeist_ArrayList_appendValue
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1
@@ -113,11 +116,11 @@ Zeitgeist_ArrayList_appendValue
  */
 void
 Zeitgeist_ArrayList_prependValue
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Value const* value
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Value const* value
+	);
 
 /**
  * @since 0.1
@@ -130,15 +133,15 @@ Zeitgeist_ArrayList_prependValue
  */
 static inline void
 Zeitgeist_ArrayList_appendArrayList
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_ArrayList* element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_ArrayList* element
+	)
 { 
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setArrayList(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setArrayList(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 /**
@@ -151,15 +154,15 @@ Zeitgeist_ArrayList_appendArrayList
  */
 static inline void
 Zeitgeist_ArrayList_appendBoolean
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Boolean element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Boolean element
+	)
 {
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setBoolean(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setBoolean(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 /**
@@ -172,15 +175,15 @@ Zeitgeist_ArrayList_appendBoolean
  */
 static inline void
 Zeitgeist_ArrayList_appendInteger
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Integer element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Integer element
+	)
 {
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setInteger(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setInteger(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 /**
@@ -194,15 +197,15 @@ Zeitgeist_ArrayList_appendInteger
  */
 static inline void
 Zeitgeist_ArrayList_appendObject
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Object* element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Object* element
+	)
 {
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setObject(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setObject(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 /**
@@ -216,15 +219,15 @@ Zeitgeist_ArrayList_appendObject
  */
 static inline void
 Zeitgeist_ArrayList_appendString
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_String* element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_String* element
+	)
 {
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setString(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setString(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 /**
@@ -238,15 +241,15 @@ Zeitgeist_ArrayList_appendString
  */
 static inline void
 Zeitgeist_ArrayList_appendVoid
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_ArrayList* arrayList,
-    Zeitgeist_Void element
-  )
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_Void element
+	)
 {
-  Zeitgeist_Value value;
-  Zeitgeist_Value_setVoid(&value, element);
-  Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setVoid(&value, element);
+	Zeitgeist_ArrayList_appendValue(state, arrayList, &value);
 }
 
 #endif // ZEITGEIST_ARRAYLIST_H_INCLUDED

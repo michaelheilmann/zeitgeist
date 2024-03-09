@@ -9,8 +9,13 @@
   #include <Windows.h>
   #include <strsafe.h>
   #include <tchar.h>
-#else Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-  #error("environment not (yet) supported")
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+  #include <sys/types.h>
+  #include <dirent.h>
+  // strcmp
+  #include <string.h>
+#else
+  #error("operating system not (yet) supported")
 #endif
 
 static Zeitgeist_ArrayList*
@@ -20,11 +25,11 @@ loadRenditions
   )
 {
   Zeitgeist_ArrayList* renditions = Zeitgeist_createArrayList(state);
-#if defined (_WIN32)
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
   WIN32_FIND_DATA ffd;
   TCHAR szDir[MAX_PATH];
-  StringCchCopy(szDir, MAX_PATH, TEXT(".\\Renditions"));
-  StringCchCat(szDir, MAX_PATH, TEXT("\\*"));
+  StringCchCopy(szDir, MAX_PATH, TEXT("." RENDITION_DIRECTORY_SEPARATOR "Renditions"));
+  StringCchCat(szDir, MAX_PATH, TEXT(RENDITION_DIRECTOY_SEPARATOR "*"));
   HANDLE hFind = INVALID_HANDLE_VALUE;
   hFind = FindFirstFile(szDir, &ffd);
   if (INVALID_HANDLE_VALUE == hFind) {
@@ -38,7 +43,8 @@ loadRenditions
         if (!strcmp(ffd.cFileName, ".") || !strcmp(ffd.cFileName, "..")) {
           continue;
         }
-        Zeitgeist_String* prefix = Zeitgeist_State_createString(state, ".\\Renditions\\", strlen(".\\Renditions\\"));
+        Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
+                                                                strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
         Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ffd.cFileName, strlen(ffd.cFileName));
         Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
         Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
@@ -54,17 +60,49 @@ loadRenditions
     hFind = INVALID_HANDLE_VALUE;
     longjmp(state->jumpTarget->environment, -1);
   }
-#else
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
   DIR* dir;
   struct dirent* ent;
-  if ((dir = opendir(".\\Renditions")) != NULL) {
+  if ((dir = opendir("." RENDITION_DIRECTORY_SEPARATOR "Renditions")) != NULL) {
     Zeitgeist_JumpTarget jumpTarget;
     Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
     if (!setjmp(jumpTarget.environment)) {
       while ((ent = readdir(dir)) != NULL) {
-        if (dirent->d_type == DT_DIR && (!strcmp(dirent->d_name, ".") && !strcmp(dirent->d_name, ".."))) {
-          Zeitgeist_String* prefix = Zeitgeist_State_createString(state, ".\\Renditions\\", strlen(".\\Renditions\\"));
-          Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ffd.cFileName, strlen(ffd.cFileName));
+        fprintf(stdout, "%s (", ent->d_name);
+        switch (ent->d_type) {
+          case DT_BLK:
+            fprintf(stdout, "DB_BLK");
+            break;
+          case DT_CHR:
+            fprintf(stdout, "DT_CHR");
+            break;
+          case DT_DIR:
+            fprintf(stdout, "DT_DIR");
+            break;
+          case DT_FIFO:
+            fprintf(stdout, "DT_FIFO");
+            break;
+          case DT_LNK:
+            fprintf(stdout, "DT_LNK");
+            break;
+          case DT_REG:
+            fprintf(stdout, "DT_REG");
+            break;
+          case DT_SOCK:
+            fprintf(stdout, "DT_SOCK");
+            break;
+          case DT_UNKNOWN:
+            fprintf(stdout, "DT_UNKNOWN");
+            break;
+          default:
+            fprintf(stdout, "<unknown>");
+            break;
+        };
+        fprintf(stdout, ")\n");
+        if (ent->d_type == DT_DIR && (strcmp(ent->d_name, ".") && strcmp(ent->d_name, ".."))) {
+          Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
+                                                                  strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
+          Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
           Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
           Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
           Zeitgeist_ArrayList_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
@@ -72,16 +110,19 @@ loadRenditions
       }
       Zeitgeist_State_popJumpTarget(state);
       closedir(dir);
+      dir = NULL;
     } else {
       Zeitgeist_State_popJumpTarget(state);
       closedir(dir);
+      dir = NULL;
       longjmp(state->jumpTarget->environment, -1);
     }
-    closedir(dir);
   } else {
     state->lastError = 1;
     longjmp(state->jumpTarget->environment, -1);
   }
+#else
+  #error("operating system not (yet) supported")
 #endif
   return renditions;
 }
@@ -92,7 +133,7 @@ onListRenditions
   (
     Zeitgeist_State* state
   )
-{ 
+{
   Zeitgeist_ArrayList* renditions = loadRenditions(state);
   Zeitgeist_Value size = Zeitgeist_ArrayList_getSize(state, renditions);
   for (size_t i = 0, n = Zeitgeist_Value_getInteger(&size); i < n; ++i) {
@@ -116,20 +157,18 @@ onRendition
   )
 { 
   Zeitgeist_String* renditionFolder = Zeitgeist_State_createString(state,
-                                                                   ".\\Renditions\\Zeitgeist-Hello-World",
-                                                                   strlen(".\\Renditions\\Zeitgeist-Hello-World"));
+                                                                   "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR "Zeitgeist-Hello-World",
+                                                                   strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR "Zeitgeist-Hello-World"));
   Zeitgeist_Rendition* foundRendition = Zeitgeist_createRendition(state, renditionFolder);
   Zeitgeist_JumpTarget jumpTarget;
   Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
   if (!setjmp(jumpTarget.environment)) {
     Zeitgeist_String* foundRenditionName = Zeitgeist_Rendition_getName(state, foundRendition);
     if (!Zeitgeist_String_areEqual(state, foundRenditionName, renditionName)) {
-      if (renditionName->numberOfBytes > INT_MAX) {
-        longjmp(state->jumpTarget->environment, -1);
-      }
       fprintf(stderr, "rendition `%.*s` not found\n", (int)renditionName->numberOfBytes, renditionName->bytes);
       longjmp(state->jumpTarget->environment, -1);
     }
+    void (*foundUpdate)(Zeitgeist_State*) = Zeitgeist_Rendition_getUpdate(state, foundRendition);
     Zeitgeist_State_popJumpTarget(state);
   } else {
     Zeitgeist_State_popJumpTarget(state);
@@ -163,6 +202,7 @@ main1
         fprintf(stderr, "error: unknown arguments to command `%.*s`\n", (int)arg->numberOfBytes, arg->bytes);
         longjmp(state->jumpTarget->environment, -1);
       }
+      fprintf(stdout, "listing renditions\n");
       onListRenditions(state);
       break;
     } else if (Zeitgeist_String_areEqual(state, arg, rendition)) {
@@ -170,6 +210,7 @@ main1
         fprintf(stderr, "error: missing argument for command `%.*s`\n", (int)arg->numberOfBytes, arg->bytes);
         longjmp(state->jumpTarget->environment, -1);
       }
+      fprintf(stdout, "executing rendition\n");
       onRendition(state, Zeitgeist_State_createString(state, argv[argi+1], strlen(argv[argi+1])));
       break;
     } else {

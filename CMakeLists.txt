@@ -7,5 +7,5 @@ set(project_name "Zeitgeist")
 project(${project_name})
 
 add_subdirectory(Library)
-add_subdirectory(Renditions/Hello-World)
 add_subdirectory(Interpreter)
+add_subdirectory(Renditions/Hello-World)

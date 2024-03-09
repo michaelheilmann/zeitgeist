@@ -103,8 +103,9 @@ else()
   elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
     set(${target_name}.OPERATING_SYSTEM_ID     ${ZEITGEIST_OPERATING_SYSTEM_ID_MACOS})
     set(${target_name}.OPERATING_SYSTEM_STRING ${ZEITGEIST_OPERATING_SYSTEM_STRING_MACOS})
+  else()
+    message(FATAL_ERROR "unable to determine operating system")
   endif()
-  message(FATAL_ERROR "unable to determine operating system")
 endif()
 message( STATUS " - operating system: ${${target_name}.OPERATING_SYSTEM_STRING}")
 
@@ -133,3 +134,4 @@ add_library(${target_name} STATIC ${sources})
 
 target_include_directories(${target_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(${target_name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+

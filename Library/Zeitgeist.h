@@ -3,6 +3,9 @@
 #if !defined(ZEITGEISTE_H_INCLUDED)
 #define ZEITGEIST_H_INCLUDED
 
+#if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+  #include <stddef.h>
+#endif
 #include "Zeitgeist/ArrayList.h"
 #include "Zeitgeist/Object.h"
 #include "Zeitgeist/Value.h"
