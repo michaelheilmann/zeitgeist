@@ -26,6 +26,15 @@ Zeitgeist_String_areEqual
   }
 }
 
+Zeitgeist_Boolean
+Zeitgeist_State_isExitProcessRequested
+  (
+    Zeitgeist_State* state
+  )
+{
+  return state->exitProcessRequested; 
+}
+
 Zeitgeist_State*
 Zeitgeist_createState
   (
@@ -35,6 +44,7 @@ Zeitgeist_createState
   if (!state) {
     return NULL;
   }
+  state->exitProcessRequested = Zeitgeist_Boolean_False;
   state->lastError = 0;
   state->strings = NULL;
   state->objects = NULL;

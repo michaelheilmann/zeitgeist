@@ -39,11 +39,23 @@ Zeitgeist_String_areEqual
 
 struct Zeitgeist_State {
   int lastError;
+  /**
+   * @brief Zeitgeist checks the value of this variable each n (usually n = 1) updates.
+   * If this this true by that time, it will exit the process. Otherwise it will do nothing.
+   * @initial @a Zeitgeist_False.
+   */
+  bool exitProcessRequested;
   Zeitgeist_JumpTarget* jumpTarget;
   Zeitgeist_ArrayList* arrayLists;
   Zeitgeist_Object* objects;
   Zeitgeist_String *strings;
 };
+
+Zeitgeist_Boolean
+Zeitgeist_State_isExitProcessRequested
+  (
+    Zeitgeist_State* state
+  );
 
 /**
  * @since 0.1

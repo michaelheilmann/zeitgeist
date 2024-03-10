@@ -15,9 +15,9 @@ typedef struct Zeitgeist_UpstreamRequest Zeitgeist_UpstreamRequest;
 
 /**
  * @since 0.1
- * Symbolic constant that when assigned to Zeitgeist_UpstreamRequest indicates that it is a "exit process" upstream reuqest.
+ * Symbolic constant that when assigned to Zeitgeist_UpstreamRequest indicates that it is a "exit process request" upstream request.
  */
-#define Zeitgeist_UpstreamRequestType_ExitProcess (1)
+#define Zeitgeist_UpstreamRequestType_ExitProcessRequest (1)
 
 struct Zeitgeist_UpstreamRequest {
   Zeitgeist_Object _parent;
@@ -26,7 +26,7 @@ struct Zeitgeist_UpstreamRequest {
 
 /**
  * @since 0.1
- * @brief Create a "exit process" upstream request.
+ * @brief Create a "exit process request" upstream request.
  * @param state A pointer to the Zeitgeist_State object.
  * @return A pointer to the Zeitgeist_UpstreamRequest object.
  */

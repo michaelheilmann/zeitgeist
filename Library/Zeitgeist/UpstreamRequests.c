@@ -17,7 +17,7 @@ Zeitgeist_UpstreamRequest_createExitProcessRequest
     state->lastError = 1;
     longjmp(state->jumpTarget->environment, -1);
   }
-  upstreamRequest->type = Zeitgeist_UpstreamRequestType_ExitProcess;
+  upstreamRequest->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
   ((Zeitgeist_Object*)upstreamRequest)->finalize = NULL;
   ((Zeitgeist_Object*)upstreamRequest)->next = state->objects;
   state->objects = (Zeitgeist_Object*)upstreamRequest;
@@ -32,7 +32,7 @@ Zeitgeist_sendUpstreamRequest
     Zeitgeist_UpstreamRequest* request
   )
 { 
-  if (Zeitgeist_UpstreamRequestType_ExitProcess == request->type) {
-    state->exitProcess = true;
+  if (Zeitgeist_UpstreamRequestType_ExitProcessRequest == request->type) {
+    state->exitProcessRequested = true;
   }
 }

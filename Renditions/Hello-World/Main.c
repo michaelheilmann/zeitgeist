@@ -1,6 +1,7 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
 
 #include "Zeitgeist.h"
+#include "Zeitgeist/UpstreamRequests.h"
 
 // strlen
 #include <string.h>
@@ -30,4 +31,6 @@ Zeitgeist_Rendition_run
 	)
 {
 	fprintf(stdout, "Hello, World!\n");
+	Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
+	Zeitgeist_sendUpstreamRequest(state, request);
 }
