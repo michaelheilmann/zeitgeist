@@ -6,7 +6,7 @@
 #if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
   #include <stddef.h>
 #endif
-#include "Zeitgeist/ArrayList.h"
+#include "Zeitgeist/List.h"
 #include "Zeitgeist/Object.h"
 #include "Zeitgeist/Value.h"
 
@@ -46,7 +46,7 @@ struct Zeitgeist_State {
    */
   bool exitProcessRequested;
   Zeitgeist_JumpTarget* jumpTarget;
-  Zeitgeist_ArrayList* arrayLists;
+  Zeitgeist_List* lists;
   Zeitgeist_Object* objects;
   Zeitgeist_String *strings;
 };

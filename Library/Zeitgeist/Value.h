@@ -67,9 +67,9 @@ typedef int8_t Zeitgeist_Void;
 
 /**
  * @since 0.1
- * A Zeitgeist_ArrayList object.
+ * A Zeitgeist_List object.
  */
-typedef struct Zeitgeist_ArrayList Zeitgeist_ArrayList;
+typedef struct Zeitgeist_List Zeitgeist_List;
 
 /**
  * @since 0.1
@@ -108,9 +108,9 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.arrayListValue holds a Zeitgeist_ArrayList value.
+ * then v.listValue holds a Zeitgeist_List value.
  */
-#define Zeitgeist_ValueTag_ArrayList (0)
+#define Zeitgeist_ValueTag_List (0)
 
 /**
  * @since 0.1
@@ -160,9 +160,9 @@ struct Zeitgeist_Value {
 	union {
 		/**
 		 * @since 0.1
-		 * Holds a Zeitgeist_ArrayList* value if tag is Zeitgeist_ValueTag_ArrayList.
+		 * Holds a Zeitgeist_List* value if tag is Zeitgeist_ValueTag_List.
 		 */
-		Zeitgeist_ArrayList* arrayListValue;
+		Zeitgeist_List* listValue;
 		/**
 		 * @since 0.1
 		 * Holds a Zeitgeist_Boolean value if tag is Zeitgeist_ValueTag_Boolean.
@@ -210,39 +210,39 @@ Zeitgeist_Value_visit
 
 /**
  * @since 0.1
- * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_ArrayList* value.
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_List* value.
  * @param value A pointer to a Zeitgeist_value object.
- * @return true if the Zeitgeist_Value object stores a Zeitgeist_ArrayList* value. false otherwise.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_List* value. false otherwise.
  */
 bool
-Zeitgeist_Value_hasArrayList
+Zeitgeist_Value_hasList
 	(
 		Zeitgeist_Value const* value
 	);
 
 /**
  * @since 0.1 
- * @brief Store a Zeitgeist_ArrayList* value in a Zeitgeist_Value object.
+ * @brief Store a Zeitgeist_List* value in a Zeitgeist_Value object.
  * @param value A pointer to a Zeitgeist_Value object.
- * @param arrayListValue A pointer to a Zeitgeist_ArrayList object.
+ * @param listValue A pointer to a Zeitgeist_List object.
  */
 void
-Zeitgeist_Value_setArrayList
+Zeitgeist_Value_setList
 	(
 		Zeitgeist_Value *value,
-		Zeitgeist_ArrayList* arrayListValue
+		Zeitgeist_List* listValue
 	);
 
 /**
  * @since 0.1
- * @brief Get the Zeitgeist_ArrayList* value stored in a Zeitgeist_Value object.
+ * @brief Get the Zeitgeist_List* value stored in a Zeitgeist_Value object.
  * @param value A pointer to a Zeitgeist_Value object.
- * @return The Zeitgeist_ArrayList* value.
+ * @return The Zeitgeist_List* value.
  * @undefined value does not point to a Zeitgeist_Value object.
- * @undefined The Zeitgeist_Value object does not store an Zeitgeist_ArrayList* value.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_List* value.
  */
-Zeitgeist_ArrayList*
-Zeitgeist_Value_getArrayList
+Zeitgeist_List*
+Zeitgeist_Value_getList
 	(
 		Zeitgeist_Value const* value
 	);

@@ -48,7 +48,7 @@ Zeitgeist_createState
   state->lastError = 0;
   state->strings = NULL;
   state->objects = NULL;
-  state->arrayLists = NULL;
+  state->lists = NULL;
   state->jumpTarget = NULL;
   return state;
 }
@@ -67,11 +67,11 @@ Zeitgeist_State_destroy
     }
     free(object);
   }
-  while (state->arrayLists) {
-    Zeitgeist_ArrayList* arrayList = state->arrayLists;
-    state->arrayLists = state->arrayLists->next;
-    free(arrayList->elements);
-    free(arrayList);
+  while (state->lists) {
+    Zeitgeist_List* list = state->lists;
+    state->lists = state->lists->next;
+    free(list->elements);
+    free(list);
   }
   while (state->strings) {
     Zeitgeist_String* string = state->strings;

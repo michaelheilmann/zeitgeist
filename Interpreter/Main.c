@@ -18,13 +18,13 @@
   #error("operating system not (yet) supported")
 #endif
 
-static Zeitgeist_ArrayList*
+static Zeitgeist_List*
 loadRenditions
   (
     Zeitgeist_State* state
   )
 {
-  Zeitgeist_ArrayList* renditions = Zeitgeist_createArrayList(state);
+  Zeitgeist_List* renditions = Zeitgeist_createList(state);
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
   WIN32_FIND_DATA ffd;
   TCHAR szDir[MAX_PATH];
@@ -48,7 +48,7 @@ loadRenditions
         Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ffd.cFileName, strlen(ffd.cFileName));
         Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
         Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
-        Zeitgeist_ArrayList_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
+        Zeitgeist_List_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
       }
     } while (FindNextFile(hFind, &ffd) != 0);
     Zeitgeist_State_popJumpTarget(state);
@@ -105,7 +105,7 @@ loadRenditions
           Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
           Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
           Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
-          Zeitgeist_ArrayList_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
+          Zeitgeist_List_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
         }
       }
       Zeitgeist_State_popJumpTarget(state);
@@ -134,10 +134,10 @@ onListRenditions
     Zeitgeist_State* state
   )
 {
-  Zeitgeist_ArrayList* renditions = loadRenditions(state);
-  Zeitgeist_Value size = Zeitgeist_ArrayList_getSize(state, renditions);
+  Zeitgeist_List* renditions = loadRenditions(state);
+  Zeitgeist_Value size = Zeitgeist_List_getSize(state, renditions);
   for (size_t i = 0, n = Zeitgeist_Value_getInteger(&size); i < n; ++i) {
-    Zeitgeist_Value value = Zeitgeist_ArrayList_getValue(state, renditions, i);
+    Zeitgeist_Value value = Zeitgeist_List_getValue(state, renditions, i);
     if (!Zeitgeist_Value_hasObject(&value)) {
       state->lastError = 1;
       longjmp(state->jumpTarget->environment, -1);

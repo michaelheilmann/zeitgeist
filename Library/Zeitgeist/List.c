@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
 
-#include "Zeitgeist/ArrayList.h"
+#include "Zeitgeist/List.h"
 
 #include "Zeitgeist.h"
 #include <malloc.h>
@@ -9,7 +9,7 @@ static size_t g_maximumCapacity = 0;
 
 static bool g_initialized = false;
 
-void Zeitgeist_ArrayListModule_startup() {
+void Zeitgeist_ListModule_startup() {
 	if (!g_initialized) {
 		g_maximumCapacity = SIZE_MAX / sizeof(Zeitgeist_Value);
 		if (g_maximumCapacity > Zeitgeist_Integer_Maximum) {
@@ -19,26 +19,26 @@ void Zeitgeist_ArrayListModule_startup() {
 	}
 }
 
-Zeitgeist_ArrayList*
-Zeitgeist_createArrayList
+Zeitgeist_List*
+Zeitgeist_createList
 	(
 		Zeitgeist_State* state
 	)
 {
-	Zeitgeist_ArrayList* arrayList = malloc(sizeof(Zeitgeist_ArrayList));
-	if (!arrayList) {
+	Zeitgeist_List* list = malloc(sizeof(Zeitgeist_List));
+	if (!list) {
 		longjmp(state->jumpTarget->environment, -1);
 	}
-	arrayList->elements = malloc(8 * sizeof(Zeitgeist_Value));
-	if (!arrayList->elements) {
-		free(arrayList);
+	list->elements = malloc(8 * sizeof(Zeitgeist_Value));
+	if (!list->elements) {
+		free(list);
 		longjmp(state->jumpTarget->environment, -1);
 	}
-	arrayList->size = 0;
-	arrayList->capacity = 8;
-	arrayList->next = state->arrayLists;
-	state->arrayLists = arrayList;
-	return arrayList;
+	list->size = 0;
+	list->capacity = 8;
+	list->next = state->lists;
+	state->lists = list;
+	return list;
 }
 
 // memmove
@@ -47,36 +47,36 @@ Zeitgeist_createArrayList
 static Zeitgeist_Value const IndexOutOfBounds = { .tag = Zeitgeist_ValueTag_Void, .voidValue = Zeitgeist_Void_Void };
 
 Zeitgeist_Value
-Zeitgeist_ArrayList_getValue
+Zeitgeist_List_getValue
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_List* list,
 		size_t index
 	)
 {
-	if (index >= arrayList->size) {
+	if (index >= list->size) {
 		return IndexOutOfBounds;
 	}
-	return arrayList->elements[index];
+	return list->elements[index];
 }
 
 Zeitgeist_Value
-Zeitgeist_ArrayList_getSize
+Zeitgeist_List_getSize
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_ArrayList* arrayList
+		Zeitgeist_List* list
 	)
 {
 	Zeitgeist_Value value;
-	Zeitgeist_Value_setInteger(&value, (Zeitgeist_Integer)arrayList->size);
+	Zeitgeist_Value_setInteger(&value, (Zeitgeist_Integer)list->size);
 	return value;
 }
 
 void
-Zeitgeist_ArrayList_insertValue
+Zeitgeist_List_insertValue
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_List* list,
 		size_t index,
 		Zeitgeist_Value const* value
 	)
@@ -84,9 +84,9 @@ Zeitgeist_ArrayList_insertValue
 	if (Zeitgeist_Value_hasVoid(value)) {
 		return;
 	}
-	if (arrayList->capacity == arrayList->size) {
-		Zeitgeist_ArrayListModule_startup();
-		size_t oldCapacity = arrayList->capacity;
+	if (list->capacity == list->size) {
+		Zeitgeist_ListModule_startup();
+		size_t oldCapacity = list->capacity;
 		size_t newCapacity;
 		if (oldCapacity > g_maximumCapacity / 2) {
 			// as the following fact holds
@@ -101,40 +101,40 @@ Zeitgeist_ArrayList_insertValue
 		} else {
 			newCapacity = oldCapacity * 2;
 		}
-		Zeitgeist_Value* newElements = realloc(arrayList->elements, newCapacity * sizeof(Zeitgeist_Value));
+		Zeitgeist_Value* newElements = realloc(list->elements, newCapacity * sizeof(Zeitgeist_Value));
 		if (!newElements) {
 			longjmp(state->jumpTarget->environment, -1);
 		}
-		arrayList->elements = newElements;
-		arrayList->capacity = newCapacity;
+		list->elements = newElements;
+		list->capacity = newCapacity;
 	}
-	if (index < arrayList->size) {
-		memmove(arrayList->elements + index,
-						arrayList->elements + index + 1,
-						sizeof(Zeitgeist_Value) * (arrayList->size - index));
+	if (index < list->size) {
+		memmove(list->elements + index,
+						list->elements + index + 1,
+						sizeof(Zeitgeist_Value) * (list->size - index));
 	}
-	arrayList->elements[index] = *value;
-	arrayList->size++;
+	list->elements[index] = *value;
+	list->size++;
 }
 
 void
-Zeitgeist_ArrayList_appendValue
+Zeitgeist_List_appendValue
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_List* list,
 		Zeitgeist_Value const* value
 	)
 {
-	Zeitgeist_ArrayList_insertValue(state, arrayList, arrayList->size, value);
+	Zeitgeist_List_insertValue(state, list, list->size, value);
 }
 
 void
-Zeitgeist_ArrayList_prependValue
+Zeitgeist_List_prependValue
 	( 
 		Zeitgeist_State* state,
-		Zeitgeist_ArrayList* arrayList,
+		Zeitgeist_List* list,
 		Zeitgeist_Value const* value
 	)
 {
-	Zeitgeist_ArrayList_insertValue(state, arrayList, 0, value);
+	Zeitgeist_List_insertValue(state, list, 0, value);
 }

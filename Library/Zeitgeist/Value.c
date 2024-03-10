@@ -24,29 +24,29 @@ Zeitgeist_Value_visit
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 bool
-Zeitgeist_Value_hasArrayList
+Zeitgeist_Value_hasList
 	(
 		Zeitgeist_Value const* value
 	)
-{ return Zeitgeist_ValueTag_ArrayList == value->tag; }
+{ return Zeitgeist_ValueTag_List == value->tag; }
 
 void
-Zeitgeist_Value_setArrayList
+Zeitgeist_Value_setList
 	(
 		Zeitgeist_Value *value,
-		Zeitgeist_ArrayList* arrayListValue
+		Zeitgeist_List* listValue
 	)
 {
-	value->tag = Zeitgeist_ValueTag_ArrayList;
-	value->arrayListValue = arrayListValue;
+	value->tag = Zeitgeist_ValueTag_List;
+	value->listValue = listValue;
 }
 
-Zeitgeist_ArrayList*
-Zeitgeist_Value_getArrayList
+Zeitgeist_List*
+Zeitgeist_Value_getList
 	(
 		Zeitgeist_Value const* value
 	)
-{ return value->arrayListValue; }
+{ return value->listValue; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
