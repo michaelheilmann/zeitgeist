@@ -52,6 +52,44 @@ Zeitgeist_Rendition_finalize
 	}
 }
 
+static void
+Zeitgeist_Rendition_ensureLibraryLoaded
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Rendition* rendition
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	if (!rendition->libraryHandle) {
+		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state, "", sizeof(char));
+		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
+			strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
+		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
+		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
+		rendition->libraryHandle = LoadLibrary(libraryPath->bytes);
+		if (!rendition->libraryHandle) {
+			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
+			longjmp(state->jumpTarget->environment, -1);
+		}
+	}
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	if (!rendition->libraryHandle) {
+		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state, "", sizeof(char));
+		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
+			strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
+		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
+		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
+		rendition->libraryHandle = dlopen(libraryPath->bytes, RTLD_LAZY | RTLD_GLOBAL);
+		if (!rendition->libraryHandle) {
+			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
+			longjmp(state->jumpTarget->environment, -1);
+		}
+	}
+#else
+#error("operating system not (yet) supported")
+#endif	
+}
+
 Zeitgeist_Rendition*
 Zeitgeist_createRendition
 	(
@@ -78,35 +116,7 @@ Zeitgeist_Rendition_getName
 		Zeitgeist_Rendition* rendition
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	if (!rendition->libraryHandle) {
-		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state,	"", sizeof(char));
-		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
-																																 strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
-		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
-		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
-		rendition->libraryHandle = LoadLibrary(libraryPath->bytes);
-		if (!rendition->libraryHandle) {
-			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
-			longjmp(state->jumpTarget->environment, -1);
-		}
-	}
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	if (!rendition->libraryHandle) {
-		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state,	"", sizeof(char));
-		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
-																																 strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
-		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
-		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
-		rendition->libraryHandle = dlopen(libraryPath->bytes, RTLD_LAZY | RTLD_GLOBAL);
-		if (!rendition->libraryHandle) {
-			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
-			longjmp(state->jumpTarget->environment, -1);
-		}
-	}
-#else
-	#error("operating system not (yet) supported")
-#endif
+	Zeitgeist_Rendition_ensureLibraryLoaded(state, rendition);
 	Zeitgeist_JumpTarget jumpTarget;
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
@@ -131,54 +141,67 @@ Zeitgeist_Rendition_getUpdate
 		Zeitgeist_Rendition* rendition
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	if (!rendition->libraryHandle) {
-		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state,	"", sizeof(char));
-		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
-																																 strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
-		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
-		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
-		rendition->libraryHandle = LoadLibrary(libraryPath->bytes);
-		if (!rendition->libraryHandle) {
-			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
-			longjmp(state->jumpTarget->environment, -1);
-		}
-	}
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	if (!rendition->libraryHandle) {
-		Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state,	"", sizeof(char));
-		Zeitgeist_String* libraryPath = Zeitgeist_State_createString(state, RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION,
-																																 strlen(RENDITION_DIRECTORY_SEPARATOR "library" RENDITION_EXTENSION));
-		libraryPath = Zeitgeist_String_concatenate(state, rendition->folderPath, libraryPath);
-		libraryPath = Zeitgeist_String_concatenate(state, libraryPath, zeroTerminator);
-		rendition->libraryHandle = dlopen(libraryPath->bytes, RTLD_LAZY | RTLD_GLOBAL);
-		if (!rendition->libraryHandle) {
-			fprintf(stderr, "unable to link `%.*s`\n", (int)libraryPath->numberOfBytes, libraryPath->bytes);
-			longjmp(state->jumpTarget->environment, -1);
-		}
-	}
-#else
-	#error("operating system not (yet) supported")
-#endif
+	Zeitgeist_Rendition_ensureLibraryLoaded(state, rendition);
 	Zeitgeist_JumpTarget jumpTarget;
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
-		Zeitgeist_ForeignProcedure* update = (void (*)(Zeitgeist_State*))getRenditionLibrarySymbol(rendition->libraryHandle, "Zeitgeist_Rendition_update");
-		if (!update) {
+		Zeitgeist_ForeignProcedure* f = (void (*)(Zeitgeist_State*))getRenditionLibrarySymbol(rendition->libraryHandle, "Zeitgeist_Rendition_update");
+		if (!f) {
 			fprintf(stderr, "unable to link `%s` of `%.*s`\n", "Zeitgeist_Rendition_update", (int)rendition->folderPath->numberOfBytes, rendition->folderPath->bytes);
 			longjmp(state->jumpTarget->environment, -1);
 		}
 		Zeitgeist_State_popJumpTarget(state);
-		return update;
+		return f;
 	} else {
 		Zeitgeist_State_popJumpTarget(state);
 		longjmp(state->jumpTarget->environment, -1);
 	}
 }
 
-void
-Zeitgeist_Rendition_unload
+Zeitgeist_ForeignProcedure*
+Zeitgeist_Rendition_getLoad
 	(
 		Zeitgeist_State* state,
 		Zeitgeist_Rendition* rendition
-	);
+	)
+{
+	Zeitgeist_Rendition_ensureLibraryLoaded(state, rendition);
+	Zeitgeist_JumpTarget jumpTarget;
+	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+	if (!setjmp(jumpTarget.environment)) {
+		Zeitgeist_ForeignProcedure* f = (void (*)(Zeitgeist_State*))getRenditionLibrarySymbol(rendition->libraryHandle, "Zeitgeist_Rendition_load");
+		if (!f) {
+			fprintf(stderr, "unable to link `%s` of `%.*s`\n", "Zeitgeist_Rendition_load", (int)rendition->folderPath->numberOfBytes, rendition->folderPath->bytes);
+			longjmp(state->jumpTarget->environment, -1);
+		}
+		Zeitgeist_State_popJumpTarget(state);
+		return f;
+	} else {
+		Zeitgeist_State_popJumpTarget(state);
+		longjmp(state->jumpTarget->environment, -1);
+	}
+}
+
+Zeitgeist_ForeignProcedure*
+Zeitgeist_Rendition_getUnload
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Rendition* rendition
+	)
+{
+	Zeitgeist_Rendition_ensureLibraryLoaded(state, rendition);
+	Zeitgeist_JumpTarget jumpTarget;
+	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+	if (!setjmp(jumpTarget.environment)) {
+		Zeitgeist_ForeignProcedure* f = (void (*)(Zeitgeist_State*))getRenditionLibrarySymbol(rendition->libraryHandle, "Zeitgeist_Rendition_unload");
+		if (!f) {
+			fprintf(stderr, "unable to link `%s` of `%.*s`\n", "Zeitgeist_Rendition_unload", (int)rendition->folderPath->numberOfBytes, rendition->folderPath->bytes);
+			longjmp(state->jumpTarget->environment, -1);
+		}
+		Zeitgeist_State_popJumpTarget(state);
+		return f;
+	} else {
+		Zeitgeist_State_popJumpTarget(state);
+		longjmp(state->jumpTarget->environment, -1);
+	}
+}

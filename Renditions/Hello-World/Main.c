@@ -25,7 +25,7 @@ Zeitgeist_Rendition_getName
 }
 
 Zeitgeist_Rendition_Export void
-Zeitgeist_Rendition_run
+Zeitgeist_Rendition_update
 	(
 		Zeitgeist_State* state
 	)
@@ -34,3 +34,17 @@ Zeitgeist_Rendition_run
 	Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
 	Zeitgeist_sendUpstreamRequest(state, request);
 }
+
+Zeitgeist_Rendition_Export void
+Zeitgeist_Rendition_load
+	(
+		Zeitgeist_State* state
+	)
+{/*Intentionally empty.*/}
+
+Zeitgeist_Rendition_Export void
+Zeitgeist_Rendition_unload
+	(
+		Zeitgeist_State* state
+	)
+{/*Intentionally empty.*/}

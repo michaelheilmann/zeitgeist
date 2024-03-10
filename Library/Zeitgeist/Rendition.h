@@ -60,8 +60,15 @@ Zeitgeist_Rendition_getUpdate
 		Zeitgeist_Rendition* rendition
 	);
 
-void
-Zeitgeist_Rendition_unload
+Zeitgeist_ForeignProcedure*
+Zeitgeist_Rendition_getLoad
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Rendition* rendition
+	);
+
+Zeitgeist_ForeignProcedure*
+Zeitgeist_Rendition_getUnload
 	(
 		Zeitgeist_State* state,
 		Zeitgeist_Rendition* rendition

@@ -38,13 +38,13 @@ loadRenditions
   Zeitgeist_JumpTarget jumpTarget;
   Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
   if (!setjmp(jumpTarget.environment)) {
+    Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
+                                                            strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
     do {
       if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
         if (!strcmp(ffd.cFileName, ".") || !strcmp(ffd.cFileName, "..")) {
           continue;
         }
-        Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
-                                                                strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
         Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ffd.cFileName, strlen(ffd.cFileName));
         Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
         Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
@@ -67,6 +67,8 @@ loadRenditions
     Zeitgeist_JumpTarget jumpTarget;
     Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
     if (!setjmp(jumpTarget.environment)) {
+      Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
+                                                              strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
       while ((ent = readdir(dir)) != NULL) {
         fprintf(stdout, "%s (", ent->d_name);
         switch (ent->d_type) {
@@ -100,8 +102,6 @@ loadRenditions
         };
         fprintf(stdout, ")\n");
         if (ent->d_type == DT_DIR && (strcmp(ent->d_name, ".") && strcmp(ent->d_name, ".."))) {
-          Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
-                                                                  strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
           Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
           Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
           Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
@@ -168,7 +168,35 @@ onRendition
       fprintf(stderr, "rendition `%.*s` not found\n", (int)renditionName->numberOfBytes, renditionName->bytes);
       longjmp(state->jumpTarget->environment, -1);
     }
-    void (*foundUpdate)(Zeitgeist_State*) = Zeitgeist_Rendition_getUpdate(state, foundRendition);
+    Zeitgeist_ForeignProcedure* loadFunction = Zeitgeist_Rendition_getLoad(state, foundRendition);
+    if (!loadFunction) {
+      fprintf(stderr, "unable to acquire unload function of rendition `%.*s`\n", (int)renditionName->numberOfBytes, renditionName->bytes);
+      longjmp(state->jumpTarget->environment, -1);
+    }
+    Zeitgeist_ForeignProcedure* unloadFunction = Zeitgeist_Rendition_getUnload(state, foundRendition);
+    if (!unloadFunction) {
+      fprintf(stderr, "unable to acquire unload function of rendition `%.*s`\n", (int)renditionName->numberOfBytes, renditionName->bytes);
+      longjmp(state->jumpTarget->environment, -1);
+    }
+    Zeitgeist_ForeignProcedure* updateFunction = Zeitgeist_Rendition_getUpdate(state, foundRendition);
+    if (!updateFunction) {
+      fprintf(stderr, "unable to acquire update function of rendition `%.*s`\n", (int)renditionName->numberOfBytes, renditionName->bytes);
+      longjmp(state->jumpTarget->environment, -1);
+    }
+    (*loadFunction)(state);
+    Zeitgeist_JumpTarget jumpTarget1;
+    Zeitgeist_State_pushJumpTarget(state, &jumpTarget1);
+    if (!setjmp(jumpTarget1.environment)) {
+      while (!Zeitgeist_State_isExitProcessRequested(state)) {
+        (*updateFunction)(state);
+      }
+      Zeitgeist_State_popJumpTarget(state);
+      (*unloadFunction)(state);
+    } else {
+      Zeitgeist_State_popJumpTarget(state);
+      (*unloadFunction)(state);
+      longjmp(state->jumpTarget->environment, -1);
+    }
     Zeitgeist_State_popJumpTarget(state);
   } else {
     Zeitgeist_State_popJumpTarget(state);
@@ -211,7 +239,7 @@ main1
         longjmp(state->jumpTarget->environment, -1);
       }
       fprintf(stdout, "executing rendition\n");
-      onRendition(state, Zeitgeist_State_createString(state, argv[argi+1], strlen(argv[argi+1])));
+      onRendition(state, Zeitgeist_State_createString(state, argv[argi + 1], strlen(argv[argi + 1])));
       break;
     } else {
       fprintf(stderr, "error: unknown command `%.*s`\n", (int)arg->numberOfBytes, arg->bytes);
