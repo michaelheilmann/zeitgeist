@@ -9,6 +9,7 @@ list(APPEND sources Zeitgeist/Value.c Zeitgeist/Value.h)
 list(APPEND sources Zeitgeist/ArrayList.c Zeitgeist/ArrayList.h)
 list(APPEND sources Zeitgeist/Object.c Zeitgeist/Object.h)
 list(APPEND sources Zeitgeist/Rendition.c Zeitgeist/Rendition.h)
+list(APPEND sources Zeitgeist/UpstreamRequests.c Zeitgeist/UpstreamRequests.h)
 list(APPEND sources Zeitgeist.c Zeitgeist.h)
 list(APPEND sources Zeitgeist/Configure.h.in)
 
