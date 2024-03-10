@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
 
-#if !defined(ZEITGEISTE_H_INCLUDED)
+#if !defined(ZEITGEIST_H_INCLUDED)
 #define ZEITGEIST_H_INCLUDED
 
 #if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
