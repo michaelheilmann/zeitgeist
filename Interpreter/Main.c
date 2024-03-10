@@ -29,7 +29,7 @@ loadRenditions
   WIN32_FIND_DATA ffd;
   TCHAR szDir[MAX_PATH];
   StringCchCopy(szDir, MAX_PATH, TEXT("." RENDITION_DIRECTORY_SEPARATOR "Renditions"));
-  StringCchCat(szDir, MAX_PATH, TEXT(RENDITION_DIRECTOY_SEPARATOR "*"));
+  StringCchCat(szDir, MAX_PATH, TEXT(RENDITION_DIRECTORY_SEPARATOR "*"));
   HANDLE hFind = INVALID_HANDLE_VALUE;
   hFind = FindFirstFile(szDir, &ffd);
   if (INVALID_HANDLE_VALUE == hFind) {
