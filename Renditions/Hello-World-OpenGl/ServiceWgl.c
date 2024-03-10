@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
 
-#include "ServiceOpenGl.h"
+#include "ServiceWgl.h"
 
 // fprintf, stdout
 #include <stdio.h>
@@ -736,7 +736,7 @@ startup
 }
 
 void
-ServiceOpenGl_startup
+ServiceWgl_startup
 	(
 		Zeitgeist_State* state
 	)
@@ -756,7 +756,7 @@ ServiceOpenGl_startup
 }
 
 void
- ServiceOpenGl_shutdown
+ ServiceWgl_shutdown
 	(
 		Zeitgeist_State* state
  )

@@ -70,6 +70,7 @@ loadRenditions
 			Zeitgeist_String* prefix = Zeitgeist_State_createString(state, "." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR,
 																															strlen("." RENDITION_DIRECTORY_SEPARATOR "Renditions" RENDITION_DIRECTORY_SEPARATOR));
 			while ((ent = readdir(dir)) != NULL) {
+			#if 0
 				fprintf(stdout, "%s (", ent->d_name);
 				switch (ent->d_type) {
 					case DT_BLK:
@@ -101,6 +102,7 @@ loadRenditions
 						break;
 				};
 				fprintf(stdout, ")\n");
+			#endif
 				if (ent->d_type == DT_DIR && (strcmp(ent->d_name, ".") && strcmp(ent->d_name, ".."))) {
 					Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
 					Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);

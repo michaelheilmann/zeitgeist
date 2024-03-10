@@ -6,7 +6,13 @@
 
 #include "Zeitgeist/UpstreamRequests.h"
 
-#include "ServiceOpenGl.h"
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	#include "ServiceWgl.h"
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	#include "ServiceGlx.h"
+#else
+	#error("operating system not (yet) supported")
+#endif
 
 // strlen
 #include <string.h>
@@ -16,8 +22,10 @@
 
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export _declspec(dllexport)
-#else
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export
+#else
+	#error("operating system not (yet) supported")
 #endif
 
 Zeitgeist_Rendition_Export Zeitgeist_String*
@@ -46,7 +54,13 @@ Zeitgeist_Rendition_load
 		Zeitgeist_State* state
 	)
 {
-	ServiceOpenGl_startup(state);
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_startup(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_startup(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
 }
 
 Zeitgeist_Rendition_Export void
@@ -55,5 +69,11 @@ Zeitgeist_Rendition_unload
 		Zeitgeist_State* state
 	)
 {
-	ServiceOpenGl_shutdown(state);
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_shutdown(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_shutdown(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
 }
