@@ -4,22 +4,22 @@
 #define ZEITGEIST_H_INCLUDED
 
 #if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-  #include <stddef.h>
+	#include <stddef.h>
 #endif
 #include "Zeitgeist/List.h"
 #include "Zeitgeist/Object.h"
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_JumpTarget {
-  Zeitgeist_JumpTarget* previous;
-  jmp_buf environment;
+	Zeitgeist_JumpTarget* previous;
+	jmp_buf environment;
 };
 
 struct Zeitgeist_String {
-  Zeitgeist_String* next;
-  size_t hashValue;
-  size_t numberOfBytes;
-  char bytes[];
+	Zeitgeist_String* next;
+	size_t hashValue;
+	size_t numberOfBytes;
+	char bytes[];
 };
 
 /**
@@ -31,31 +31,31 @@ struct Zeitgeist_String {
  */
 Zeitgeist_Boolean
 Zeitgeist_String_areEqual
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_String* v,
-    Zeitgeist_String* w
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* v,
+		Zeitgeist_String* w
+	);
 
 struct Zeitgeist_State {
-  int lastError;
-  /**
-   * @brief Zeitgeist checks the value of this variable each n (usually n = 1) updates.
-   * If this this true by that time, it will exit the process. Otherwise it will do nothing.
-   * @initial @a Zeitgeist_False.
-   */
-  bool exitProcessRequested;
-  Zeitgeist_JumpTarget* jumpTarget;
-  Zeitgeist_List* lists;
-  Zeitgeist_Object* objects;
-  Zeitgeist_String *strings;
+	int lastError;
+	/**
+	 * @brief Zeitgeist checks the value of this variable each n (usually n = 1) updates.
+	 * If this this true by that time, it will exit the process. Otherwise it will do nothing.
+	 * @initial @a Zeitgeist_False.
+	 */
+	bool exitProcessRequested;
+	Zeitgeist_JumpTarget* jumpTarget;
+	Zeitgeist_List* lists;
+	Zeitgeist_Object* objects;
+	Zeitgeist_String *strings;
 };
 
 Zeitgeist_Boolean
 Zeitgeist_State_isExitProcessRequested
-  (
-    Zeitgeist_State* state
-  );
+	(
+		Zeitgeist_State* state
+	);
 
 /**
  * @since 0.1
@@ -64,8 +64,8 @@ Zeitgeist_State_isExitProcessRequested
  */
 Zeitgeist_State*
 Zeitgeist_createState
-  (
-  );
+	(
+	);
 
 /**
  * @since 0.1
@@ -76,9 +76,9 @@ Zeitgeist_createState
  */
 void
 Zeitgeist_State_destroy
-  (
-    Zeitgeist_State* state
-  );
+	(
+		Zeitgeist_State* state
+	);
 
 /**
  * @since 0.1
@@ -88,10 +88,10 @@ Zeitgeist_State_destroy
  */
 void
 Zeitgeist_State_pushJumpTarget
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_JumpTarget* jumpTarget
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_JumpTarget* jumpTarget
+	);
 
 /**
  * @since 0.1
@@ -102,9 +102,27 @@ Zeitgeist_State_pushJumpTarget
  */
 void
 Zeitgeist_State_popJumpTarget
-  (
-    Zeitgeist_State* state
-  );
+	(
+		Zeitgeist_State* state
+	);
+
+/** 
+ * @since 0.1
+ * Set the state error variable to the specified value.
+ * Jump to the current jump target.
+ * @param state A pointer to the state.
+ * @param file The C source code file as provided by __FILE__.
+ * @param line The C source code line as provide by __LINE__.
+ * @undefined error is a zero value.
+ */
+void
+Zeitgeist_State_raiseError
+	(
+		Zeitgeist_State* state,
+		char *file,
+		int line,
+		int error
+	);
 
 /**
  * @since 0.1
@@ -117,18 +135,18 @@ Zeitgeist_State_popJumpTarget
  */
 Zeitgeist_String*
 Zeitgeist_State_createString
-  (
-    Zeitgeist_State* state,
-    char const* bytes,
-    size_t numberOfBytes
-  );
+	(
+		Zeitgeist_State* state,
+		char const* bytes,
+		size_t numberOfBytes
+	);
 
 Zeitgeist_String*
 Zeitgeist_String_concatenate
-  (
-    Zeitgeist_State* state,
-    Zeitgeist_String* prefix,
-    Zeitgeist_String* suffix
-  );
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* prefix,
+		Zeitgeist_String* suffix
+	);
 
 #endif // ZEITGEIST_H_INCLUDED
