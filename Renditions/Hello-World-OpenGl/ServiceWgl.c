@@ -65,6 +65,8 @@ static HDC g_hDc = NULL;
 
 static HGLRC g_hGlrc = NULL;
 
+static bool g_quitRequested = false;
+
 
 
 static LRESULT CALLBACK
@@ -144,6 +146,16 @@ windowCallback
 		LPARAM lparam
 	)
 {
+	switch (msg) {
+		case WM_CLOSE: {
+			DestroyWindow(wnd);
+			return 0;
+		} break;
+		case WM_DESTROY: {
+			PostQuitMessage(0);
+			return 0;
+		} break;
+	};
 	return DefWindowProc(wnd, msg, wparam, lparam);
 }
 
@@ -680,6 +692,8 @@ startup
 		longjmp(state->jumpTarget->environment, -1);
 	}
 	//
+	ShowWindow(g_hWnd, SW_SHOW);
+	//
 	const int contextAttribs[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
 		WGL_CONTEXT_MINOR_VERSION_ARB, 1,
@@ -753,6 +767,7 @@ ServiceWgl_startup
 		shutdownLegacy(state);
 		longjmp(state->jumpTarget->environment, -1);
 	}
+	g_quitRequested = false;
 }
 
 void
@@ -764,4 +779,26 @@ ServiceWgl_shutdown
 	fprintf(stdout, "[Hello World (OpenGL)] shutting down OpenGL service\n");
 	shutdown(state);
 	shutdownLegacy(state);
+}
+
+void ServiceWgl_setTitle(Zeitgeist_State* state, Zeitgeist_String* title) {
+	Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state, "", 1);
+	title = Zeitgeist_String_concatenate(state, title, zeroTerminator);
+	SetWindowText(g_hWnd, title->bytes);
+}
+
+void ServiceWgl_update(Zeitgeist_State* state) {
+	MSG message;
+	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
+		if (message.message == WM_QUIT) {
+			g_quitRequested = true;
+		} else {
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+		}
+	}
+}
+
+bool ServiceWgl_quitRequested(Zeitgeist_State* state) {
+	return g_quitRequested;
 }

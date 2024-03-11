@@ -50,10 +50,19 @@ Zeitgeist_Rendition_update
 #else
 	#error("operating system not (yet) supported")
 #endif
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	if (ServiceWgl_quitRequested(state)) {
+		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
+		Zeitgeist_sendUpstreamRequest(state, request);
+	}
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	if (ServiceGlx_quitRequested(state)) {
 		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
 		Zeitgeist_sendUpstreamRequest(state, request);
 	}
+#else
+	#error("operating system not (yet) supported")
+#endif
 }
 
 Zeitgeist_Rendition_Export void

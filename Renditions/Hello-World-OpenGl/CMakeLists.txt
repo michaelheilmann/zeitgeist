@@ -7,7 +7,6 @@ list(APPEND sources Main.c)
 
 if (WIN32)
 	list(APPEND sources ServiceWgl.c ServiceWgl.h)
-	target_include_directories(${project_name}-Hello-World-OpenGl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/External/OpenGl/Includes)
 else()
 	find_package(X11 REQUIRED)
 	find_package(OpenGL REQUIRED)
@@ -23,6 +22,7 @@ target_link_libraries(${project_name}-Hello-World-OpenGl ${project_name}-Library
 add_dependencies(${project_name}-Hello-World-OpenGl ${project_name}-Interpreter)
 
 if (WIN32)
+	target_include_directories(${project_name}-Hello-World-OpenGl PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/External/OpenGl/Includes)
 else()
 	target_link_libraries(${project_name}-Hello-World-OpenGl OpenGL::GLX ${X11_LIBRARIES})
 endif()
