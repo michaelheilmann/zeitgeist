@@ -103,9 +103,13 @@ Zeitgeist_createRendition
 	}
 	rendition->folderPath = folderPath;
 	rendition->libraryHandle = NULL;
+
 	((Zeitgeist_Object*)rendition)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_finalize;
-	((Zeitgeist_Object*)rendition)->next = state->objects;
-	state->objects = (Zeitgeist_Object*)rendition;
+
+	((Zeitgeist_Gc_Object*)rendition)->typeTag = Zeitgeist_Gc_TypeTag_Object;
+	((Zeitgeist_Gc_Object*)rendition)->next = state->gc.all;
+	state->gc.all = (Zeitgeist_Gc_Object*)rendition;
+
 	return rendition;
 }
 

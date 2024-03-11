@@ -18,6 +18,53 @@
 
 /**
  * @since 0.1
+ * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ */
+#define Zeitgeist_Gc_TypeTag_List (1)
+
+/**
+ * @since 0.1
+ * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ */
+#define Zeitgeist_Gc_TypeTag_Map (2)
+
+/**
+ * @since 0.1
+ * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ */
+#define Zeitgeist_Gc_TypeTag_Object (3)
+
+/**
+ * @since 0.1
+ * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ */
+#define Zeitgeist_Gc_TypeTag_String (4)
+
+/**
+ * @since 0.1
+ * @brief A garbage collected object.
+ */
+typedef struct Zeitgeist_Gc_Object Zeitgeist_Gc_Object;
+
+struct Zeitgeist_Gc_Object {
+	
+	Zeitgeist_Gc_Object* next;
+
+	/**
+	 * @brief The type of the garbage collected object.
+	 * Zeitgeist_Gc_TypeTag_List indicates an GC object of type List.
+	 * Zeitgeist_Gc_TypeTag_Map indicates an GC object of type Map.
+	 * Zeitgeist_Gc_TypeTag_Object indicates a GC object of type Object.
+	 * Zeitgeist_Gc_TypeTagString indicates a GC object of type String.
+	 */
+	uint8_t typeTag;
+
+};
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * A Zeitgeist_Boolean object.
  */
 typedef bool Zeitgeist_Boolean;
@@ -67,27 +114,29 @@ typedef int8_t Zeitgeist_Void;
 
 /**
  * @since 0.1
- * A Zeitgeist_List object.
- */
-typedef struct Zeitgeist_List Zeitgeist_List;
-
-/**
- * @since 0.1
  * A Zeitgeist_JumpTarget object.
  */
 typedef struct Zeitgeist_JumpTarget Zeitgeist_JumpTarget;
 
 /**
  * @since 0.1
- * A Zeitgeist_Object object.
- */
-typedef struct Zeitgeist_Object Zeitgeist_Object;
-
-/**
- * @since 0.1
  * A Zeitgeist_State object.
  */
 typedef struct Zeitgeist_State Zeitgeist_State;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * A Zeitgeist_List object.
+ */
+typedef struct Zeitgeist_List Zeitgeist_List;
+
+/**
+ * @since 0.1
+ * A Zeitgeist_Object object.
+ */
+typedef struct Zeitgeist_Object Zeitgeist_Object;
 
 /**
  * @since 0.1

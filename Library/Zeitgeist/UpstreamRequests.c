@@ -18,9 +18,13 @@ Zeitgeist_UpstreamRequest_createExitProcessRequest
     longjmp(state->jumpTarget->environment, -1);
   }
   upstreamRequest->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
+
   ((Zeitgeist_Object*)upstreamRequest)->finalize = NULL;
-  ((Zeitgeist_Object*)upstreamRequest)->next = state->objects;
-  state->objects = (Zeitgeist_Object*)upstreamRequest;
+  
+  ((Zeitgeist_Gc_Object*)upstreamRequest)->typeTag = Zeitgeist_Gc_TypeTag_Object;
+  ((Zeitgeist_Gc_Object*)upstreamRequest)->next = state->gc.all;
+  state->gc.all = (Zeitgeist_Gc_Object*)upstreamRequest;
+
   return upstreamRequest;
 }
 

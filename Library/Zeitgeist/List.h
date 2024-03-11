@@ -9,7 +9,7 @@
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_List {
-	Zeitgeist_List* next;
+	Zeitgeist_Gc_Object _parent;
 	size_t size;
 	size_t capacity;
 	Zeitgeist_Value* elements;

@@ -7,19 +7,14 @@
 	#include <stddef.h>
 #endif
 #include "Zeitgeist/List.h"
+#include "Zeitgeist/Map.h"
 #include "Zeitgeist/Object.h"
+#include "Zeitgeist/String.h"
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_JumpTarget {
 	Zeitgeist_JumpTarget* previous;
 	jmp_buf environment;
-};
-
-struct Zeitgeist_String {
-	Zeitgeist_String* next;
-	size_t hashValue;
-	size_t numberOfBytes;
-	char bytes[];
 };
 
 /**
@@ -46,9 +41,11 @@ struct Zeitgeist_State {
 	 */
 	bool exitProcessRequested;
 	Zeitgeist_JumpTarget* jumpTarget;
-	Zeitgeist_List* lists;
-	Zeitgeist_Object* objects;
 	Zeitgeist_String *strings;
+
+	struct {
+		Zeitgeist_Gc_Object* all;
+	} gc;
 };
 
 Zeitgeist_Boolean
@@ -139,14 +136,6 @@ Zeitgeist_State_createString
 		Zeitgeist_State* state,
 		char const* bytes,
 		size_t numberOfBytes
-	);
-
-Zeitgeist_String*
-Zeitgeist_String_concatenate
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_String* prefix,
-		Zeitgeist_String* suffix
 	);
 
 #endif // ZEITGEIST_H_INCLUDED

@@ -3,7 +3,12 @@
 #include "Zeitgeist/List.h"
 
 #include "Zeitgeist.h"
+
+// malloc, realloc, free
 #include <malloc.h>
+
+// memmove
+#include <string.h>
 
 static size_t g_maximumCapacity = 0;
 
@@ -27,22 +32,23 @@ Zeitgeist_createList
 {
 	Zeitgeist_List* list = malloc(sizeof(Zeitgeist_List));
 	if (!list) {
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
+
 	list->elements = malloc(8 * sizeof(Zeitgeist_Value));
 	if (!list->elements) {
 		free(list);
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	list->size = 0;
 	list->capacity = 8;
-	list->next = state->lists;
-	state->lists = list;
+
+	((Zeitgeist_Gc_Object*)list)->typeTag = Zeitgeist_Gc_TypeTag_List;
+	((Zeitgeist_Gc_Object*)list)->next = state->gc.all;
+	state->gc.all = (Zeitgeist_Gc_Object*)list;
+	
 	return list;
 }
-
-// memmove
-#include <string.h>
 
 static Zeitgeist_Value const IndexOutOfBounds = { .tag = Zeitgeist_ValueTag_Void, .voidValue = Zeitgeist_Void_Void };
 
@@ -94,7 +100,7 @@ Zeitgeist_List_insertValue
 			// we cannot double the capacity.
 			// try to saturate the capacity.
 			if (oldCapacity == g_maximumCapacity) {
-				longjmp(state->jumpTarget->environment, -1);
+				Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 			} else {
 				newCapacity = g_maximumCapacity;
 			}
@@ -103,7 +109,7 @@ Zeitgeist_List_insertValue
 		}
 		Zeitgeist_Value* newElements = realloc(list->elements, newCapacity * sizeof(Zeitgeist_Value));
 		if (!newElements) {
-			longjmp(state->jumpTarget->environment, -1);
+			Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 		}
 		list->elements = newElements;
 		list->capacity = newCapacity;

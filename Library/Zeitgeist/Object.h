@@ -6,7 +6,7 @@
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_Object {
-	Zeitgeist_Object* next;
+	Zeitgeist_Gc_Object _parent;
 	void (*finalize)(Zeitgeist_State* state, Zeitgeist_Object* object);
 };
 

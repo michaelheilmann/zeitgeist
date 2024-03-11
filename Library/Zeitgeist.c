@@ -11,22 +11,6 @@
 #include <limits.h>
 
 Zeitgeist_Boolean
-Zeitgeist_String_areEqual
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_String* v,
-		Zeitgeist_String* w
-	)
-{
-	if (v == w) return Zeitgeist_Boolean_True;
-	else if (v->numberOfBytes == w->numberOfBytes && v->hashValue == w->hashValue) {
-		return !memcmp(v->bytes, w->bytes, v->numberOfBytes);
-	} else {
-		return Zeitgeist_Boolean_False;
-	}
-}
-
-Zeitgeist_Boolean
 Zeitgeist_State_isExitProcessRequested
 	(
 		Zeitgeist_State* state
@@ -47,10 +31,58 @@ Zeitgeist_createState
 	state->exitProcessRequested = Zeitgeist_Boolean_False;
 	state->lastError = 0;
 	state->strings = NULL;
-	state->objects = NULL;
-	state->lists = NULL;
+	state->gc.all = NULL;
 	state->jumpTarget = NULL;
 	return state;
+}
+
+static void finalizeList(Zeitgeist_State* state, Zeitgeist_List* list) {
+	free(list->elements);
+	free(list);
+}
+
+static void finalizeMap(Zeitgeist_State* state, Zeitgeist_Map* map) {
+	for (size_t i = 0, n = map->capacity; i < n; ++i) {
+		Zeitgeist_Map_Node** bucket = &(map->buckets[i]);
+		while (*bucket) {
+			Zeitgeist_Map_Node* node = *bucket;
+			*bucket = node->next;
+			free(node);
+		}
+	}
+	free(map->buckets);
+	free(map);
+}
+
+static void finalizeObject(Zeitgeist_State* state, Zeitgeist_Object* object) {
+	if (object->finalize) {
+		object->finalize(state, object);
+	}
+	free(object);
+}
+
+static void runGc(Zeitgeist_State* state) {
+	while (state->gc.all) {
+		Zeitgeist_Gc_Object* object = state->gc.all;
+		state->gc.all = object->next;
+		switch (object->typeTag) {
+			case Zeitgeist_Gc_TypeTag_List: {
+				finalizeList(state, (Zeitgeist_List*)object);
+			} break;
+			case Zeitgeist_Gc_TypeTag_Map: {
+				free(((Zeitgeist_Map*)object)->buckets);
+				free(object);
+			} break;
+			case Zeitgeist_Gc_TypeTag_Object: {
+				finalizeObject(state, (Zeitgeist_Object*)object);
+			} break;
+		}
+	}
+	while (state->strings) {
+		Zeitgeist_String* string = state->strings;
+		state->strings = state->strings->next;
+		free(string);
+	}
 }
 
 void
@@ -59,25 +91,7 @@ Zeitgeist_State_destroy
 		Zeitgeist_State* state
 	)
 {
-	while (state->objects) {
-		Zeitgeist_Object* object = state->objects;
-		state->objects = state->objects->next;
-		if (object->finalize) {
-			object->finalize(state, object);
-		}
-		free(object);
-	}
-	while (state->lists) {
-		Zeitgeist_List* list = state->lists;
-		state->lists = state->lists->next;
-		free(list->elements);
-		free(list);
-	}
-	while (state->strings) {
-		Zeitgeist_String* string = state->strings;
-		state->strings = state->strings->next;
-		free(string);
-	}
+	runGc(state);
 	free(state);
 }
 
@@ -139,41 +153,6 @@ Zeitgeist_State_createString
 	string->numberOfBytes = numberOfBytes;
 	memcpy(string->bytes, bytes, numberOfBytes);
 	
-	string->next = state->strings;
-	state->strings = string;
-	return string;
-}
-
-Zeitgeist_String*
-Zeitgeist_String_concatenate
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_String* prefix,
-		Zeitgeist_String* suffix
-	)
-{
-	// The string would be too long.
-	if (SIZE_MAX - sizeof(Zeitgeist_String) - prefix->numberOfBytes < suffix->numberOfBytes) {
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
-	}
-	size_t hashValue = prefix->numberOfBytes + suffix->numberOfBytes;
-	for (size_t i = 0, n = prefix->numberOfBytes; i < n; ++i) {
-		hashValue = (hashValue << 5) ^ (hashValue >> 3) | (size_t)prefix->bytes[i];
-	}
-	for (size_t i = 0, n = suffix->numberOfBytes; i < n; ++i) {
-		hashValue = (hashValue << 5) ^ (hashValue >> 3) | (size_t)suffix->bytes[i];
-	}
-	Zeitgeist_String* string = malloc(sizeof(Zeitgeist_String) + prefix->numberOfBytes + suffix->numberOfBytes);
-	if (!string) {
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
-	}
-	string->hashValue = hashValue;
-	string->numberOfBytes = prefix->numberOfBytes + suffix->numberOfBytes;
-	memcpy(string->bytes, prefix->bytes, prefix->numberOfBytes);
-	memcpy(string->bytes + prefix->numberOfBytes, suffix->bytes, suffix->numberOfBytes);
-
 	string->next = state->strings;
 	state->strings = string;
 	return string;
