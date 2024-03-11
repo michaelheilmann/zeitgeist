@@ -43,9 +43,17 @@ Zeitgeist_Rendition_update
 		Zeitgeist_State* state
 	)
 {
-	fprintf(stdout, "Hello, World!\n");
-	Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
-	Zeitgeist_sendUpstreamRequest(state, request);
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_update(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_update(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+	if (ServiceGlx_quitRequested(state)) {
+		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
+		Zeitgeist_sendUpstreamRequest(state, request);
+	}
 }
 
 Zeitgeist_Rendition_Export void
@@ -56,8 +64,10 @@ Zeitgeist_Rendition_load
 {
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	ServiceWgl_startup(state);
+	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Hello, World!", strlen("Hello, World!")));
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	ServiceGlx_startup(state);
+	ServiceGlx_setTitle(state, Zeitgeist_State_createString(state, "Hello, World!", strlen("Hello, World!")));
 #else
 	#error("operating system not (yet) supported")
 #endif

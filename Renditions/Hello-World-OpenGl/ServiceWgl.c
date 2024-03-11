@@ -756,10 +756,10 @@ ServiceWgl_startup
 }
 
 void
- ServiceWgl_shutdown
+ServiceWgl_shutdown
 	(
 		Zeitgeist_State* state
- )
+ 	)
 {
 	fprintf(stdout, "[Hello World (OpenGL)] shutting down OpenGL service\n");
 	shutdown(state);
