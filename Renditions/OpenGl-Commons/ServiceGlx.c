@@ -25,8 +25,9 @@ static Window g_window;
 static GLXFBConfig g_glx_bestFbConfig;
 static Colormap g_colorMap;
 static GLXContext g_context;
-static bool g_quit = false;
 static Atom WM_DELETE_WINDOW;
+
+static bool g_quit = false;
 
 // Helper to check for extension string presence.	Adapted from:
 // http://www.opengl.org/resources/features/OGLextensions/

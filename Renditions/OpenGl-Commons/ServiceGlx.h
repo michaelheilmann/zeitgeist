@@ -1,7 +1,7 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
 
-#if !defined(ZEITGEIST_RENDITION_SERVICEGLX_H_INCLUDED)
-#define ZEITGEIST_RENDITION_SERVICEGLX_H_INCLUDED
+#if !defined(SERVICEGLX_H_INCLUDED)
+#define SERVICEGLX_H_INCLUDED
 
 #include "Zeitgeist.h"
 
@@ -92,4 +92,4 @@ ServiceGlx_endFrame
 		Zeitgeist_State* state
 	);
 
-#endif // ZEITGEIST_RENDITION_SERVICEGLX_H_INCLUDED
+#endif // SERVICEGLX_H_INCLUDED
