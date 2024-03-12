@@ -177,15 +177,26 @@ onRendition1
 	Zeitgeist_JumpTarget jumpTarget1;
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget1);
 	if (!setjmp(jumpTarget1.environment)) {
-		while (!Zeitgeist_State_isExitProcessRequested(state)) {
-			(*updateFunction)(state);
-			Zeitgeist_State_update(state);
+		Zeitgeist_Stack_pushObject(state, (Zeitgeist_Object*)rendition);
+		Zeitgeist_JumpTarget jumpTarget2;
+		Zeitgeist_State_pushJumpTarget(state, &jumpTarget2);
+		if (!setjmp(jumpTarget1.environment)) {
+			while (!Zeitgeist_State_isExitProcessRequested(state)) {
+				(*updateFunction)(state);
+				Zeitgeist_State_update(state);
+			}
+			Zeitgeist_State_popJumpTarget(state);
+			(*unloadFunction)(state);
+		} else {
+			Zeitgeist_State_popJumpTarget(state);
+			(*unloadFunction)(state);
+			longjmp(state->jumpTarget->environment, -1);
 		}
 		Zeitgeist_State_popJumpTarget(state);
-		(*unloadFunction)(state);
+		Zeitgeist_Stack_pop(state);
 	} else {
 		Zeitgeist_State_popJumpTarget(state);
-		(*unloadFunction)(state);
+		Zeitgeist_Stack_pop(state);
 		longjmp(state->jumpTarget->environment, -1);
 	}
 }

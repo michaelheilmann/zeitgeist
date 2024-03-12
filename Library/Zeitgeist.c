@@ -41,6 +41,13 @@ Zeitgeist_createState
 	state->gc.all = NULL;
 	state->gc.gray = NULL;
 	state->jumpTarget = NULL;
+
+	state->stack.elements = malloc(sizeof(Zeitgeist_Value) * 8);
+	if (!state->stack.elements) {
+		free(state);
+		return NULL;
+	}
+
 	return state;
 }
 
@@ -125,11 +132,22 @@ sweep
 }
 
 static void
+premark
+	(
+		Zeitgeist_State* state
+	)
+{ 
+
+}
+
+static void
 runGc
 	(
 		Zeitgeist_State* state
 	)
 {
+	premark(state);
+	mark(state);
 	sweep(state);
 	if (state->gc.all) {
 		fprintf(stderr, "%s:%d: warning: gc all list not empty\n", __FILE__, __LINE__);
@@ -149,6 +167,12 @@ Zeitgeist_State_destroy
 	)
 {
 	runGc(state);
+
+	state->stack.size = 0;
+	free(state->stack.elements);
+	state->stack.elements = NULL;
+	state->stack.capacity = 0;
+	
 	free(state);
 }
 
@@ -192,4 +216,93 @@ Zeitgeist_State_update
 	)
 {
 	/*runGc(state);*/
+}
+
+void
+Zeitgeist_Stack_push
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Value* value
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushBoolean
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Boolean booleanValue
+	)
+{ 
+}
+
+void
+Zeitgeist_Stack_pushInteger
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Integer integerValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushList
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* listValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushMap
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Map* mapValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushObject
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Object* objectValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushReal32
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Real32 real32Value
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushString
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* stringValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pushVoid
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Void voidValue
+	)
+{
+}
+
+void
+Zeitgeist_Stack_pop
+	(
+		Zeitgeist_State* state
+	)
+{
 }

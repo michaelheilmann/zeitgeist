@@ -3,7 +3,7 @@
 #if !defined(ZEITGEIST_MAP_H_INCLUDED)
 #define ZEITGEIST_MAP_H_INCLUDED
 
-#include "Zeitgeist/Map.h"
+#include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
 /**

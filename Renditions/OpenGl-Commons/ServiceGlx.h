@@ -97,4 +97,10 @@ ServiceGlx_endFrame
 		Zeitgeist_State* state
 	);
 
+void
+ServiceGlx_addKeyboardKeyCallback
+	(
+		Zeitgeist_State* state
+	);
+
 #endif // SERVICEGLX_H_INCLUDED

@@ -3,6 +3,7 @@
 #if !defined(ZEITGEIST_STRING_H_INCLUDED)
 #define ZEITGEIST_STRING_H_INCLUDED
 
+#include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_String {

@@ -6,6 +6,7 @@
 #if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	#include <stddef.h>
 #endif
+#include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
 struct Zeitgeist_List {

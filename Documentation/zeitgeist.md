@@ -1,5 +1,5 @@
 # Zeitgeist Built-In Types
-*Zeitgeist* knows the following types: *Boolean*, *Integer*, *List*, *Map*, *Real*, and *String*.
+*Zeitgeist* knows the following types: *Boolean*, *Integer*, *List*, *Map*, *Real32*, *String*, and *Void*.
 
 ## List
 The *List* type is represented by `Zeitgeist_List`.
@@ -10,10 +10,18 @@ The *List* type has the following complexities:
 **Warning** The current list implementation (due to time constraints) is still O(n) for adding to the front and removing from the front.
 A deque implementation is the solution.
 
-## Map*
+## Map
 The *Map* type is represented by `Zeitgeist_Map`.
 The *Map* type has the following complexities:
 - O(1) for insert and remove.
+
+## Void
+The *Void* type has only one value, the value *void*.
+*void* has semantics with aggregate types *List* and *Map* and with the interpreters stack are as follows:
+- If *void* is inserted into a *List*, then nothing is inserted ("nothing is inserted into a list").
+- If *void* is pushed on the stack, then nothing is pushed ("nothing is pushed").
+- If *void* is used as key in a map, then no entry is added ("nothing refers to the specified value").
+- If *void* is used as a value in a map, then no entry is added ("the specified key refers to nothing").
 
 ## The environment-rendition model
 
