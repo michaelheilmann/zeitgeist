@@ -20,8 +20,6 @@
 // fprintf, stdout
 #include <stdio.h>
 
-#include "ServiceGl.h"
-
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export _declspec(dllexport)
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
@@ -36,7 +34,7 @@ Zeitgeist_Rendition_getName
 		Zeitgeist_State* state
 	)
 {
-	return Zeitgeist_State_createString(state, "Hello World (OpenGL)", strlen("Hello World (OpenGL)"));
+	return Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)"));
 }
 
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
@@ -52,33 +50,36 @@ Zeitgeist_Rendition_getName
 // Vertex shader.
 const GLchar* g_vertexShader =
 	"#version 330\n"
-	"layout(location = 0) in vec3 point;\n"
+	"layout(location = 0) in vec2 point;\n"
+	/*"uniform float angle;\n"*/
 	"void main() {\n"
-	"    gl_Position = vec4(0.75 * point.xy, point.z, 1.0);\n"
+	"		 float angle = 0.;\n"
+	"    mat2 rotate = mat2(cos(angle), -sin(angle),\n"
+	"                       sin(angle), cos(angle));\n"
+	"    gl_Position = vec4(0.75 * rotate * point, 0.0, 1.0);\n"
 	"}\n"
 	;
 
 // Fragment shader.
-// The color (255, 204, 51) is the websafe color "sunglow".
 const GLchar* g_fragmentShader =
 	"#version 330\n"
 	"out vec4 color;\n"
 	"void main() {\n"
-	"    color = vec4(1, 0.8, 0.2, 0);\n"
+	"    color = vec4(1, 0.15, 0.15, 0);\n"
 	"}\n"
 	;
 
-#define POSITION_ATTRIBUTE_INDEX 0
+#include "ServiceGl.h"
 
-typedef struct VERTEX {
-	float x, y, z;
-} VERTEX;
+#define M_PI 3.141592653589793
 
-static VERTEX const SQUARE[] = {
-	{ -1.0f,  1.0f, 0.f, },
-	{ -1.0f, -1.0f, 0.f, },
-	{  1.0f,  1.0f, 0.f, },
-	{  1.0f, -1.0f, 0.f, },
+#define ATTRIB_POINT 0
+
+const float SQUARE[] = {
+		-1.0f,  1.0f,
+		-1.0f, -1.0f,
+		 1.0f,  1.0f,
+		 1.0f, -1.0f
 };
 
 static GLuint g_programId = 0;
@@ -129,8 +130,9 @@ Zeitgeist_Rendition_update
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(g_programId);
+	//glUniform1f(context->uniform_angle, context->angle);
 	glBindVertexArray(g_vertexArrayId);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(SQUARE)/ sizeof(VERTEX));
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, (sizeof(SQUARE)/ sizeof(SQUARE[0])) / 2);
 	glBindVertexArray(0);
 	glUseProgram(0);
 
@@ -179,8 +181,8 @@ Zeitgeist_Rendition_load
 	glGenVertexArrays(1, &g_vertexArrayId);
 	glBindVertexArray(g_vertexArrayId);
 	glBindBuffer(GL_ARRAY_BUFFER, g_bufferId);
-	glVertexAttribPointer(POSITION_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(POSITION_ATTRIBUTE_INDEX);
+	glVertexAttribPointer(ATTRIB_POINT, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(ATTRIB_POINT);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }

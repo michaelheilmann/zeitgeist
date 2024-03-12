@@ -117,6 +117,7 @@ sweep
 			current = current->next;
 			finalize(state, object);
 		} else {
+			Zeitgeist_Gc_Object_setWhite(current);
 			previous = &current->next;
 			current = current->next;
 		}

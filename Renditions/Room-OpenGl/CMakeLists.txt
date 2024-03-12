@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-set(name ${project_name}-Hello-World-OpenGl)
+set(name ${project_name}-Room-OpenGl)
 set(sources "")
 list(APPEND sources Sources/Main.c)
 
