@@ -6,6 +6,7 @@
 #include "Zeitgeist.h"
 
 /**
+ * @since 0.1
  * @brief Startup the GLX service.
  * @param state A pointer to the Zeitgeist_State object.
  */
@@ -16,6 +17,7 @@ ServiceGlx_startup
 	);
 
 /**
+ * @since 0.1
  * @brief Shutdown the GLX service.
  * @param state A pointer to the Zeitgeist_State object.
  */
@@ -26,6 +28,7 @@ ServiceGlx_shutdown
 	);
 
 /**
+ * @since 0.1
  * @brief Set the window title.
  * @param state A pointer to the Zeitgeist_State object.
  * @param title A pointer to the title.
@@ -50,6 +53,7 @@ ServiceGlx_quitRequested
 	);
 
 /**
+ * @since 0.1
  * @brief Get the size, in pixels, of the client rectangle.
  * @param state A pointer to the Zeitgeist_State object.
  * @param width A pointer to a Zeitgeist_Integer variable.
@@ -66,6 +70,7 @@ ServiceGlx_getClientSize
 	);
 
 /**
+ * @since 0.1
  * @brief Try to link the an OpenGL function.
  * @param state A pointer to the Zeitgeist_State object.
  * @param functionName A pointer to the function name.

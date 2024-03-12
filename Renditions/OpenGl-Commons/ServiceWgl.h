@@ -6,6 +6,7 @@
 #include "Zeitgeist.h"
 
 /**
+ * @since 0.1
  * @brief Startup the WGL service.
  * @param state A pointer to the Zeitgeist_State object.
  */
@@ -16,6 +17,7 @@ ServiceWgl_startup
 	);
 
 /**
+ * @since 0.1
  * @brief Shutdown the WGL service.
  * @param state A pointer to the Zeitgeist_State object.
  */
@@ -26,6 +28,7 @@ ServiceWgl_shutdown
 	);
 
 /**
+ * @since 0.1
  * @brief Set the window title.
  * @param state A pointer to the Zeitgeist_State object.
  * @param title A pointer to the title.
@@ -37,6 +40,11 @@ ServiceWgl_setTitle
 		Zeitgeist_String* title
 	);
 
+/**
+ * @since 0.1
+ * @brief Must be called in intervals to update.
+ * @params tate A pointer to the Zeitgeist_State object.
+ */
 void
 ServiceWgl_update
 	(
@@ -50,6 +58,7 @@ ServiceWgl_quitRequested
 	);
 
 /**
+ * @since 0.1
  * @brief Get the size, in pixels, of the client rectangle.
  * @param state A pointer to the Zeitgeist_State object.
  * @param width A pointer to a Zeitgeist_Integer variable.
@@ -66,6 +75,7 @@ ServiceWgl_getClientSize
 	);
 
 /**
+ * @since 0.1
  * @brief Try to link the an OpenGL function.
  * @param state A pointer to the Zeitgeist_State object.
  * @param functionName A pointer to the function name.
@@ -88,6 +98,12 @@ ServiceWgl_beginFrame
 
 void
 ServiceWgl_endFrame
+	(
+		Zeitgeist_State* state
+	);
+
+void
+ServiceWgl_addKeyboardKeyCallback
 	(
 		Zeitgeist_State* state
 	);

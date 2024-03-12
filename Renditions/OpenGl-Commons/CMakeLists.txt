@@ -19,6 +19,10 @@ endif()
 list(APPEND sources ServiceGl.c ServiceGl.h)
 list(APPEND sources ServiceGl_Functions.i)
 
+list(APPEND sources Matrix4R32.c Matrix4R32.h)
+list(APPEND sources Vector3R32.c Vector3R32.h)
+list(APPEND sources KeyboardKeyMessage.c KeyboardKeyMessage.h)
+
 add_library(${project_name}-OpenGl-Commons STATIC ${sources})
 target_link_libraries(${project_name}-OpenGl-Commons ${project_name}-Library)
 target_include_directories(${project_name}-OpenGl-Commons PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

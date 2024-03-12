@@ -5,38 +5,6 @@
 
 #include "Zeitgeist.h"
 
-typedef struct Vector3R32 {
-	Zeitgeist_Object _parent;
-	Zeitgeist_Real32 e[3];
-} Vector3R32;
-
-Vector3R32*
-Vector3R32_create
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_Real32 x,
-		Zeitgeist_Real32 y,
-		Zeitgeist_Real32 Z
-	);
-
-typedef struct Matrix4R32 {
-	Zeitgeist_Object _parent;
-	Zeitgeist_Real32 e[4][4];
-} Matrix4R32;
-
-Matrix4R32*
-Matrix4R32_createIdentity
-	(
-		Zeitgeist_State *state
-	);
-
-Matrix4R32*
-Matrix4R32_createTranslate
-	(
-		Zeitgeist_State* state,
-		Vector3R32* translation
-	);
-
 #define KeyboardKey_Action_Released (0)
 #define KeyboardKey_Action_Pressed (1)
 
