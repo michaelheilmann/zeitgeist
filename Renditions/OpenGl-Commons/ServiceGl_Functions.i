@@ -6,6 +6,9 @@ Define(PFNGLLINKPROGRAMPROC, glLinkProgram)
 Define(PFNGLDELETEPROGRAMPROC, glDeleteProgram)
 Define(PFNGLUSEPROGRAMPROC, glUseProgram)
 
+// uniforms
+Define(PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation)
+
 // shaders
 Define(PFNGLGETSHADERIVPROC, glGetShaderiv)
 Define(PFNGLDELETESHADERPROC, glDeleteShader)

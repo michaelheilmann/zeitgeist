@@ -20,6 +20,18 @@
 // fprintf, stdout
 #include <stdio.h>
 
+#include "ServiceGl.h"
+
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
+	#include <GL/gl.h>
+#else
+	#include <GL/gl.h>
+#endif
+
+#include <GL/glext.h>
+
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export _declspec(dllexport)
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
@@ -37,54 +49,53 @@ Zeitgeist_Rendition_getName
 	return Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)"));
 }
 
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
-	#include <GL/gl.h>
-#else
-	#include <GL/gl.h>
-#endif
-
-#include <GL/glext.h>
-
 // Vertex shader.
 const GLchar* g_vertexShader =
 	"#version 330\n"
-	"layout(location = 0) in vec2 point;\n"
-	/*"uniform float angle;\n"*/
+	"layout(location = 0) in vec3 point;\n"
+	"uniform mat4 modelToWorld = mat4(1);\n"
+	"uniform mat4 worldToView = mat4(1);\n"
+	"uniform mat4 viewToProjection = mat4(1);\n"
 	"void main() {\n"
-	"		 float angle = 0.;\n"
-	"    mat2 rotate = mat2(cos(angle), -sin(angle),\n"
-	"                       sin(angle), cos(angle));\n"
-	"    gl_Position = vec4(0.75 * rotate * point, 0.0, 1.0);\n"
+	"  mat4 modelToProjection = viewToProjection * worldToView * modelToWorld;\n"
+	"  gl_Position = modelToProjection * vec4(0.75 * point.xy, point.z, 1.0);\n"
 	"}\n"
 	;
 
 // Fragment shader.
+// The color (255, 204, 51) is the websafe color "sunglow".
 const GLchar* g_fragmentShader =
 	"#version 330\n"
 	"out vec4 color;\n"
 	"void main() {\n"
-	"    color = vec4(1, 0.15, 0.15, 0);\n"
+	"  color = vec4(1, 0.8, 0.2, 0);\n"
 	"}\n"
 	;
 
-#include "ServiceGl.h"
+static GLint Positions_Index = 0;
+static GLint ModelToWorld_Index = -1;
+static GLint WorldToView_Index = -1;
+static GLint ViewToProjection_Index = -1;
 
-#define M_PI 3.141592653589793
+typedef struct VERTEX {
+	float x, y, z;
+} VERTEX;
 
-#define ATTRIB_POINT 0
-
-const float SQUARE[] = {
-		-1.0f,  1.0f,
-		-1.0f, -1.0f,
-		 1.0f,  1.0f,
-		 1.0f, -1.0f
+static VERTEX const FRONT[] = {
+	{ -1.0f,  1.0f, -1.f, },
+	{ -1.0f, -1.0f, -1.f, },
+	{  1.0f,  1.0f, -1.f, },
+	{  1.0f, -1.0f, -1.f, },
 };
 
 static GLuint g_programId = 0;
-static GLuint g_bufferId = 0;
-static GLuint g_vertexArrayId = 0;
+
+typedef struct Mesh {
+	GLuint bufferId;
+	GLuint vertexArrayId;
+} Mesh;
+
+static Mesh g_frontMesh = { .bufferId = 0, .vertexArrayId = 0 };
 
 Zeitgeist_Rendition_Export void
 Zeitgeist_Rendition_update
@@ -128,11 +139,11 @@ Zeitgeist_Rendition_update
 	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(g_programId);
-	//glUniform1f(context->uniform_angle, context->angle);
-	glBindVertexArray(g_vertexArrayId);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, (sizeof(SQUARE)/ sizeof(SQUARE[0])) / 2);
+	// bind view
+	// bind projection
+	glBindVertexArray(g_frontMesh.vertexArrayId);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(FRONT)/ sizeof(VERTEX));
 	glBindVertexArray(0);
 	glUseProgram(0);
 
@@ -154,10 +165,10 @@ Zeitgeist_Rendition_load
 {
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	ServiceWgl_startup(state);
-	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Hello, World!", strlen("Hello, World!")));
+	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room(OpenGL)")));
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	ServiceGlx_startup(state);
-	ServiceGlx_setTitle(state, Zeitgeist_State_createString(state, "Hello, World!", strlen("Hello, World!")));
+	ServiceGlx_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
 #else
 	#error("operating system not (yet) supported")
 #endif
@@ -173,16 +184,20 @@ Zeitgeist_Rendition_load
 	glDeleteShader(fragmentShaderId);
 	glDeleteShader(vertexShaderId);
 
-	glGenBuffers(1, &g_bufferId);
-	glBindBuffer(GL_ARRAY_BUFFER, g_bufferId);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(SQUARE), SQUARE, GL_STATIC_DRAW);
+	ModelToWorld_Index = glGetUniformLocation(g_programId, "modelToWorld");
+	WorldToView_Index = glGetUniformLocation(g_programId, "worldToView");
+	ViewToProjection_Index = glGetUniformLocation(g_programId, "ViewToProjection");
+
+	glGenBuffers(1, &g_frontMesh.bufferId);
+	glBindBuffer(GL_ARRAY_BUFFER, g_frontMesh.bufferId);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(FRONT), FRONT, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glGenVertexArrays(1, &g_vertexArrayId);
-	glBindVertexArray(g_vertexArrayId);
-	glBindBuffer(GL_ARRAY_BUFFER, g_bufferId);
-	glVertexAttribPointer(ATTRIB_POINT, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(ATTRIB_POINT);
+	glGenVertexArrays(1, &g_frontMesh.vertexArrayId);
+	glBindVertexArray(g_frontMesh.vertexArrayId);
+	glBindBuffer(GL_ARRAY_BUFFER, g_frontMesh.bufferId);
+	glVertexAttribPointer(Positions_Index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(Positions_Index);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -193,9 +208,10 @@ Zeitgeist_Rendition_unload
 		Zeitgeist_State* state
 	)
 {
-	glDeleteVertexArrays(1, &g_vertexArrayId);
-	glDeleteBuffers(1, &g_bufferId);
-	g_bufferId = 0;
+	glDeleteVertexArrays(1, &g_frontMesh.vertexArrayId);
+	g_frontMesh.vertexArrayId = 0;
+	glDeleteBuffers(1, &g_frontMesh.bufferId);
+	g_frontMesh.bufferId = 0;
 	glDeleteProgram(g_programId);
 	g_programId = 0;
 	ServiceGl_shutdown(state);

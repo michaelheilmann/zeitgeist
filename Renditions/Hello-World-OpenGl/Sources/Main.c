@@ -23,6 +23,16 @@
 #include "ServiceGl.h"
 
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
+	#include <GL/gl.h>
+#else
+	#include <GL/gl.h>
+#endif
+
+#include <GL/glext.h>
+
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export _declspec(dllexport)
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export
@@ -38,16 +48,6 @@ Zeitgeist_Rendition_getName
 {
 	return Zeitgeist_State_createString(state, "Hello World (OpenGL)", strlen("Hello World (OpenGL)"));
 }
-
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
-	#include <GL/gl.h>
-#else
-	#include <GL/gl.h>
-#endif
-
-#include <GL/glext.h>
 
 // Vertex shader.
 const GLchar* g_vertexShader =
@@ -68,7 +68,7 @@ const GLchar* g_fragmentShader =
 	"}\n"
 	;
 
-#define POSITION_ATTRIBUTE_INDEX 0
+static GLint Positions_Index = 0;
 
 typedef struct VERTEX {
 	float x, y, z;
@@ -179,8 +179,8 @@ Zeitgeist_Rendition_load
 	glGenVertexArrays(1, &g_vertexArrayId);
 	glBindVertexArray(g_vertexArrayId);
 	glBindBuffer(GL_ARRAY_BUFFER, g_bufferId);
-	glVertexAttribPointer(POSITION_ATTRIBUTE_INDEX, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(POSITION_ATTRIBUTE_INDEX);
+	glVertexAttribPointer(Positions_Index, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(Positions_Index);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -192,6 +192,7 @@ Zeitgeist_Rendition_unload
 	)
 {
 	glDeleteVertexArrays(1, &g_vertexArrayId);
+	g_vertexArrayId = 0;
 	glDeleteBuffers(1, &g_bufferId);
 	g_bufferId = 0;
 	glDeleteProgram(g_programId);
