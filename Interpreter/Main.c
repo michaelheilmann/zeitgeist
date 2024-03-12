@@ -179,6 +179,7 @@ onRendition1
 	if (!setjmp(jumpTarget1.environment)) {
 		while (!Zeitgeist_State_isExitProcessRequested(state)) {
 			(*updateFunction)(state);
+			Zeitgeist_State_update(state);
 		}
 		Zeitgeist_State_popJumpTarget(state);
 		(*unloadFunction)(state);

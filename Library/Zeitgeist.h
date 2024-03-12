@@ -17,21 +17,6 @@ struct Zeitgeist_JumpTarget {
 	jmp_buf environment;
 };
 
-/**
- * @since 0.1
- * Get if two strings are equal.
- * @param state A pointer to the state.
- * param v, w The string.
- * @return #Zeitgeist_Boolean_True if the strings are equal. #Zeitgeist_Boolean_False otherwise.
- */
-Zeitgeist_Boolean
-Zeitgeist_String_areEqual
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_String* v,
-		Zeitgeist_String* w
-	);
-
 struct Zeitgeist_State {
 	int lastError;
 	/**
@@ -120,6 +105,12 @@ Zeitgeist_State_raiseError
 		char *file,
 		int line,
 		int error
+	);
+
+void
+Zeitgeist_State_update
+	(
+		Zeitgeist_State* state
 	);
 
 #endif // ZEITGEIST_H_INCLUDED

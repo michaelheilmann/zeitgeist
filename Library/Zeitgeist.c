@@ -184,3 +184,12 @@ Zeitgeist_State_raiseError
 	state->lastError = error;
 	longjmp(state->jumpTarget->environment, -1);
 }
+
+void
+Zeitgeist_State_update
+	(
+		Zeitgeist_State* state
+	)
+{
+	/*runGc(state);*/
+}
