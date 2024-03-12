@@ -26,10 +26,10 @@ static GLXFBConfig g_glx_bestFbConfig;
 static Colormap g_colorMap;
 static GLXContext g_context;
 static bool g_quit = false;
-static	 Atom WM_DELETE_WINDOW;
+static Atom WM_DELETE_WINDOW;
 
 // Helper to check for extension string presence.	Adapted from:
-//	 http://www.opengl.org/resources/features/OGLextensions/
+// http://www.opengl.org/resources/features/OGLextensions/
 static bool
 isExtensionSupported
 	(
@@ -65,7 +65,6 @@ isExtensionSupported
 
 	return false;
 }
-
 
 static int
 getBestFbc
@@ -379,6 +378,64 @@ void ServiceGlx_update(Zeitgeist_State* state) {
 	}
 }
 
-bool ServiceGlx_quitRequested(Zeitgeist_State* state) {
-	return g_quitRequested;
+Zeitgeist_Boolean
+ServiceGlx_quitRequested
+	(
+		Zeitgeist_State* state
+	)
+{ return g_quitRequested; }
+
+void
+ServiceGlx_getClientSize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Integer *width,
+		Zeitgeist_Integer *height
+	)
+{
+	XWindowAttributes windowAttributes;
+	XGetWindowAttributes(g_display, g_window, &windowAttributes);
+	*width = windowAttributes.width;
+	*height = windowAttributes.height;
+}
+
+void*
+ServiceWgl_link
+	(
+		Zeitgeist_State* state,
+		char const* functionName,
+		char const* extensionName
+	)
+{
+	if (extensionName) {
+		char const* extensionNames = NULL;
+		extensionNames = glXQueryExtensionsString(g_hDc);
+		if (!isExtensionSupported(extensionNames, extensionName)) {
+			extensionNames = glGetString(GL_EXTENSIONS);
+			if (!isExtensionSupported(extensionNames, extensionName)) {
+				Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+			}
+		}
+	}
+	void* p = glXGetProcAddress(functionName);
+	if (!p) {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	return p;
+}
+
+void
+ServiceGlx_beginFrame
+	(
+		Zeitgeist_State* state
+	)
+{/*Intentionally empty.*/}
+
+void
+ServiceGlx_endFrame
+	(
+		Zeitgeist_State* state
+	)
+{
+	glxSwapBuffers(g_display, g_window);
 }

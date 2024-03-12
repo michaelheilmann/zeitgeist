@@ -68,6 +68,14 @@ static HGLRC g_hGlrc = NULL;
 static bool g_quitRequested = false;
 
 
+// Helper to check for extension string presence.	Adapted from:
+// http://www.opengl.org/resources/features/OGLextensions/
+static bool
+isExtensionSupported
+	(
+		const char* extensions,
+		const char* extension
+	);
 
 static LRESULT CALLBACK
 windowCallbackLegacy
@@ -123,7 +131,43 @@ startup
 		Zeitgeist_State* state
 	);
 
+// Helper to check for extension string presence.	Adapted from:
+// http://www.opengl.org/resources/features/OGLextensions/
+static bool
+isExtensionSupported
+	(
+		const char* extensions,
+		const char* extension
+	)
+{
+	const char* start;
+	const char* where, * terminator;
 
+	/* Extension names should not have spaces. */
+	where = strchr(extension, ' ');
+	if (where || *extension == '\0')
+		return false;
+
+	/* It takes a bit of care to be fool-proof about parsing the
+		 OpenGL extensions string. Don't be fooled by sub-strings,
+		 etc. */
+	for (start = extensions;;) {
+		where = strstr(start, extension);
+
+		if (!where)
+			break;
+
+		terminator = where + strlen(extension);
+
+		if (where == start || *(where - 1) == ' ')
+			if (*terminator == ' ' || *terminator == '\0')
+				return true;
+
+		start = terminator;
+	}
+
+	return false;
+}
 
 static LRESULT CALLBACK
 windowCallbackLegacy
@@ -781,13 +825,24 @@ ServiceWgl_shutdown
 	shutdownLegacy(state);
 }
 
-void ServiceWgl_setTitle(Zeitgeist_State* state, Zeitgeist_String* title) {
+void
+ServiceWgl_setTitle
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* title
+	)
+{
 	Zeitgeist_String* zeroTerminator = Zeitgeist_State_createString(state, "", 1);
 	title = Zeitgeist_String_concatenate(state, title, zeroTerminator);
 	SetWindowText(g_hWnd, title->bytes);
 }
 
-void ServiceWgl_update(Zeitgeist_State* state) {
+void
+ServiceWgl_update
+	(
+		Zeitgeist_State* state
+	)
+{
 	MSG message;
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
 		if (message.message == WM_QUIT) {
@@ -799,6 +854,60 @@ void ServiceWgl_update(Zeitgeist_State* state) {
 	}
 }
 
-bool ServiceWgl_quitRequested(Zeitgeist_State* state) {
-	return g_quitRequested;
+Zeitgeist_Boolean
+ServiceWgl_quitRequested
+	(
+		Zeitgeist_State* state
+	)
+{ return g_quitRequested; }
+
+void
+ServiceWgl_getClientSize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Integer *width,
+		Zeitgeist_Integer *height
+	)
+{
+	RECT rectangle;
+	GetClientRect(g_hWnd, &rectangle);
+	*width = rectangle.right  - rectangle.left;
+	*height = rectangle.bottom - rectangle.top;
+}
+
+void*
+ServiceWgl_link
+	(
+		Zeitgeist_State* state,
+		char const* functionName,
+		char const* extensionName
+	)
+{
+	if (extensionName) {
+		char const* extensionNames = wglGetExtensionsStringARB(g_hDc);
+		if (!isExtensionSupported(extensionNames, extensionName)) {
+			Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+		}
+	}
+	void* p = wglGetProcAddress(functionName);
+	if (!p) {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	return p;
+}
+
+void
+ServiceWgl_beginFrame
+	(
+		Zeitgeist_State* state
+	)
+{/*Intentionally empty.*/}
+
+void
+ServiceWgl_endFrame
+	(
+		Zeitgeist_State* state
+	)
+{
+	SwapBuffers(g_hDc);
 }
