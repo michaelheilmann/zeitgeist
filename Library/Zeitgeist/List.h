@@ -10,10 +10,27 @@
 
 struct Zeitgeist_List {
 	Zeitgeist_Gc_Object _parent;
+	/** @brief For addition to the GC's work list.*/
+	Zeitgeist_Gc_Object* gclist;
+
 	size_t size;
 	size_t capacity;
 	Zeitgeist_Value* elements;
 };
+
+void
+Zeitgeist_List_visit
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list
+	);
+
+void
+Zeitgeist_List_finalize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list
+	);
 
 /**
  * @since 0.1

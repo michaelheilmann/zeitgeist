@@ -18,27 +18,39 @@
 
 /**
  * @since 0.1
- * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ * Type tag. See Zeitgeist_Gc_Object::typeTag for more information.
  */
 #define Zeitgeist_Gc_TypeTag_List (1)
 
 /**
  * @since 0.1
- * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ * Type tag. See Zeitgeist_Gc_Object::typeTag for more information.
  */
 #define Zeitgeist_Gc_TypeTag_Map (2)
 
 /**
  * @since 0.1
- * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ * Type tag. See Zeitgeist_Gc_Objectc::typeTag for more information.
  */
 #define Zeitgeist_Gc_TypeTag_Object (3)
 
 /**
  * @since 0.1
- * Type tag. See Zeitgeist_Gc_Objetct::typeTag for more information.
+ * Type tag. See Zeitgeist_Gc_Object::typeTag for more information.
  */
 #define Zeitgeist_Gc_TypeTag_String (4)
+
+/**
+ * @since 0.1
+ * Color. See Zeitgeist_Gc_Object::color for more information.
+ */
+#define Zeitgeist_Gc_Color_Black (1)
+
+/**
+ * @since 0.1
+ * Color. See Zeitgeist_Gc_Object::color for more information.
+ */
+#define Zeitgeist_Gc_Color_White (2)
 
 /**
  * @since 0.1
@@ -59,7 +71,59 @@ struct Zeitgeist_Gc_Object {
 	 */
 	uint8_t typeTag;
 
+	/**
+	 * @brief The color of the garbage collected object.
+	 * Must exactly one of the following values: Zeitgeist_Gc_Color_Black or Zeitgeist_Gc_Color_White.
+	 */
+	uint8_t color;
+
 };
+
+/**
+ * @since 0.1
+ * @brief Set the color (Zeitgeist_Gc_Object:color) of a GC object to black (Zeitgeist_Gc_Color_Black).
+ * @param object A pointer to the GC object.
+ */
+void
+Zeitgeist_Gc_Object_setBlack
+	(
+		Zeitgeist_Gc_Object* object
+	);
+
+/**
+ * @since 0.1
+ * @brief Get if a GC object has the color black.
+ * @param object A pointer to the GC object.
+ * @return true if the GC object has the color white. false otherwise.
+ */
+bool
+Zeitgeist_Gc_Object_isBlack
+	(
+		Zeitgeist_Gc_Object* object
+	);
+
+/**
+ * @since 0.1
+ * @brief Set the color (Zeitgeist_Gc_Object:color) of a GC object to white (Zeitgeist_Gc_Color_White).
+ * @param object A pointer to the GC object.
+ */
+void
+Zeitgeist_Gc_Object_setWhite
+	(
+		Zeitgeist_Gc_Object* object
+	);
+
+/**
+ * @since 0.1
+ * @brief Get if a GC object has the color white.
+ * @param object A pointer to the GC object.
+ * @return true if the GC object has the color white. false otherwise.
+ */
+bool
+Zeitgeist_Gc_Object_isWhite
+	(
+		Zeitgeist_Gc_Object* object
+	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -101,6 +165,25 @@ typedef int64_t Zeitgeist_Integer;
 
 /**
  * @since 0.1
+ * A Zeitgeist_Real32 object.
+ */
+typedef double Zeitgeist_Real32;
+
+/**
+ * @since 0.1
+ * The maximum value of a Zeitgeist_Real32 object.
+ */
+#define Zeitgeist_Real32_Maximum (-FLT_MAX)
+/**
+ * @since 0.1
+ * The minimum value of a Zeitgeist_Real32 object.
+ */
+#define Zeitgeist_Real32_Minimum (-FLT_MAX)
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * A Zeitgeist_Void object.
  */
 typedef int8_t Zeitgeist_Void;
@@ -134,6 +217,12 @@ typedef struct Zeitgeist_List Zeitgeist_List;
 
 /**
  * @since 0.1
+ * A Zeitgeist_Map object.
+ */
+typedef struct Zeitgeist_Map Zeitgeist_Map;
+
+/**
+ * @since 0.1
  * A Zeitgeist_Object object.
  */
 typedef struct Zeitgeist_Object Zeitgeist_Object;
@@ -154,47 +243,63 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 	
-/**
- * @since 0.1
- * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.listValue holds a Zeitgeist_List value.
- */
-#define Zeitgeist_ValueTag_List (0)
+
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.booleanValue holds a Zeitgeist_Boolean value.
  */
-#define Zeitgeist_ValueTag_Boolean (1)
+#define Zeitgeist_ValueTag_Boolean (0)
 
  /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.integerValue holds a Zeitgeist_Integer value.
  */
-#define Zeitgeist_ValueTag_Integer (2)
+#define Zeitgeist_ValueTag_Integer (1)
+
+/**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.listValue holds a Zeitgeist_List value.
+ */
+#define Zeitgeist_ValueTag_List (2)
+
+/**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.mapValue holds a Zeitgeist_Map value.
+ */
+#define Zeitgeist_ValueTag_Map (3)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.objectValue holds a Zeitgeist_Object value.
  */
-#define Zeitgeist_ValueTag_Object (3)
+#define Zeitgeist_ValueTag_Object (4)
+
+/**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.stringValue holds a Zeitgeist_Real32 value.
+ */
+#define Zeitgeist_ValueTag_Real32 (5)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.stringValue holds a Zeitgeist_String value.
  */
-#define Zeitgeist_ValueTag_String (4)
+#define Zeitgeist_ValueTag_String (6)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.voidValue holds a Zeitgeist_Void value.
  */
-#define Zeitgeist_ValueTag_Void (5)
+#define Zeitgeist_ValueTag_Void (7)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -209,11 +314,6 @@ struct Zeitgeist_Value {
 	union {
 		/**
 		 * @since 0.1
-		 * Holds a Zeitgeist_List* value if tag is Zeitgeist_ValueTag_List.
-		 */
-		Zeitgeist_List* listValue;
-		/**
-		 * @since 0.1
 		 * Holds a Zeitgeist_Boolean value if tag is Zeitgeist_ValueTag_Boolean.
 		 */
 		Zeitgeist_Boolean booleanValue;
@@ -224,9 +324,24 @@ struct Zeitgeist_Value {
 		Zeitgeist_Integer integerValue;
 		/**
 		 * @since 0.1
+		 * Holds a Zeitgeist_List* value if tag is Zeitgeist_ValueTag_List.
+		 */
+		Zeitgeist_List* listValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_Map* value if tag is Zeitgeist_ValueTag_Map.
+		 */
+		Zeitgeist_Map* mapValue;
+		/**
+		 * @since 0.1
 		 * Holds a Zeitgeist_Object* value if tag is Zeitgeist_ValueTag_Object.
 		 */
 		Zeitgeist_Object* objectValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_Real32 value if tag is Zeitgeist_ValueTag_Real32.
+		 */
+		Zeitgeist_Real32 real32Value;
 		/**
 		 * @since 0.1
 		 * Holds a Zeitgeist_String* value if tag is Zeitgeist_ValueTag_String.
@@ -253,47 +368,6 @@ Zeitgeist_Value_visit
 	(
 		Zeitgeist_State* state,
 		Zeitgeist_Value* value
-	);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @since 0.1
- * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_List* value.
- * @param value A pointer to a Zeitgeist_value object.
- * @return true if the Zeitgeist_Value object stores a Zeitgeist_List* value. false otherwise.
- */
-bool
-Zeitgeist_Value_hasList
-	(
-		Zeitgeist_Value const* value
-	);
-
-/**
- * @since 0.1 
- * @brief Store a Zeitgeist_List* value in a Zeitgeist_Value object.
- * @param value A pointer to a Zeitgeist_Value object.
- * @param listValue A pointer to a Zeitgeist_List object.
- */
-void
-Zeitgeist_Value_setList
-	(
-		Zeitgeist_Value *value,
-		Zeitgeist_List* listValue
-	);
-
-/**
- * @since 0.1
- * @brief Get the Zeitgeist_List* value stored in a Zeitgeist_Value object.
- * @param value A pointer to a Zeitgeist_Value object.
- * @return The Zeitgeist_List* value.
- * @undefined value does not point to a Zeitgeist_Value object.
- * @undefined The Zeitgeist_Value object does not store an Zeitgeist_List* value.
- */
-Zeitgeist_List*
-Zeitgeist_Value_getList
-	(
-		Zeitgeist_Value const* value
 	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -382,6 +456,88 @@ Zeitgeist_Value_getInteger
 
 /**
  * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_List* value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_List* value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasList
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1
+ * @brief Store a Zeitgeist_List* value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param listValue A pointer to a Zeitgeist_List object.
+ */
+void
+Zeitgeist_Value_setList
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_List* listValue
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_List* value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_List* value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_List* value.
+ */
+Zeitgeist_List*
+Zeitgeist_Value_getList
+	(
+		Zeitgeist_Value const* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Map* value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_Map* value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasMap
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1
+ * @brief Store a Zeitgeist_Map* value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param mapValue A pointer to a Zeitgeist_Map object.
+ */
+void
+Zeitgeist_Value_setMap
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_Map* mapValue
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_Map* value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_Map* value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_Map* value.
+ */
+Zeitgeist_Map*
+Zeitgeist_Value_getMap
+	(
+		Zeitgeist_Value const* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Object* value.
  * @param value A pointer to a Zeitgeist_value object.
  * @return true if the Zeitgeist_Value object stores a Zeitgeist_Object* value. false otherwise.
@@ -415,6 +571,47 @@ Zeitgeist_Value_setObject
  */
 Zeitgeist_Object*
 Zeitgeist_Value_getObject
+	(
+		Zeitgeist_Value const* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Real32 value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_Real32 value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasReal32
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1
+ * @brief Store a Zeitgeist_Real32 value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param real32Value A Zeitgeist_Real32 value.
+ */
+void
+Zeitgeist_Value_setReal32
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_Real32 real32Value
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_Real32 value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_Real32 value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_Real32 value.
+ */
+Zeitgeist_Real32
+Zeitgeist_Value_getReal32
 	(
 		Zeitgeist_Value const* value
 	);

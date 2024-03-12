@@ -27,10 +27,27 @@ struct Zeitgeist_Map_Node {
 
 struct Zeitgeist_Map {
   Zeitgeist_Gc_Object _parent;
+  /** @brief For addition to the GC's work list.*/
+  Zeitgeist_Gc_Object* gclist;
+
   Zeitgeist_Map_Node** buckets;
   size_t size;
   size_t capacity;
 };
+
+void
+Zeitgeist_Map_visit
+  (
+    Zeitgeist_State* state,
+    Zeitgeist_Map* map
+  );
+
+void
+Zeitgeist_Map_finalize
+  (
+    Zeitgeist_State* state,
+    Zeitgeist_Map* map
+  );
 
 /**
  * @since 0.1

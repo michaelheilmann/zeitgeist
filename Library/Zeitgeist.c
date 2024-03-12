@@ -1,4 +1,5 @@
 // Copyright (c) 2024 Michael Heilmann. All rights reserved.
+
 #include "Zeitgeist.h"
 
 // malloc, free
@@ -9,6 +10,12 @@
 
 // SIZE_MAX
 #include <limits.h>
+
+// fprintf, stderr
+#include <stdio.h>
+
+// exit, EXIT_FAILURE
+#include <stdlib.h>
 
 Zeitgeist_Boolean
 Zeitgeist_State_isExitProcessRequested
@@ -32,56 +39,105 @@ Zeitgeist_createState
 	state->lastError = 0;
 	state->strings = NULL;
 	state->gc.all = NULL;
+	state->gc.gray = NULL;
 	state->jumpTarget = NULL;
 	return state;
 }
 
-static void finalizeList(Zeitgeist_State* state, Zeitgeist_List* list) {
-	free(list->elements);
-	free(list);
-}
-
-static void finalizeMap(Zeitgeist_State* state, Zeitgeist_Map* map) {
-	for (size_t i = 0, n = map->capacity; i < n; ++i) {
-		Zeitgeist_Map_Node** bucket = &(map->buckets[i]);
-		while (*bucket) {
-			Zeitgeist_Map_Node* node = *bucket;
-			*bucket = node->next;
-			free(node);
-		}
+static void 
+finalize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Gc_Object* object
+	)
+{ 
+	switch (object->typeTag) {
+		case Zeitgeist_Gc_TypeTag_List: {
+			Zeitgeist_List_finalize(state, (Zeitgeist_List*)object);
+			free(object);
+		} break;
+		case Zeitgeist_Gc_TypeTag_Map: {
+			Zeitgeist_Map_finalize(state, (Zeitgeist_Map*)object);
+			free(object);
+		} break;
+		case Zeitgeist_Gc_TypeTag_Object: {
+			Zeitgeist_Object_finalize(state, (Zeitgeist_Object*)object);
+			free(object);
+		} break;
+		case Zeitgeist_Gc_TypeTag_String: {
+			Zeitgeist_String_finalize(state, (Zeitgeist_String*)object);
+			free(object);
+		} break;
 	}
-	free(map->buckets);
-	free(map);
 }
 
-static void finalizeObject(Zeitgeist_State* state, Zeitgeist_Object* object) {
-	if (object->finalize) {
-		object->finalize(state, object);
-	}
-	free(object);
-}
-
-static void runGc(Zeitgeist_State* state) {
-	while (state->gc.all) {
-		Zeitgeist_Gc_Object* object = state->gc.all;
-		state->gc.all = object->next;
+static void
+mark
+	(
+		Zeitgeist_State* state
+	)
+{
+	while (state->gc.gray) {
+		Zeitgeist_Gc_Object* object = state->gc.gray;
 		switch (object->typeTag) {
 			case Zeitgeist_Gc_TypeTag_List: {
-				finalizeList(state, (Zeitgeist_List*)object);
+				state->gc.gray = ((Zeitgeist_List*)object)->gclist;
+				Zeitgeist_List_visit(state, (Zeitgeist_List*)object);
 			} break;
 			case Zeitgeist_Gc_TypeTag_Map: {
-				free(((Zeitgeist_Map*)object)->buckets);
-				free(object);
+				state->gc.gray = ((Zeitgeist_Map*)object)->gclist;
+				Zeitgeist_Map_visit(state, (Zeitgeist_Map*)object);
 			} break;
 			case Zeitgeist_Gc_TypeTag_Object: {
-				finalizeObject(state, (Zeitgeist_Object*)object);
+				state->gc.gray = ((Zeitgeist_Object*)object)->gclist;
+				Zeitgeist_Object_visit(state, (Zeitgeist_Object*)object);
 			} break;
+			case Zeitgeist_Gc_TypeTag_String:
+			default: {
+				fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+				exit(EXIT_FAILURE);
+			} break;
+		};
+		Zeitgeist_Gc_Object_isBlack(object);
+	}
+}
+
+static void
+sweep
+	(
+		Zeitgeist_State* state
+	)
+{
+	Zeitgeist_Gc_Object** previous = &state->gc.all;
+	Zeitgeist_Gc_Object* current = state->gc.all;
+	while (NULL != current) {
+		if (Zeitgeist_Gc_Object_isWhite(current)) {
+			Zeitgeist_Gc_Object* object = current;
+			*previous = current->next;
+			current = current->next;
+			finalize(state, object);
+		} else {
+			previous = &current->next;
+			current = current->next;
 		}
 	}
-	while (state->strings) {
-		Zeitgeist_String* string = state->strings;
-		state->strings = state->strings->next;
-		free(string);
+}
+
+static void
+runGc
+	(
+		Zeitgeist_State* state
+	)
+{
+	sweep(state);
+	if (state->gc.all) {
+		fprintf(stderr, "%s:%d: warning: gc all list not empty\n", __FILE__, __LINE__);
+	}
+	if (state->gc.gray) {
+		fprintf(stderr, "%s:%d: warning: gc gray list not empty\n", __FILE__, __LINE__);
+	}
+	if (state->strings) {
+		fprintf(stderr, "%s:%d: warning: string list not empty\n", __FILE__, __LINE__);
 	}
 }
 
@@ -126,34 +182,4 @@ Zeitgeist_State_raiseError
 {
 	state->lastError = error;
 	longjmp(state->jumpTarget->environment, -1);
-}
-
-Zeitgeist_String*
-Zeitgeist_State_createString
-	(
-		Zeitgeist_State* state,
-		char const* bytes,
-		size_t numberOfBytes
-	)
-{
-	if (SIZE_MAX - sizeof(Zeitgeist_String) < numberOfBytes) {
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
-	}
-	size_t hashValue = numberOfBytes;
-	for (size_t i = 0, n = numberOfBytes; i < n; ++i) {
-		hashValue = (hashValue << 5) ^ (hashValue >> 3) | (size_t)bytes[i];
-	}
-	Zeitgeist_String* string = malloc(sizeof(Zeitgeist_String) + numberOfBytes);
-	if (!string) {
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
-	}
-	string->hashValue = hashValue;
-	string->numberOfBytes = numberOfBytes;
-	memcpy(string->bytes, bytes, numberOfBytes);
-	
-	string->next = state->strings;
-	state->strings = string;
-	return string;
 }

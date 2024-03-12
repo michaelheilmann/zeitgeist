@@ -3,6 +3,7 @@
 #include "Zeitgeist/UpstreamRequests.h"
 
 #include "Zeitgeist.h"
+
 // malloc, free
 #include <malloc.h>
 
@@ -20,14 +21,16 @@ Zeitgeist_UpstreamRequest_createExitProcessRequest
   upstreamRequest->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
 
   ((Zeitgeist_Object*)upstreamRequest)->finalize = NULL;
+  ((Zeitgeist_Object*)upstreamRequest)->visit = NULL;
   
   ((Zeitgeist_Gc_Object*)upstreamRequest)->typeTag = Zeitgeist_Gc_TypeTag_Object;
   ((Zeitgeist_Gc_Object*)upstreamRequest)->next = state->gc.all;
   state->gc.all = (Zeitgeist_Gc_Object*)upstreamRequest;
+  ((Zeitgeist_Gc_Object*)upstreamRequest)->color = Zeitgeist_Gc_Color_White;
+  ((Zeitgeist_Object*)upstreamRequest)->gclist = NULL;
 
   return upstreamRequest;
 }
-
 
 void
 Zeitgeist_sendUpstreamRequest

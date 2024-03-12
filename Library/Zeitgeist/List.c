@@ -14,7 +14,11 @@ static size_t g_maximumCapacity = 0;
 
 static bool g_initialized = false;
 
-void Zeitgeist_ListModule_startup() {
+void
+Zeitgeist_ListModule_startup
+	(
+	)
+{
 	if (!g_initialized) {
 		g_maximumCapacity = SIZE_MAX / sizeof(Zeitgeist_Value);
 		if (g_maximumCapacity > Zeitgeist_Integer_Maximum) {
@@ -22,6 +26,31 @@ void Zeitgeist_ListModule_startup() {
 		}
 		g_initialized = true;
 	}
+}
+
+void
+Zeitgeist_List_visit
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list
+	)
+{
+	for (size_t i = 0, n = list->size; i < n; ++i) {
+		Zeitgeist_Value_visit(state, list->elements + i);
+	}
+}
+
+void
+Zeitgeist_List_finalize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list
+	)
+{
+	list->size = 0;
+	free(list->elements);
+	list->elements = NULL;
+	list->capacity = 0;
 }
 
 Zeitgeist_List*
@@ -46,6 +75,8 @@ Zeitgeist_createList
 	((Zeitgeist_Gc_Object*)list)->typeTag = Zeitgeist_Gc_TypeTag_List;
 	((Zeitgeist_Gc_Object*)list)->next = state->gc.all;
 	state->gc.all = (Zeitgeist_Gc_Object*)list;
+	((Zeitgeist_Gc_Object*)list)->color = Zeitgeist_Gc_Color_White;
+	list->gclist = NULL;
 	
 	return list;
 }

@@ -45,6 +45,7 @@ struct Zeitgeist_State {
 
 	struct {
 		Zeitgeist_Gc_Object* all;
+		Zeitgeist_Gc_Object* gray;
 	} gc;
 };
 
@@ -119,23 +120,6 @@ Zeitgeist_State_raiseError
 		char *file,
 		int line,
 		int error
-	);
-
-/**
- * @since 0.1
- * @brief Create a Zeitgeist_String object from the specified sequence of Bytes.
- * @param state A pointer to the Zeitgeist_State object.
- * @param bytes, numberOfBytes @a bytes points to an array of @a numberOfBytes Bytes.
- * @return A pointer to the Zeitgeist_String object.
- * @undefined state does not point to a Zeitgeist_State object.
- * @undefined bytes does not point to an array of @a numberOfBytes Bytes.
- */
-Zeitgeist_String*
-Zeitgeist_State_createString
-	(
-		Zeitgeist_State* state,
-		char const* bytes,
-		size_t numberOfBytes
 	);
 
 #endif // ZEITGEIST_H_INCLUDED

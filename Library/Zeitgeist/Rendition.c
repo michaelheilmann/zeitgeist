@@ -33,6 +33,13 @@ Zeitgeist_Rendition_finalize
 	);
 
 static void
+Zeitgeist_Rendition_visit
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Rendition* rendition
+	);
+
+static void
 Zeitgeist_Rendition_finalize
 	(
 		Zeitgeist_State* state,
@@ -49,6 +56,18 @@ Zeitgeist_Rendition_finalize
 	#else
 		#error("operating system not (yet) supported")
 	#endif
+	}
+}
+
+static void
+Zeitgeist_Rendition_visit
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Rendition* rendition
+	)
+{
+	if (rendition->folderPath) {
+		Zeitgeist_String_visit(state, rendition->folderPath);
 	}
 }
 
@@ -105,10 +124,13 @@ Zeitgeist_createRendition
 	rendition->libraryHandle = NULL;
 
 	((Zeitgeist_Object*)rendition)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_finalize;
+	((Zeitgeist_Object*)rendition)->visit = NULL;
 
 	((Zeitgeist_Gc_Object*)rendition)->typeTag = Zeitgeist_Gc_TypeTag_Object;
 	((Zeitgeist_Gc_Object*)rendition)->next = state->gc.all;
 	state->gc.all = (Zeitgeist_Gc_Object*)rendition;
+	((Zeitgeist_Gc_Object*)rendition)->color = Zeitgeist_Gc_Color_White;
+	((Zeitgeist_Object*)rendition)->gclist = NULL;
 
 	return rendition;
 }
