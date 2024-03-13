@@ -165,7 +165,7 @@ Zeitgeist_Rendition_load
 {
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	ServiceWgl_startup(state);
-	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room(OpenGL)")));
+	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	ServiceGlx_startup(state);
 	ServiceGlx_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));

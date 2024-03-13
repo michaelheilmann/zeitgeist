@@ -8,6 +8,10 @@
 // exit, EXIT_FAILURE
 #include <stdlib.h>
 
+#include "Zeitgeist.h"
+#include "Zeitgeist/Map.h"
+#include "Zeitgeist/Gc.h"
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 void
@@ -19,16 +23,25 @@ Zeitgeist_Value_visit
 {
 	switch (value->tag) {
 		case Zeitgeist_ValueTag_Map: {
-			Zeitgeist_Map_visit(state, value->mapValue);
+			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->mapValue)) {
+				value->mapValue->gclist = state->gc.gray;
+				state->gc.gray = (Zeitgeist_Gc_Object*)value->mapValue;
+			}
 		} break;
 		case Zeitgeist_ValueTag_List: {
-			Zeitgeist_List_visit(state, value->listValue);
+			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->listValue)) {
+				value->listValue->gclist = state->gc.gray;
+				state->gc.gray = (Zeitgeist_Gc_Object*)value->listValue;
+			}
 		} break;
 		case Zeitgeist_ValueTag_Object: {
-			Zeitgeist_Object_visit(state, value->objectValue);
+			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->objectValue)) {
+				value->objectValue->gclist = state->gc.gray;
+				state->gc.gray = (Zeitgeist_Gc_Object*)value->objectValue;
+			}
 		} break;
 		case Zeitgeist_ValueTag_String: {
-			Zeitgeist_String_visit(state, value->stringValue);
+			Zeitgeist_Gc_Object_setBlack((Zeitgeist_Gc_Object*)value->stringValue);
 		} break;
 	};
 }

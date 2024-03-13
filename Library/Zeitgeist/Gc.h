@@ -50,6 +50,12 @@
 
 /**
  * @since 0.1
+ * Color. See Zeitgeist_Gc_Object::color for more information.
+ */
+#define Zeitgeist_Gc_Color_Gray (Zeitgeist_Gc_Color_Black|Zeitgeist_Gc_Color_White)
+
+/**
+ * @since 0.1
  * @brief A garbage collected object.
  */
 typedef struct Zeitgeist_Gc_Object Zeitgeist_Gc_Object;
@@ -69,7 +75,7 @@ struct Zeitgeist_Gc_Object {
 
 	/**
 	 * @brief The color of the garbage collected object.
-	 * Must exactly one of the following values: Zeitgeist_Gc_Color_Black or Zeitgeist_Gc_Color_White.
+	 * Must exactly one of the following values: Zeitgeist_Gc_Color_Black, Zeitgeist_Gc_Color_White, or Zeitgeist_Gc_Color_Gray.
 	 */
 	uint8_t color;
 
@@ -117,6 +123,29 @@ Zeitgeist_Gc_Object_setWhite
  */
 bool
 Zeitgeist_Gc_Object_isWhite
+	(
+		Zeitgeist_Gc_Object* object
+	);
+
+/**
+ * @since 0.1
+ * @brief Set the color (Zeitgeist_Gc_Object:color) of a GC object to gray (Zeitgeist_Gc_Color_Gray).
+ * @param object A pointer to the GC object.
+ */
+void
+Zeitgeist_Gc_Object_setGray
+	(
+		Zeitgeist_Gc_Object* object
+	);
+
+/**
+ * @since 0.1
+ * @brief Get if a GC object has the color gray.
+ * @param object A pointer to the GC object.
+ * @return true if the GC object has the color gray. false otherwise.
+ */
+bool
+Zeitgeist_Gc_Object_isGray
 	(
 		Zeitgeist_Gc_Object* object
 	);

@@ -22,7 +22,9 @@ Zeitgeist_String_visit
 		Zeitgeist_State* state,
 		Zeitgeist_String* string	
 	)
-{/*Intentionally empty. Nothing to do here.*/}
+{
+	Zeitgeist_Gc_Object_setBlack((Zeitgeist_Gc_Object*)string);
+}
 
 void
 Zeitgeist_String_finalize

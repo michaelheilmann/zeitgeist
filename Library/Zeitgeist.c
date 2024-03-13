@@ -17,6 +17,37 @@
 // exit, EXIT_FAILURE
 #include <stdlib.h>
 
+static void
+finalize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Gc_Object* object
+	);
+
+static void
+premark
+	(
+		Zeitgeist_State* state
+	);
+
+static void
+mark
+	(
+		Zeitgeist_State* state
+	);
+
+static void
+sweep
+	(
+		Zeitgeist_State* state
+	);
+
+static void
+runGc
+	(
+		Zeitgeist_State* state
+	);
+
 Zeitgeist_Boolean
 Zeitgeist_State_isExitProcessRequested
 	(
@@ -42,11 +73,17 @@ Zeitgeist_createState
 	state->gc.gray = NULL;
 	state->jumpTarget = NULL;
 
+	state->stack.maximalCapacity = SIZE_MAX / sizeof(Zeitgeist_Value);
+	if (state->stack.maximalCapacity > Zeitgeist_Integer_Maximum) {
+		state->stack.maximalCapacity = Zeitgeist_Integer_Maximum;
+	}
 	state->stack.elements = malloc(sizeof(Zeitgeist_Value) * 8);
 	if (!state->stack.elements) {
 		free(state);
 		return NULL;
 	}
+	state->stack.capacity = 8;
+	state->stack.size = 0;
 
 	return state;
 }
@@ -89,23 +126,36 @@ mark
 		switch (object->typeTag) {
 			case Zeitgeist_Gc_TypeTag_List: {
 				state->gc.gray = ((Zeitgeist_List*)object)->gclist;
+				((Zeitgeist_List*)object)->gclist = NULL;
 				Zeitgeist_List_visit(state, (Zeitgeist_List*)object);
 			} break;
 			case Zeitgeist_Gc_TypeTag_Map: {
 				state->gc.gray = ((Zeitgeist_Map*)object)->gclist;
+				((Zeitgeist_Map*)object)->gclist = NULL;
 				Zeitgeist_Map_visit(state, (Zeitgeist_Map*)object);
 			} break;
 			case Zeitgeist_Gc_TypeTag_Object: {
 				state->gc.gray = ((Zeitgeist_Object*)object)->gclist;
+				((Zeitgeist_Object*)object)->gclist = NULL;
 				Zeitgeist_Object_visit(state, (Zeitgeist_Object*)object);
 			} break;
-			case Zeitgeist_Gc_TypeTag_String:
 			default: {
 				fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
 				exit(EXIT_FAILURE);
 			} break;
 		};
-		Zeitgeist_Gc_Object_isBlack(object);
+		Zeitgeist_Gc_Object_setBlack(object);
+	}
+}
+
+static void
+premark
+	(
+		Zeitgeist_State* state
+	)
+{ 
+	for (size_t i = 0, n = state->stack.size; i < n; ++i) {
+		Zeitgeist_Value_visit(state, state->stack.elements + i);
 	}
 }
 
@@ -132,15 +182,6 @@ sweep
 }
 
 static void
-premark
-	(
-		Zeitgeist_State* state
-	)
-{ 
-
-}
-
-static void
 runGc
 	(
 		Zeitgeist_State* state
@@ -149,15 +190,6 @@ runGc
 	premark(state);
 	mark(state);
 	sweep(state);
-	if (state->gc.all) {
-		fprintf(stderr, "%s:%d: warning: gc all list not empty\n", __FILE__, __LINE__);
-	}
-	if (state->gc.gray) {
-		fprintf(stderr, "%s:%d: warning: gc gray list not empty\n", __FILE__, __LINE__);
-	}
-	if (state->strings) {
-		fprintf(stderr, "%s:%d: warning: string list not empty\n", __FILE__, __LINE__);
-	}
 }
 
 void
@@ -167,6 +199,15 @@ Zeitgeist_State_destroy
 	)
 {
 	runGc(state);
+	if (state->gc.all) {
+		fprintf(stderr, "%s:%d: warning: gc all list not empty\n", __FILE__, __LINE__);
+	}
+	if (state->gc.gray) {
+		fprintf(stderr, "%s:%d: warning: gc gray list not empty\n", __FILE__, __LINE__);
+	}
+	if (state->strings) {
+		fprintf(stderr, "%s:%d: warning: string list not empty\n", __FILE__, __LINE__);
+	}
 
 	state->stack.size = 0;
 	free(state->stack.elements);
@@ -215,7 +256,7 @@ Zeitgeist_State_update
 		Zeitgeist_State* state
 	)
 {
-	/*runGc(state);*/
+	runGc(state);
 }
 
 void
@@ -225,6 +266,29 @@ Zeitgeist_Stack_push
 		Zeitgeist_Value* value
 	)
 {
+	if (state->stack.size == state->stack.capacity) {
+		size_t oldCapacity = state->stack.capacity;
+		size_t newCapacity;
+		if (oldCapacity > state->stack.maximalCapacity / 2) {
+			// As 
+			// oldCapacity * 2 > maximumCapacity if and only if oldCapacity > maximumCapacity / 2
+			// holds we cannot double the capacity. Instead, try to saturate the capacity.
+			if (oldCapacity == state->stack.maximalCapacity) {
+				Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+			} else {
+				newCapacity = state->stack.maximalCapacity;
+			}
+		} else {
+			newCapacity = oldCapacity * 2;
+		}
+		Zeitgeist_Value* newElements = realloc(state->stack.elements, newCapacity * sizeof(Zeitgeist_Value));
+		if (!newElements) {
+			Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+		}
+		state->stack.elements = newElements;
+		state->stack.capacity = newCapacity;
+	}
+	state->stack.elements[state->stack.size++] = *value;
 }
 
 void
@@ -233,7 +297,9 @@ Zeitgeist_Stack_pushBoolean
 		Zeitgeist_State* state,
 		Zeitgeist_Boolean booleanValue
 	)
-{ 
+{
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setBoolean(&value, booleanValue);
 }
 
 void
@@ -243,6 +309,9 @@ Zeitgeist_Stack_pushInteger
 		Zeitgeist_Integer integerValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setInteger(&value, integerValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -252,6 +321,9 @@ Zeitgeist_Stack_pushList
 		Zeitgeist_List* listValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setList(&value, listValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -261,6 +333,9 @@ Zeitgeist_Stack_pushMap
 		Zeitgeist_Map* mapValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setMap(&value, mapValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -270,6 +345,9 @@ Zeitgeist_Stack_pushObject
 		Zeitgeist_Object* objectValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setObject(&value, objectValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -279,6 +357,9 @@ Zeitgeist_Stack_pushReal32
 		Zeitgeist_Real32 real32Value
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setReal32(&value, real32Value);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -288,6 +369,9 @@ Zeitgeist_Stack_pushString
 		Zeitgeist_String* stringValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setString(&value, stringValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -297,6 +381,9 @@ Zeitgeist_Stack_pushVoid
 		Zeitgeist_Void voidValue
 	)
 {
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setVoid(&value, voidValue);
+	Zeitgeist_Stack_push(state, &value);
 }
 
 void
@@ -305,4 +392,5 @@ Zeitgeist_Stack_pop
 		Zeitgeist_State* state
 	)
 {
+	state->stack.size--;
 }

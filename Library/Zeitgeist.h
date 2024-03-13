@@ -37,6 +37,7 @@ struct Zeitgeist_State {
 		Zeitgeist_Value* elements;
 		size_t size;
 		size_t capacity;
+		size_t maximalCapacity;
 	} stack;
 };
 

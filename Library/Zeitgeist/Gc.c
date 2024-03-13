@@ -35,3 +35,17 @@ Zeitgeist_Gc_Object_isWhite
 		Zeitgeist_Gc_Object* object
 	)
 { return Zeitgeist_Gc_Color_White == object->color; }
+
+void
+Zeitgeist_Gc_Object_setGray
+	(
+		Zeitgeist_Gc_Object* object
+	)
+{ object->color = Zeitgeist_Gc_Color_Gray; }
+
+bool
+Zeitgeist_Gc_Object_isGray
+	(
+		Zeitgeist_Gc_Object* object
+	)
+{ return Zeitgeist_Gc_Color_Gray == object->color; }
