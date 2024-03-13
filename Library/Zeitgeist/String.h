@@ -6,6 +6,11 @@
 #include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
+#if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	// size_t
+	#include <stddef.h>
+#endif
+
 struct Zeitgeist_String {
 	Zeitgeist_Gc_Object _parent;
 	Zeitgeist_String* next;

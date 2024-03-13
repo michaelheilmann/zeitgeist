@@ -135,6 +135,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Zeitgeist/Configure.h.in Zeitgeist/Co
 list(APPEND sources Zeitgeist/Configure.h)
 
 add_library(${target_name} STATIC ${sources})
+if (${${target_name}.OPERATING_SYSTEM_ID} EQUAL ${ZEITGEIST_OPERATING_SYSTEM_ID_LINUX})
+	set_property(TARGET ${target_name} PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif()
 
 target_include_directories(${target_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(${target_name} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
