@@ -6,14 +6,6 @@
 
 #include "Zeitgeist/UpstreamRequests.h"
 
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	#include "ServiceWgl.h"
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	#include "ServiceGlx.h"
-#else
-	#error("operating system not (yet) supported")
-#endif
-
 // strlen
 #include <string.h>
 
@@ -43,12 +35,15 @@ Zeitgeist_Rendition_getName
 const GLchar* g_vertexShader =
 	"#version 330\n"
 	"layout(location = 0) in vec3 point;\n"
-	"uniform mat4 modelToWorld = mat4(1);\n"
-	"uniform mat4 worldToView = mat4(1);\n"
-	"uniform mat4 viewToProjection = mat4(1);\n"
 	"void main() {\n"
-	"  mat4 modelToProjection = viewToProjection * worldToView * modelToWorld;\n"
-	"  gl_Position = modelToProjection * vec4(0.75 * point.xy, point.z, 1.0);\n"
+	"  mat4 scalexy = mat4\n"
+	"    (\n"
+	"		   0.75, 0,    0, 0,\n"
+	"			 0,    0.75, 0, 0,\n"
+	"			 0,    0,    1, 0,\n"
+	"			 0,    0,    0, 1 \n"
+	"    );\n"
+	"  gl_Position = scalexy * vec4(point.xyz, 1.0);\n"
 	"}\n"
 	;
 
@@ -63,9 +58,6 @@ const GLchar* g_fragmentShader =
 	;
 
 static GLint Positions_Index = 0;
-static GLint ModelToWorld_Index = -1;
-static GLint WorldToView_Index = -1;
-static GLint ViewToProjection_Index = -1;
 
 typedef struct VERTEX {
 	float x, y, z;
@@ -93,58 +85,29 @@ Zeitgeist_Rendition_update
 		Zeitgeist_State* state
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_update(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_update(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	if (ServiceWgl_quitRequested(state)) {
+	ServiceGl_update(state);
+
+	if (ServiceGl_quitRequested(state)) {
 		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
 		Zeitgeist_sendUpstreamRequest(state, request);
 	}
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	if (ServiceGlx_quitRequested(state)) {
-		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
-		Zeitgeist_sendUpstreamRequest(state, request);
-	}
-#else
-	#error("operating system not (yet) supported")
-#endif
 
 	Zeitgeist_Integer viewportWidth, viewportHeight;
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_getClientSize(state, &viewportWidth, &viewportHeight);
-	ServiceWgl_beginFrame(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_getClientSize(state, &viewportWidth, &viewportHeight);
-	ServiceGlx_beginFrame(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
+	ServiceGl_getClientSize(state, &viewportWidth, &viewportHeight);
+	ServiceGl_beginFrame(state);
 
 	glViewport(0, 0, viewportWidth, viewportHeight);
 	glClearColor(0.f, 0.f, 0.f, 1.f);
 	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(g_programId);
-	// bind view
-	// bind projection
+
 	glBindVertexArray(g_frontMesh.vertexArrayId);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(FRONT)/ sizeof(VERTEX));
 	glBindVertexArray(0);
 	glUseProgram(0);
 
-
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_endFrame(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_endFrame(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
+	ServiceGl_endFrame(state);
 }
 
 Zeitgeist_Rendition_Export void
@@ -163,10 +126,6 @@ Zeitgeist_Rendition_load
 	g_programId = ServiceGl_linkProgram(state, vertexShaderId, fragmentShaderId);
 	glDeleteShader(fragmentShaderId);
 	glDeleteShader(vertexShaderId);
-
-	ModelToWorld_Index = glGetUniformLocation(g_programId, "modelToWorld");
-	WorldToView_Index = glGetUniformLocation(g_programId, "worldToView");
-	ViewToProjection_Index = glGetUniformLocation(g_programId, "ViewToProjection");
 
 	glGenBuffers(1, &g_frontMesh.bufferId);
 	glBindBuffer(GL_ARRAY_BUFFER, g_frontMesh.bufferId);

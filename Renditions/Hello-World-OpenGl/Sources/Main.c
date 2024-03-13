@@ -6,14 +6,6 @@
 
 #include "Zeitgeist/UpstreamRequests.h"
 
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	#include "ServiceWgl.h"
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	#include "ServiceGlx.h"
-#else
-	#error("operating system not (yet) supported")
-#endif
-
 // strlen
 #include <string.h>
 
@@ -44,7 +36,14 @@ const GLchar* g_vertexShader =
 	"#version 330\n"
 	"layout(location = 0) in vec3 point;\n"
 	"void main() {\n"
-	"    gl_Position = vec4(0.75 * point.xy, point.z, 1.0);\n"
+	"  mat4 scalexy = mat4\n"
+	"	   (\n"
+	"		   0.75, 0,    0, 0,\n"
+	"			 0,    0.75, 0, 0,\n"
+	"			 0,    0,    1, 0,\n"
+	"      0,    0,    0, 1 \n"
+	"    );\n"
+	"  gl_Position = scalexy * vec4(point.xyz, 1.0);\n"
 	"}\n"
 	;
 
@@ -54,7 +53,7 @@ const GLchar* g_fragmentShader =
 	"#version 330\n"
 	"out vec4 color;\n"
 	"void main() {\n"
-	"    color = vec4(1, 0.8, 0.2, 0);\n"
+	"  color = vec4(1, 0.8, 0.2, 0);\n"
 	"}\n"
 	;
 
@@ -81,37 +80,16 @@ Zeitgeist_Rendition_update
 		Zeitgeist_State* state
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_update(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_update(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	if (ServiceWgl_quitRequested(state)) {
+	ServiceGl_update(state);
+
+	if (ServiceGl_quitRequested(state)) {
 		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
 		Zeitgeist_sendUpstreamRequest(state, request);
 	}
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	if (ServiceGlx_quitRequested(state)) {
-		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
-		Zeitgeist_sendUpstreamRequest(state, request);
-	}
-#else
-	#error("operating system not (yet) supported")
-#endif
 
 	Zeitgeist_Integer viewportWidth, viewportHeight;
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_getClientSize(state, &viewportWidth, &viewportHeight);
-	ServiceWgl_beginFrame(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_getClientSize(state, &viewportWidth, &viewportHeight);
-	ServiceGlx_beginFrame(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
+	ServiceGl_getClientSize(state, &viewportWidth, &viewportHeight);
+	ServiceGl_beginFrame(state);
 
 	glViewport(0, 0, viewportWidth, viewportHeight);
 	glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -124,14 +102,7 @@ Zeitgeist_Rendition_update
 	glBindVertexArray(0);
 	glUseProgram(0);
 
-
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_endFrame(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_endFrame(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
+	ServiceGl_endFrame(state);
 }
 
 Zeitgeist_Rendition_Export void

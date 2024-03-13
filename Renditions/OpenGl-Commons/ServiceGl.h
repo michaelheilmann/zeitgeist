@@ -39,6 +39,38 @@ ServiceGl_setTitle
 		Zeitgeist_String* title
 	);
 
+void
+ServiceGl_getClientSize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Integer* width,
+		Zeitgeist_Integer* height
+	);
+
+void
+ServiceGl_beginFrame
+	(
+		Zeitgeist_State* state
+	);
+
+void
+ServiceGl_endFrame
+	(
+		Zeitgeist_State* state
+	);
+
+void
+ServiceGl_update
+	(
+		Zeitgeist_State* state
+	);
+
+Zeitgeist_Boolean
+ServiceGl_quitRequested
+	(
+		Zeitgeist_State* state
+	);
+
 GLuint
 ServiceGl_compileShader
 	(

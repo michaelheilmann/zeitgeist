@@ -94,6 +94,83 @@ ServiceGl_setTitle
 #endif
 }
 
+void
+ServiceGl_getClientSize
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Integer* width,
+		Zeitgeist_Integer* height
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_getClientSize(state, width, height);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_getClientSize(state, width, height);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
+void
+ServiceGl_beginFrame
+	(
+		Zeitgeist_State* state
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_beginFrame(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_beginFrame(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
+void
+ServiceGl_endFrame
+	(
+		Zeitgeist_State* state
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_endFrame(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_endFrame(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
+void
+ServiceGl_update
+	(
+		Zeitgeist_State* state
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_update(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_update(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
+Zeitgeist_Boolean
+ServiceGl_quitRequested
+	(
+		Zeitgeist_State* state
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	return ServiceWgl_quitRequested(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	return ServiceGlx_quitRequested(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
 GLuint
 ServiceGl_compileShader
 	(
