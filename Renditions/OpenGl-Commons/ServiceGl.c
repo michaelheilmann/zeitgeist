@@ -49,7 +49,14 @@ ServiceGl_startup
 	(
 		Zeitgeist_State* state
 	)
-{ 
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_startup(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_startup(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
 #define Define(Type, Name) \
 	Name = (Type)link(state, #Name, NULL);
 #include "ServiceGl_Functions.i"
@@ -61,7 +68,31 @@ ServiceGl_shutdown
 	(
 		Zeitgeist_State* state
 	)
-{ }
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_shutdown(state);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_shutdown(state);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
+
+void
+ServiceGl_setTitle
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* title
+	)
+{
+#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+	ServiceWgl_setTitle(state, title);
+#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+	ServiceGlx_setTitle(state, title);
+#else
+	#error("operating system not (yet) supported")
+#endif
+}
 
 GLuint
 ServiceGl_compileShader

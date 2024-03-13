@@ -32,6 +32,13 @@ ServiceGl_shutdown
 		Zeitgeist_State* state
 	);
 
+void
+ServiceGl_setTitle
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* title
+	);
+
 GLuint
 ServiceGl_compileShader
 	(

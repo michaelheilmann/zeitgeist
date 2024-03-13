@@ -27,7 +27,7 @@ static Colormap g_colorMap;
 static GLXContext g_context;
 static Atom WM_DELETE_WINDOW;
 
-static bool g_quit = false;
+static bool g_quitRequested = false;
 
 // Helper to check for extension string presence.	Adapted from:
 // http://www.opengl.org/resources/features/OGLextensions/
@@ -401,7 +401,7 @@ ServiceGlx_getClientSize
 }
 
 void*
-ServiceWgl_link
+ServiceGlx_link
 	(
 		Zeitgeist_State* state,
 		char const* functionName,
@@ -410,7 +410,7 @@ ServiceWgl_link
 {
 	if (extensionName) {
 		char const* extensionNames = NULL;
-		extensionNames = glXQueryExtensionsString(g_hDc);
+		extensionNames = glXQueryExtensionsString(g_display, DefaultScreen(g_display));
 		if (!isExtensionSupported(extensionNames, extensionName)) {
 			extensionNames = glGetString(GL_EXTENSIONS);
 			if (!isExtensionSupported(extensionNames, extensionName)) {
@@ -438,5 +438,5 @@ ServiceGlx_endFrame
 		Zeitgeist_State* state
 	)
 {
-	glxSwapBuffers(g_display, g_window);
+	glXSwapBuffers(g_display, g_window);
 }

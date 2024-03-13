@@ -23,16 +23,6 @@
 #include "ServiceGl.h"
 
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	#define WIN32_LEAN_AND_MEAN
-	#include <Windows.h>
-	#include <GL/gl.h>
-#else
-	#include <GL/gl.h>
-#endif
-
-#include <GL/glext.h>
-
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export _declspec(dllexport)
 #elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	#define Zeitgeist_Rendition_Export
@@ -163,21 +153,11 @@ Zeitgeist_Rendition_load
 		Zeitgeist_State* state
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_startup(state);
-	ServiceWgl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_startup(state);
-	ServiceGlx_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
-#else
-	#error("operating system not (yet) supported")
-#endif
 	ServiceGl_startup(state);
+	ServiceGl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
+
 	GLuint vertexShaderId, fragmentShaderId;
 	
-	glDeleteShader = ServiceWgl_link(state, "glDeleteShader", NULL);
-	glDeleteProgram = ServiceWgl_link(state, "glDeleteProgram", NULL);
-
 	vertexShaderId = ServiceGl_compileShader(state, GL_VERTEX_SHADER, g_vertexShader);
 	fragmentShaderId = ServiceGl_compileShader(state, GL_FRAGMENT_SHADER, g_fragmentShader);
 	g_programId = ServiceGl_linkProgram(state, vertexShaderId, fragmentShaderId);
@@ -215,11 +195,4 @@ Zeitgeist_Rendition_unload
 	glDeleteProgram(g_programId);
 	g_programId = 0;
 	ServiceGl_shutdown(state);
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_shutdown(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_shutdown(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
 }

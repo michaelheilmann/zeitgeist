@@ -30,5 +30,6 @@ target_include_directories(${project_name}-OpenGl-Commons PUBLIC ${CMAKE_CURRENT
 if (WIN32)
 	target_include_directories(${project_name}-OpenGl-Commons PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/External/OpenGl/Includes)
 else()
+	set_property(TARGET ${project_name}-OpenGl-Commons PROPERTY POSITION_INDEPENDENT_CODE ON)
 	target_link_libraries(${project_name}-OpenGl-Commons OpenGL::GLX ${X11_LIBRARIES})
 endif()
