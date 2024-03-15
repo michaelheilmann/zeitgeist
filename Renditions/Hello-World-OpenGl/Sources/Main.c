@@ -32,28 +32,24 @@ Zeitgeist_Rendition_getName
 }
 
 // Vertex shader.
-const GLchar* g_vertexShader =
-	"#version 330\n"
-	"layout(location = 0) in vec3 point;\n"
+static const GLchar* g_vertexShader =
+	"#version 330 core\n"
+	"layout(location = 0) in vec3 vertexPosition;\n"
+	"uniform mat4 scale = mat4(1);\n"
 	"void main() {\n"
-	"  mat4 scalexy = mat4\n"
-	"	   (\n"
-	"		   0.75, 0,    0, 0,\n"
-	"			 0,    0.75, 0, 0,\n"
-	"			 0,    0,    1, 0,\n"
-	"      0,    0,    0, 1 \n"
-	"    );\n"
-	"  gl_Position = scalexy * vec4(point.xyz, 1.0);\n"
+	"  gl_Position = scale * vec4(vertexPosition.xyz, 1.0);\n"
 	"}\n"
 	;
 
 // Fragment shader.
 // The color (255, 204, 51) is the websafe color "sunglow".
-const GLchar* g_fragmentShader =
-	"#version 330\n"
-	"out vec4 color;\n"
+static const GLchar* g_fragmentShader =
+	"#version 330 core\n"
+	"out vec4 outputColor;\n"
+	//"uniform vec4 inputColor = vec4(1.0, 1.0, 1.0, 0.0);\n"
+	"uniform vec4 inputColor = vec4(1.0, 0.8, 0.2, 0.0);\n"
 	"void main() {\n"
-	"  color = vec4(1, 0.8, 0.2, 0);\n"
+	"  outputColor = inputColor;\n"
 	"}\n"
 	;
 
@@ -92,11 +88,33 @@ Zeitgeist_Rendition_update
 	ServiceGl_beginFrame(state);
 
 	glViewport(0, 0, viewportWidth, viewportHeight);
-	glClearColor(0.f, 0.f, 0.f, 1.f);
-	glClearDepth(1.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(g_programId);
+
+	GLint location;
+	
+	location = glGetUniformLocation(g_programId, "scale");
+	if (-1 == location) {
+		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "scale");
+	} else {
+		GLfloat matrix[16] = {
+			.75f, 0.f,  0.f, 0.f,
+			0.f,  .75f, 0.f, 0.f,
+			0.f,  0.f,  1.f, 0.f,
+			0.f,  0.f,  0.f, 1.f,
+		};
+		glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0]);
+	}
+	
+	location = glGetUniformLocation(g_programId, "inputColor");
+	if (-1 == location) {
+		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "inputColor");
+	} else {
+		// The color (255, 204, 51) is the websafe color "sunglow".
+		GLfloat vector[4] = { 1.0, 0.8, 0.2, 1.0 };
+		glUniform4fv(location, 1, &vector[0]);
+	}
+
 	glBindVertexArray(g_vertexArrayId);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(SQUARE)/ sizeof(VERTEX));
 	glBindVertexArray(0);
@@ -134,6 +152,11 @@ Zeitgeist_Rendition_load
 	glEnableVertexAttribArray(Positions_Index);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.f);
+	glClearDepth(1.f);
 }
 
 Zeitgeist_Rendition_Export void
