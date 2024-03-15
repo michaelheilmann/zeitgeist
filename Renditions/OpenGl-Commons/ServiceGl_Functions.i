@@ -9,6 +9,8 @@ Define(PFNGLUSEPROGRAMPROC, glUseProgram)
 // uniforms
 Define(PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation)
 Define(PFNGLUNIFORMMATRIX4FVPROC, glUniformMatrix4fv)
+Define(PFNGLUNIFORM4FVPROC, glUniform4fv)
+Define(PFNGLUNIFORM3FVPROC, glUniform3fv)
 
 // shaders
 Define(PFNGLGETSHADERIVPROC, glGetShaderiv)
