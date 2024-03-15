@@ -79,6 +79,33 @@ Zeitgeist_Value_getBoolean
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 bool
+Zeitgeist_Value_hasForeignFunction
+	(
+		Zeitgeist_Value const* value
+	)
+{ return Zeitgeist_ValueTag_ForeignFunction == value->tag; }
+
+void
+Zeitgeist_Value_setForeignFunction
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_ForeignFunction* foreignFunction
+	)
+{ 
+	value->tag = Zeitgeist_ValueTag_ForeignFunction;
+	value->foreignFunction = foreignFunction;
+}
+
+Zeitgeist_ForeignFunction*
+Zeitgeist_Value_getForeignFunction
+	(
+		Zeitgeist_Value* value
+	)
+{ return value->foreignFunction; }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+bool
 Zeitgeist_Value_hasInteger
 	(
 		Zeitgeist_Value const* value

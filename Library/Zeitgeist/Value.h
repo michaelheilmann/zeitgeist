@@ -14,6 +14,8 @@
 // int8_t, int64_t, INT64_MAX, INT64_MIN
 #include <inttypes.h>
 
+typedef struct Zeitgeist_State Zeitgeist_State;
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 /**
@@ -31,6 +33,14 @@ typedef bool Zeitgeist_Boolean;
  * The value Zeitgeist_Boolean_False of a Zeitgeist_Boolean object.
  */
 #define Zeitgeist_Boolean_False (false)
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * A Zeitgeist_ForeignFunction object.
+ */
+typedef void (Zeitgeist_ForeignFunction)(Zeitgeist_State*);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -144,6 +154,13 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
  /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.foreignFunctionValue holds a Zeitgeist_ForeignFunction value.
+ */
+#define Zeitgeist_ValueTag_ForeignFunction (1)
+
+ /**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.integerValue holds a Zeitgeist_Integer value.
  */
 #define Zeitgeist_ValueTag_Integer (1)
@@ -206,6 +223,11 @@ struct Zeitgeist_Value {
 		 * Holds a Zeitgeist_Boolean value if tag is Zeitgeist_ValueTag_Boolean.
 		 */
 		Zeitgeist_Boolean booleanValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_ForeignFunction value if tag is Zeitgeist_ValueTag_ForeignFunction.
+		 */
+		Zeitgeist_ForeignFunction* foreignFunction;
 		/**
 		 * @since 0.1
 		 * Holds a Zeitgeist_Integer value if tag is Zeitgeist_ValueTag_Integer.
@@ -296,6 +318,47 @@ Zeitgeist_Value_setBoolean
  */
 Zeitgeist_Boolean
 Zeitgeist_Value_getBoolean
+	(
+		Zeitgeist_Value* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_ForeignFunction* value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_ForeignFunction* value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasForeignFunction
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1
+ * @brief Store a Zeitgeist_ForeignFunction* value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param foreignFunctionValue A Zeitgeist_ForeignFunction* value.
+ */
+void
+Zeitgeist_Value_setForeignFunction
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_ForeignFunction* foreignFunction
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_ForeignFunction* value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_ForeignFunction* value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_ForeignFunction* value.
+ */
+Zeitgeist_ForeignFunction*
+Zeitgeist_Value_getForeignFunction
 	(
 		Zeitgeist_Value* value
 	);
