@@ -26,18 +26,21 @@ Zeitgeist_Value_visit
 			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->mapValue)) {
 				value->mapValue->gclist = state->gc.gray;
 				state->gc.gray = (Zeitgeist_Gc_Object*)value->mapValue;
+				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->mapValue);
 			}
 		} break;
 		case Zeitgeist_ValueTag_List: {
 			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->listValue)) {
 				value->listValue->gclist = state->gc.gray;
 				state->gc.gray = (Zeitgeist_Gc_Object*)value->listValue;
+				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->listValue);
 			}
 		} break;
 		case Zeitgeist_ValueTag_Object: {
 			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->objectValue)) {
 				value->objectValue->gclist = state->gc.gray;
 				state->gc.gray = (Zeitgeist_Gc_Object*)value->objectValue;
+				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->objectValue);
 			}
 		} break;
 		case Zeitgeist_ValueTag_String: {

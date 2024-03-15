@@ -12,10 +12,29 @@
 #include "Zeitgeist/String.h"
 #include "Zeitgeist/Value.h"
 
+/// @unmanaged
 struct Zeitgeist_JumpTarget {
 	Zeitgeist_JumpTarget* previous;
 	jmp_buf environment;
 };
+
+/// @unmanaged
+typedef struct LockNode LockNode;
+
+struct LockNode {
+	LockNode* next;
+	size_t hashValue;
+	Zeitgeist_Gc_Object* object;
+};
+
+/// @unmanaged
+typedef struct Locks {
+	LockNode* free;
+	LockNode** buckets;
+	size_t size;
+	size_t capacity;
+	size_t maximalCapacity;
+} Locks;
 
 struct Zeitgeist_State {
 	int lastError;
@@ -32,6 +51,8 @@ struct Zeitgeist_State {
 		Zeitgeist_Gc_Object* all;
 		Zeitgeist_Gc_Object* gray;
 	} gc;
+
+	Locks locks;
 
 	struct {
 		Zeitgeist_Value* elements;
