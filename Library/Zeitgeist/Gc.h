@@ -38,6 +38,12 @@
 
 /**
  * @since 0.1
+ * Type tag. See Zeitgeist_Gc_Object::typeTag for more information.
+ */
+#define Zeitgeist_Gc_TypeTag_WeakReference (5)
+
+/**
+ * @since 0.1
  * Color. See Zeitgeist_Gc_Object::color for more information.
  */
 #define Zeitgeist_Gc_Color_Black (1)
@@ -69,7 +75,8 @@ struct Zeitgeist_Gc_Object {
 	 * Zeitgeist_Gc_TypeTag_List indicates an GC object of type List.
 	 * Zeitgeist_Gc_TypeTag_Map indicates an GC object of type Map.
 	 * Zeitgeist_Gc_TypeTag_Object indicates a GC object of type Object.
-	 * Zeitgeist_Gc_TypeTagString indicates a GC object of type String.
+	 * Zeitgeist_Gc_TypeTag_String indicates a GC object of type String.
+	 * Zeitgeist_Gc_TypeTag_WeakReference indicates a GC object of type WeakReference.
 	 */
 	uint8_t typeTag;
 

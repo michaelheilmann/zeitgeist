@@ -64,6 +64,30 @@ typedef int64_t Zeitgeist_Integer;
 
 /**
  * @since 0.1
+ * A Zeitgeist_List object.
+ */
+typedef struct Zeitgeist_List Zeitgeist_List;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * A Zeitgeist_Map object.
+ */
+typedef struct Zeitgeist_Map Zeitgeist_Map;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * A Zeitgeist_Object object.
+ */
+typedef struct Zeitgeist_Object Zeitgeist_Object;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * A Zeitgeist_Real32 object.
  */
 typedef double Zeitgeist_Real32;
@@ -83,6 +107,14 @@ typedef double Zeitgeist_Real32;
 
 /**
  * @since 0.1
+ * A Zeitgeist_String object.
+ */
+typedef struct Zeitgeist_String Zeitgeist_String;
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * A Zeitgeist_Void object.
  */
 typedef int8_t Zeitgeist_Void;
@@ -91,6 +123,14 @@ typedef int8_t Zeitgeist_Void;
  * The only value of a Zeitgeist_Void object.
  */
 #define Zeitgeist_Void_Void (0)
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * A Zeitgeist_WeakReference object.
+ */
+typedef struct Zeitgeist_WeakReference Zeitgeist_WeakReference;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -106,31 +146,6 @@ typedef struct Zeitgeist_JumpTarget Zeitgeist_JumpTarget;
  */
 typedef struct Zeitgeist_State Zeitgeist_State;
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @since 0.1
- * A Zeitgeist_List object.
- */
-typedef struct Zeitgeist_List Zeitgeist_List;
-
-/**
- * @since 0.1
- * A Zeitgeist_Map object.
- */
-typedef struct Zeitgeist_Map Zeitgeist_Map;
-
-/**
- * @since 0.1
- * A Zeitgeist_Object object.
- */
-typedef struct Zeitgeist_Object Zeitgeist_Object;
-
-/**
- * @since 0.1
- * A Zeitgeist_String object.
- */
-typedef struct Zeitgeist_String Zeitgeist_String;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -141,8 +156,6 @@ typedef struct Zeitgeist_String Zeitgeist_String;
 typedef struct Zeitgeist_Value Zeitgeist_Value;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-	
-
 
 /**
  * @since 0.1
@@ -207,6 +220,13 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
  */
 #define Zeitgeist_ValueTag_Void (7)
 
+/**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.weakReference holds a Zeitgeist_WeakReference* value.
+ */
+#define Zeitgeist_ValueTag_WeakReference (8)
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 struct Zeitgeist_Value {
@@ -263,6 +283,11 @@ struct Zeitgeist_Value {
 		 * Holds the Zeitgeist_Void_Void value if tag is Zeitgeist_ValueTag_Void.
 		 */
 		Zeitgeist_Void voidValue;
+		/**
+		 * @since 0.1
+		 * Holds a Zeitgeist_WeakReference* value if tag is Zeitgeist_ValueTag_WeakReference.
+		 */
+		Zeitgeist_WeakReference* weakReferenceValue;
 	};
 };
 
@@ -646,6 +671,47 @@ Zeitgeist_Value_setVoid
  */
 Zeitgeist_Void
 Zeitgeist_Value_getVoid
+	(
+		Zeitgeist_Value const* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_WeakReference* value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_WeakReference* value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasWeakReference
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1 
+ * @brief Store a Zeitgeist_WeakReference* value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param weakReferenceValue A Zeitgeist_WeakReference* value.
+ */
+void
+Zeitgeist_Value_setWeakReference
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_WeakReference* weakReferenceValue
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_WeakReference* value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_WeakReference* value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_WeakReference* value.
+ */
+Zeitgeist_WeakReference*
+Zeitgeist_Value_getWeakReference
 	(
 		Zeitgeist_Value const* value
 	);

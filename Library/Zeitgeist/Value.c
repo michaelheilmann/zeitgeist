@@ -295,3 +295,30 @@ Zeitgeist_Value_getVoid
 { return value->voidValue; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+bool
+Zeitgeist_Value_hasWeakReference
+	(
+		Zeitgeist_Value const* value
+	)
+{ return Zeitgeist_ValueTag_WeakReference == value->tag; }
+
+void
+Zeitgeist_Value_setWeakReference
+	(
+		Zeitgeist_Value *value,
+		Zeitgeist_WeakReference* weakReferenceValue
+	)
+{ 
+	value->tag = Zeitgeist_ValueTag_WeakReference;
+	value->weakReferenceValue = weakReferenceValue;
+}
+
+Zeitgeist_WeakReference*
+Zeitgeist_Value_getWeakReference
+	(
+		Zeitgeist_Value const* value
+	)
+{ return value->weakReferenceValue; }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
