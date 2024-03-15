@@ -13,6 +13,15 @@ struct Stack {
 	size_t maximalCapacity;
 };
 
+/// @debug
+/// @brief Assert the stack is empty.
+/// @ingroup state
+void
+Stack_preLastGcCheck
+	(
+		Zeitgeist_State* state
+	);
+
 /// @ingroup state 
 void
 Stack_premark

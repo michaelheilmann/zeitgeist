@@ -11,7 +11,7 @@
 
 struct Zeitgeist_List {
 	Zeitgeist_Gc_Object _parent;
-	/** @brief For addition to the GC's work list.*/
+	/** For being added to the "gray" list during the "mark" phase of the garbage collector. */
 	Zeitgeist_Gc_Object* gclist;
 
 	size_t size;
@@ -180,6 +180,27 @@ Zeitgeist_List_appendBoolean
 {
 	Zeitgeist_Value value;
 	Zeitgeist_Value_setBoolean(&value, element);
+	Zeitgeist_List_appendValue(state, list, &value);
+}
+
+/**
+ * @since 0.1
+ * @brief Append a Zeitgeist_ForeignFunction* value to a Zeitgeist_List object.
+ * @param list A pointer to the Zeitgeist_List object to append to.
+ * @param element the Zeitgeist_ForeignFunction* value to append.
+ * @undefined state does not point to a Zeitgeist_State object.
+ * @undefined list does not point to a Zeitgeist_List object.
+ */
+static inline void
+Zeitgeist_List_appendForeignFunction
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list,
+		Zeitgeist_ForeignFunction* element
+	)
+{
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setForeignFunction(&value, element);
 	Zeitgeist_List_appendValue(state, list, &value);
 }
 

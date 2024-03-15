@@ -13,23 +13,9 @@ Zeitgeist_UpstreamRequest_createExitProcessRequest
     Zeitgeist_State* state
   )
 {
-  Zeitgeist_UpstreamRequest* upstreamRequest = malloc(sizeof(Zeitgeist_UpstreamRequest));
-  if (!upstreamRequest) {
-    state->lastError = 1;
-    longjmp(state->jumpTarget->environment, -1);
-  }
-  upstreamRequest->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
-
-  ((Zeitgeist_Object*)upstreamRequest)->finalize = NULL;
-  ((Zeitgeist_Object*)upstreamRequest)->visit = NULL;
-  
-  ((Zeitgeist_Gc_Object*)upstreamRequest)->typeTag = Zeitgeist_Gc_TypeTag_Object;
-  ((Zeitgeist_Gc_Object*)upstreamRequest)->next = state->gc.all;
-  state->gc.all = (Zeitgeist_Gc_Object*)upstreamRequest;
-  ((Zeitgeist_Gc_Object*)upstreamRequest)->color = Zeitgeist_Gc_Color_White;
-  ((Zeitgeist_Object*)upstreamRequest)->gclist = NULL;
-
-  return upstreamRequest;
+  Zeitgeist_UpstreamRequest* self = Zeitgeist_allocateObject(state, sizeof(Zeitgeist_UpstreamRequest), NULL, NULL);
+  self->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
+  return self;
 }
 
 void

@@ -3,6 +3,20 @@
 // malloc, free
 #include <malloc.h>
 
+// fprintf, stderr
+#include <stdio.h>
+
+void
+Stack_preLastGcCheck
+	(
+		Zeitgeist_State* state
+	)
+{
+	if (state->stack->size > 0) {
+		fprintf(stderr, "%s:%d: warning: stack is not empty\n", __FILE__, __LINE__);
+	}
+}
+
 void
 Stack_premark
 	(

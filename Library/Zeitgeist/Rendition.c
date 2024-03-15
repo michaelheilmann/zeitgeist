@@ -105,7 +105,7 @@ Zeitgeist_Rendition_ensureLibraryLoaded
 		}
 	}
 #else
-#error("operating system not (yet) supported")
+	#error("operating system not (yet) supported")
 #endif	
 }
 
@@ -116,23 +116,14 @@ Zeitgeist_createRendition
 		Zeitgeist_String* folderPath
 	)
 {
-	Zeitgeist_Rendition* rendition = malloc(sizeof(Zeitgeist_Rendition));
-	if (!rendition) {
-		longjmp(state->jumpTarget->environment, -1);
-	}
-	rendition->folderPath = folderPath;
-	rendition->libraryHandle = NULL;
+	Zeitgeist_Rendition* self = Zeitgeist_allocateObject(state, sizeof(Zeitgeist_Rendition), NULL, NULL);
+	self->folderPath = folderPath;
+	self->libraryHandle = NULL;
 
-	((Zeitgeist_Object*)rendition)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_finalize;
-	((Zeitgeist_Object*)rendition)->visit = NULL;
+	((Zeitgeist_Object*)self)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_finalize;
+	((Zeitgeist_Object*)self)->visit = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_visit;
 
-	((Zeitgeist_Gc_Object*)rendition)->typeTag = Zeitgeist_Gc_TypeTag_Object;
-	((Zeitgeist_Gc_Object*)rendition)->next = state->gc.all;
-	state->gc.all = (Zeitgeist_Gc_Object*)rendition;
-	((Zeitgeist_Gc_Object*)rendition)->color = Zeitgeist_Gc_Color_White;
-	((Zeitgeist_Object*)rendition)->gclist = NULL;
-
-	return rendition;
+	return self;
 }
 
 Zeitgeist_String*

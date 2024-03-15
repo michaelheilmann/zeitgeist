@@ -32,7 +32,7 @@ struct Zeitgeist_Map_Node {
 
 struct Zeitgeist_Map {
 	Zeitgeist_Gc_Object _parent;
-	/** @brief For addition to the GC's work list.*/
+	/** For being added to the "gray" list during the "mark" phase of the garbage collector. */
 	Zeitgeist_Gc_Object* gclist;
 
 	Zeitgeist_Map_Node** buckets;

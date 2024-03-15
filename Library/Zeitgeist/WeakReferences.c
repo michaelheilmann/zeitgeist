@@ -29,6 +29,26 @@ static size_t hashPointer(void* p) {
 }
 
 void
+WeakReference_notifyDestroy
+	(
+		Zeitgeist_State* state,
+		void* address
+	)
+{
+	size_t hashValue = hashPointer(address);
+	size_t hashIndex = hashValue % state->weakReferences->capacity;
+	WeakReferenceNode* current = state->weakReferences->buckets[hashIndex];
+	while (current) {
+		if (current->address == address) {
+			current->address = NULL;
+			break;
+		} else {
+			current = current->next;
+		}
+	}
+}
+
+void
 WeakReferences_initialize
 	(
 		Zeitgeist_State* state

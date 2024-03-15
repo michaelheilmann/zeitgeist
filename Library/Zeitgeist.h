@@ -128,6 +128,4 @@ Zeitgeist_State_update
 		Zeitgeist_State* state
 	);
 
-
-
 #endif // ZEITGEIST_H_INCLUDED

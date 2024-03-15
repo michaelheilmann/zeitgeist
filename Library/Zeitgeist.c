@@ -43,13 +43,17 @@ mark
 static void
 sweep
 	(
-		Zeitgeist_State* state
+		Zeitgeist_State* state,
+		size_t* live,
+		size_t* dead
 	);
 
 static void
 runGc
 	(
-		Zeitgeist_State* state
+		Zeitgeist_State* state,
+		size_t *live,
+		size_t* dead
 	);
 
 Zeitgeist_Boolean
@@ -130,22 +134,27 @@ finalize
 { 
 	switch (object->typeTag) {
 		case Zeitgeist_Gc_TypeTag_List: {
+			WeakReferences_notifyDestroy(state, object);
 			Zeitgeist_List_finalize(state, (Zeitgeist_List*)object);
 			free(object);
 		} break;
 		case Zeitgeist_Gc_TypeTag_Map: {
+			WeakReferences_notifyDestroy(state, object);
 			Zeitgeist_Map_finalize(state, (Zeitgeist_Map*)object);
 			free(object);
 		} break;
 		case Zeitgeist_Gc_TypeTag_Object: {
+			WeakReferences_notifyDestroy(state, object);
 			Zeitgeist_Object_finalize(state, (Zeitgeist_Object*)object);
 			free(object);
 		} break;
 		case Zeitgeist_Gc_TypeTag_String: {
+			WeakReferences_notifyDestroy(state, object);
 			Zeitgeist_String_finalize(state, (Zeitgeist_String*)object);
 			free(object);
 		} break;
 		case Zeitgeist_Gc_TypeTag_WeakReference: {
+			WeakReferences_notifyDestroy(state, object);
 			Zeitgeist_WeakReference_finalize(state, (Zeitgeist_WeakReference*)object);
 			free(object);
 		} break;
@@ -206,9 +215,13 @@ mark
 static void
 sweep
 	(
-		Zeitgeist_State* state
+		Zeitgeist_State* state,
+		size_t *live,
+		size_t *dead
 	)
 {
+	size_t live_ = 0,
+		     dead_ = 0;
 	Zeitgeist_Gc_Object** previous = &state->gc.all;
 	Zeitgeist_Gc_Object* current = state->gc.all;
 	while (NULL != current) {
@@ -217,23 +230,29 @@ sweep
 			*previous = current->next;
 			current = current->next;
 			finalize(state, object);
+			dead_++;
 		} else {
 			Zeitgeist_Gc_Object_setWhite(current);
 			previous = &current->next;
 			current = current->next;
+			live_++;
 		}
 	}
+	*live = live_;
+	*dead = dead_;
 }
 
 static void
 runGc
 	(
-		Zeitgeist_State* state
+		Zeitgeist_State* state,
+		size_t *live,
+		size_t *dead
 	)
 {
 	premark(state);
 	mark(state);
-	sweep(state);
+	sweep(state, live, dead);
 }
 
 void
@@ -242,12 +261,20 @@ Zeitgeist_State_destroy
 		Zeitgeist_State* state
 	)
 {
-	runGc(state);
-	WeakReferences_uninitialize(state);
+	// Assert stack is empty.
+	Stack_preLastGcCheck(state);
+	// Assert nothing is locked.
+	Locks_preLastGcCheck(state);
+
+	size_t runs = 0,
+		     live = 0, dead = 0;
+	do {
+		runGc(state, &live, &dead);
+		runs++;
+	} while ((dead > 0 || live > 0) && runs < 5);
 	Locks_uninitialize(state);
-	runGc(state);
+	WeakReferences_uninitialize(state);
 	Stack_uninitialize(state);
-	runGc(state);
 	if (state->gc.all) {
 		fprintf(stderr, "%s:%d: warning: gc all list not empty\n", __FILE__, __LINE__);
 	}
@@ -299,5 +326,6 @@ Zeitgeist_State_update
 		Zeitgeist_State* state
 	)
 {
-	runGc(state);
+	size_t live = 0, dead = 0;
+	runGc(state, &live, &dead);
 }
