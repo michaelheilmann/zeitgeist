@@ -8,6 +8,12 @@
 // fprintf, stdio
 #include <stdio.h>
 
+// exit, EXIT_FAILURE
+#include <stdlib.h>
+
+#include "Zeitgeist/Locks.h"
+#include "Zeitgeist/WeakReferences.h"
+
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	#include "ServiceWgl.h"
 	#define WIN32_LEAN_AND_MEAN
@@ -26,6 +32,10 @@
 	Type Name = NULL;
 #include "ServiceGl_Functions.i"
 #undef Define
+
+static Zeitgeist_List* g_keyboardKeyListeners = NULL;
+
+static Zeitgeist_Integer g_referenceCount = 0;
 
 static void*
 link
@@ -50,17 +60,20 @@ ServiceGl_startup
 		Zeitgeist_State* state
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_startup(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_startup(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
-#define Define(Type, Name) \
-	Name = (Type)link(state, #Name, NULL);
-#include "ServiceGl_Functions.i"
-#undef Define
+	if (g_referenceCount == 0) {
+	#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+		ServiceWgl_startup(state);
+	#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+		ServiceGlx_startup(state);
+	#else
+		#error("operating system not (yet) supported")
+	#endif
+	#define Define(Type, Name) \
+		Name = (Type)link(state, #Name, NULL);
+	#include "ServiceGl_Functions.i"
+	#undef Define
+	}
+	g_referenceCount++;
 }
 
 void
@@ -69,13 +82,19 @@ ServiceGl_shutdown
 		Zeitgeist_State* state
 	)
 {
-#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
-	ServiceWgl_shutdown(state);
-#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
-	ServiceGlx_shutdown(state);
-#else
-	#error("operating system not (yet) supported")
-#endif
+	if (0 == --g_referenceCount) {
+		if (g_keyboardKeyListeners) {
+			Zeitgeist_unlock(state, (Zeitgeist_Gc_Object*)g_keyboardKeyListeners);
+			g_keyboardKeyListeners = NULL;
+		}
+	#if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
+		ServiceWgl_shutdown(state);
+	#elif Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
+		ServiceGlx_shutdown(state);
+	#else
+		#error("operating system not (yet) supported")
+	#endif
+	}
 }
 
 void
@@ -215,4 +234,85 @@ ServiceGl_linkProgram
 		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	return program;
+}
+
+void
+ServiceGl_emitKeyboardKeyMessage
+	(
+		Zeitgeist_State* state,
+		KeyboardKeyMessage* message
+	)
+{
+	Zeitgeist_Value temporary = Zeitgeist_List_getSize(state, g_keyboardKeyListeners);
+	for (size_t i = 0, n = Zeitgeist_Value_getInteger(&temporary); i < n; ++i) {
+		temporary = Zeitgeist_List_getValue(state, g_keyboardKeyListeners, i);
+		if (Zeitgeist_Value_hasWeakReference(&temporary)) {
+			Zeitgeist_WeakReference* weakReference = Zeitgeist_Value_getWeakReference(&temporary);
+			if (weakReference->reference) {
+				switch (weakReference->reference->typeTag) {
+					case Zeitgeist_Gc_TypeTag_List: {
+						fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+						exit(EXIT_FAILURE);
+					} break;
+					case Zeitgeist_Gc_TypeTag_Map: {
+						fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+						exit(EXIT_FAILURE);
+					} break;
+					case Zeitgeist_Gc_TypeTag_Object: {
+						fprintf(stderr, "%s:%d: not yet implemented\n", __FILE__, __LINE__);
+						exit(EXIT_FAILURE);
+					} break;
+					case Zeitgeist_Gc_TypeTag_String: {
+						fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+						exit(EXIT_FAILURE);
+					} break;
+					default: {
+						fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+						exit(EXIT_FAILURE);
+					} break;
+				};
+			}
+		} else if (Zeitgeist_Value_hasForeignFunction(&temporary)) {
+			Zeitgeist_ForeignFunction* foreignFunction = Zeitgeist_Value_getForeignFunction(&temporary);
+			Zeitgeist_Stack_pushObject(state, (Zeitgeist_Object*)message);
+			Zeitgeist_Stack_pushInteger(state, 1);
+			(*foreignFunction)(state);
+		} else {
+			fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+void
+ServiceGl_addKeyboardKeyCallback
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Value* value
+	)
+{
+	if (!g_keyboardKeyListeners) {
+		g_keyboardKeyListeners = Zeitgeist_createList(state);
+		Zeitgeist_JumpTarget jumpTarget;
+		Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+		if (!setjmp(jumpTarget.environment)) {
+			Zeitgeist_lock(state, (Zeitgeist_Gc_Object*)g_keyboardKeyListeners);
+			Zeitgeist_State_popJumpTarget(state);
+		} else {
+			Zeitgeist_State_popJumpTarget(state);
+			g_keyboardKeyListeners = NULL;
+			longjmp(state->jumpTarget->environment, -1);
+		}
+	}
+	if (Zeitgeist_Value_hasVoid(value)) {
+		return;
+	} else if (Zeitgeist_Value_hasForeignFunction(value)) {
+		Zeitgeist_List_appendValue(state, g_keyboardKeyListeners, value);
+	} else if (Zeitgeist_Value_hasObject(value)) {
+		Zeitgeist_Value temporary;
+		Zeitgeist_Value_setWeakReference(&temporary, Zeitgeist_WeakReference_create(state, (Zeitgeist_Gc_Object*)Zeitgeist_Value_getObject(value)));
+		Zeitgeist_List_appendValue(state, g_keyboardKeyListeners, &temporary);
+	} else {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
 }

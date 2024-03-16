@@ -102,10 +102,4 @@ ServiceWgl_endFrame
 		Zeitgeist_State* state
 	);
 
-void
-ServiceWgl_addKeyboardKeyCallback
-	(
-		Zeitgeist_State* state
-	);
-
 #endif // SERVICEWGL_H_INCLUDED

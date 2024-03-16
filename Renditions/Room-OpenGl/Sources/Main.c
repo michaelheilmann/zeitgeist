@@ -128,6 +128,15 @@ Zeitgeist_Rendition_update
 	ServiceGl_endFrame(state);
 }
 
+static void
+onKeyboardKeyMessage
+	(
+		Zeitgeist_State* state
+	)
+{
+	fprintf(stdout, "%s:%d: keyboard key message received\n", __FILE__, __LINE__);
+}
+
 Zeitgeist_Rendition_Export void
 Zeitgeist_Rendition_load
 	(
@@ -136,6 +145,10 @@ Zeitgeist_Rendition_load
 {
 	ServiceGl_startup(state);
 	ServiceGl_setTitle(state, Zeitgeist_State_createString(state, "Room (OpenGL)", strlen("Room (OpenGL)")));
+
+	Zeitgeist_Value temporary;
+	Zeitgeist_Value_setForeignFunction(&temporary, &onKeyboardKeyMessage);
+	ServiceGl_addKeyboardKeyCallback(state, &temporary);
 
 	GLuint vertexShaderId, fragmentShaderId;
 	

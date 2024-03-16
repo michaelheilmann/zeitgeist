@@ -799,7 +799,7 @@ ServiceWgl_startup
 		Zeitgeist_State* state
 	)
 {
-	fprintf(stdout, "[Hello World (OpenGL)] starting up OpenGL service\n");
+	fprintf(stdout, "[Hello World (OpenGL)] starting up WGL service\n");
 	startupLegacy(state);
 	Zeitgeist_JumpTarget jumpTarget;
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
@@ -820,7 +820,7 @@ ServiceWgl_shutdown
 		Zeitgeist_State* state
  	)
 {
-	fprintf(stdout, "[Hello World (OpenGL)] shutting down OpenGL service\n");
+	fprintf(stdout, "[Hello World (OpenGL)] shutting down WGL service\n");
 	shutdown(state);
 	shutdownLegacy(state);
 }
