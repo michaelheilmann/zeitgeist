@@ -12,7 +12,7 @@ Vector3R32_create
 		Zeitgeist_Real32 z
 	)
 {
-	Vector3R32* self = Zeitgeist_allocateObject(state, sizeof(Vector3R32), NULL, NULL);
+	Vector3R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Vector3R32), NULL, NULL);
 
 	self->e[0] = x;
 	self->e[1] = y;

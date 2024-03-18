@@ -5,7 +5,7 @@
 typedef struct Vector3R32 Vector3R32;
 
 typedef struct Matrix4R32 {
-	Zeitgeist_Object _parent;
+	Zeitgeist_ForeignObject _parent;
 	Zeitgeist_Real32 e[4][4];
 } Matrix4R32;
 

@@ -258,7 +258,7 @@ ServiceGl_emitKeyboardKeyMessage
 						fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
 						exit(EXIT_FAILURE);
 					} break;
-					case Zeitgeist_Gc_TypeTag_Object: {
+					case Zeitgeist_Gc_TypeTag_ForeignObject: {
 						fprintf(stderr, "%s:%d: not yet implemented\n", __FILE__, __LINE__);
 						exit(EXIT_FAILURE);
 					} break;
@@ -274,7 +274,7 @@ ServiceGl_emitKeyboardKeyMessage
 			}
 		} else if (Zeitgeist_Value_hasForeignFunction(&temporary)) {
 			Zeitgeist_ForeignFunction* foreignFunction = Zeitgeist_Value_getForeignFunction(&temporary);
-			Zeitgeist_Stack_pushObject(state, (Zeitgeist_Object*)message);
+			Zeitgeist_Stack_pushForeignObject(state, (Zeitgeist_ForeignObject*)message);
 			Zeitgeist_Stack_pushInteger(state, 1);
 			(*foreignFunction)(state);
 		} else {
@@ -308,9 +308,9 @@ ServiceGl_addKeyboardKeyCallback
 		return;
 	} else if (Zeitgeist_Value_hasForeignFunction(value)) {
 		Zeitgeist_List_appendValue(state, g_keyboardKeyListeners, value);
-	} else if (Zeitgeist_Value_hasObject(value)) {
+	} else if (Zeitgeist_Value_hasForeignObject(value)) {
 		Zeitgeist_Value temporary;
-		Zeitgeist_Value_setWeakReference(&temporary, Zeitgeist_WeakReference_create(state, (Zeitgeist_Gc_Object*)Zeitgeist_Value_getObject(value)));
+		Zeitgeist_Value_setWeakReference(&temporary, Zeitgeist_WeakReference_create(state, (Zeitgeist_Gc_Object*)Zeitgeist_Value_getForeignObject(value)));
 		Zeitgeist_List_appendValue(state, g_keyboardKeyListeners, &temporary);
 	} else {
 		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);

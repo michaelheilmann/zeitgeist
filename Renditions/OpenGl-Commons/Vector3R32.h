@@ -4,7 +4,7 @@
 #include "Zeitgeist.h"
 
 typedef struct Vector3R32 {
-	Zeitgeist_Object _parent;
+	Zeitgeist_ForeignObject _parent;
 	Zeitgeist_Real32 e[3];
 } Vector3R32;
 

@@ -12,7 +12,7 @@
 #define KeyboardKey_Right (4)
 
 typedef struct KeyboardKeyMessage {
-	Zeitgeist_Object _parent;
+	Zeitgeist_ForeignObject _parent;
 	Zeitgeist_Integer action;
 	Zeitgeist_Integer key;
 } KeyboardKeyMessage;

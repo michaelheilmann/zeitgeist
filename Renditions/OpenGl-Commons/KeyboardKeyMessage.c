@@ -11,7 +11,7 @@ KeyboardKeyMessage_create
 		Zeitgeist_Integer key
 	)
 {
-	KeyboardKeyMessage* self = Zeitgeist_allocateObject(state, sizeof(KeyboardKeyMessage), NULL, NULL);
+	KeyboardKeyMessage* self = Zeitgeist_allocateForeignObject(state, sizeof(KeyboardKeyMessage), NULL, NULL);
 
 	self->action = action;
 	self->key = key;

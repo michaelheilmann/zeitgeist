@@ -8,6 +8,18 @@
 // malloc, free
 #include <malloc.h>
 
+// ServiceGl_emitKeyboardKeyMessage
+#include "ServiceGl.h"
+#include "KeyboardKeyMessage.h"
+
+// ServiceGl_emitMouseButtonMessage
+//#include "ServiceGl.h"
+//#include "MouseButtonMessage.h"
+
+// ServiceGl_emitPointerMessage
+//#include "ServiceGl.h"
+//#include "MousePointerMessage.h"
+
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 
 	#define WIN32_LEAN_AND_MEAN
@@ -61,12 +73,44 @@ static ATOM g_classHandle = 0;
 
 static HWND g_hWnd = NULL;
 
+static HICON g_hSmallIcon = NULL;
+
+static HICON g_hBigIcon = NULL;
+
 static HDC g_hDc = NULL;
 
 static HGLRC g_hGlrc = NULL;
 
 static bool g_quitRequested = false;
 
+// @brief Create an icon with the specified color and the specified width and height.
+// @param RETURN A pointer to a HICON variable.
+// @param width The width, in pixels, of the icon.
+// @param height The height, in pixels, of the icon.
+// @success <code>*RETURN</code> was assigned the icon handle.
+static void
+createIcon
+	(
+		Zeitgeist_State* state,
+		HICON* RETURN,
+		COLORREF color,
+		int width,
+		int height
+	);
+
+static void
+createIcons
+	(
+		Zeitgeist_State* state,
+		HWND hWnd,
+		COLORREF color
+	);
+
+static void
+destroyIcons
+	(
+		Zeitgeist_State* state
+	);
 
 // Helper to check for extension string presence.	Adapted from:
 // http://www.opengl.org/resources/features/OGLextensions/
@@ -131,6 +175,121 @@ startup
 		Zeitgeist_State* state
 	);
 
+static void
+createIcon
+	(
+		Zeitgeist_State* state,
+		HICON* RETURN,
+		COLORREF color,
+		int width,
+		int height
+	)
+{
+	// Obtain a handle to the screen device context.
+	HDC hdcScreen = GetDC(NULL);
+	if (!hdcScreen) {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+
+	// Create a memory device context, which we will draw into.
+	HDC hdcMem = CreateCompatibleDC(hdcScreen);
+	if (!hdcMem) {
+		ReleaseDC(NULL, hdcScreen);
+		hdcScreen = NULL;
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+
+	// Create the bitmap, and select it into the device context for drawing.
+	HBITMAP hbmp = CreateCompatibleBitmap(hdcScreen, width, height);
+	if (!hbmp) {
+		DeleteDC(hdcMem);
+		hdcMem = NULL;
+		ReleaseDC(NULL, hdcScreen);
+		hdcScreen = NULL;
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	HBITMAP hbmpOld = (HBITMAP)SelectObject(hdcMem, hbmp);
+
+	// Draw your icon.
+	// 
+	// For this simple example, we're just drawing a solid color rectangle
+	// in the specified color with the specified dimensions.
+	HPEN hpen = CreatePen(PS_SOLID, 1, color);
+	HPEN hpenOld = (HPEN)SelectObject(hdcMem, hpen);
+	HBRUSH hbrush = CreateSolidBrush(color);
+	HBRUSH hbrushOld = (HBRUSH)SelectObject(hdcMem, hbrush);
+	Rectangle(hdcMem, 0, 0, width, height);
+	SelectObject(hdcMem, hbrushOld);
+	SelectObject(hdcMem, hpenOld);
+	DeleteObject(hbrush);
+	DeleteObject(hpen);
+
+	// Create an icon from the bitmap.
+	// 
+	// Icons require masks to indicate transparent and opaque areas. Since this
+	// simple example has no transparent areas, we use a fully opaque mask.
+	HBITMAP hbmpMask = CreateCompatibleBitmap(hdcScreen, width, height);
+	ICONINFO ii;
+	ii.fIcon = TRUE;
+	ii.hbmMask = hbmpMask;
+	ii.hbmColor = hbmp;
+	HICON hIcon = CreateIconIndirect(&ii);
+	DeleteObject(hbmpMask);
+
+	// Clean-up.
+	SelectObject(hdcMem, hbmpOld);
+	DeleteObject(hbmp);
+	DeleteDC(hdcMem);
+	ReleaseDC(NULL, hdcScreen);
+
+	*RETURN = hIcon;
+}
+
+static void
+createIcons
+	(
+		Zeitgeist_State* state,
+		HWND hWnd,
+		COLORREF color
+	)
+{
+	int size;
+
+	// Create big icon.
+	size = GetSystemMetrics(SM_CXICON);
+	createIcon(state, &g_hBigIcon, color, size, size);
+
+	// Create small icon.
+	size = GetSystemMetrics(SM_CXSMICON);
+	Zeitgeist_JumpTarget jumpTarget;
+	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+	if (!setjmp(jumpTarget.environment)) {
+		createIcon(state, &g_hSmallIcon, color, size, size);
+		Zeitgeist_State_popJumpTarget(state);
+	} else {
+		Zeitgeist_State_popJumpTarget(state);
+		DestroyIcon(g_hBigIcon);
+		g_hBigIcon = NULL;
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+}
+
+static void
+destroyIcons
+	(
+		Zeitgeist_State* state
+	)
+{
+	if (g_hSmallIcon) {
+		DestroyIcon(g_hSmallIcon);
+		g_hSmallIcon = NULL;
+	}
+	if (g_hBigIcon) {
+		DestroyIcon(g_hBigIcon);
+		g_hBigIcon = NULL;
+	}
+}
+
 // Helper to check for extension string presence.	Adapted from:
 // http://www.opengl.org/resources/features/OGLextensions/
 static bool
@@ -184,15 +343,62 @@ windowCallbackLegacy
 static LRESULT CALLBACK
 windowCallback
 	(
-		HWND wnd,
+		HWND hWnd,
 		UINT msg,
-		WPARAM wparam,
-		LPARAM lparam
+		WPARAM wParam,
+		LPARAM lParam
 	)
 {
 	switch (msg) {
+		case WM_CREATE: {
+			CREATESTRUCT* pCreateStruct = (CREATESTRUCT*)lParam;
+			if (!pCreateStruct) {
+				return -1;
+			}
+			Zeitgeist_State* state = (Zeitgeist_State*)pCreateStruct->lpCreateParams;
+			if (!SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)state)) {
+				if (GetLastError()) {
+					return -1;
+				}
+			}
+			return 0;
+		} break;
 		case WM_CLOSE: {
-			DestroyWindow(wnd);
+			DestroyWindow(hWnd);
+			return 0;
+		} break;
+		case WM_KEYDOWN: {
+			Zeitgeist_State* state = (Zeitgeist_State*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (state) {
+				Zeitgeist_JumpTarget jumpTarget;
+				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+				if (!setjmp(jumpTarget.environment)) {
+					if (wParam == VK_ESCAPE) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Pressed, KeyboardKey_Down);
+						ServiceGl_emitKeyboardKeyMessage(state, message);
+					}
+					Zeitgeist_State_popJumpTarget(state);
+				} else {
+					Zeitgeist_State_popJumpTarget(state);
+				}
+			}
+			return 0;
+		} break;
+		case WM_KEYUP: {
+			Zeitgeist_State* state = (Zeitgeist_State*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			if (state) {
+				Zeitgeist_JumpTarget jumpTarget;
+				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+				if (!setjmp(jumpTarget.environment)) {
+					if (wParam == VK_ESCAPE) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Released, KeyboardKey_Up);
+						ServiceGl_emitKeyboardKeyMessage(state, message);
+					}
+					Zeitgeist_State_popJumpTarget(state);
+				} else {
+					Zeitgeist_State_popJumpTarget(state);
+				}
+			}
 			return 0;
 		} break;
 		case WM_DESTROY: {
@@ -200,7 +406,7 @@ windowCallback
 			return 0;
 		} break;
 	};
-	return DefWindowProc(wnd, msg, wparam, lparam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 static void
@@ -289,6 +495,8 @@ startupLegacy
 		Zeitgeist_State* state
 	)
 {
+	Zeitgeist_JumpTarget jumpTarget;
+
 	g_hInstance = GetModuleHandle(NULL);
 	if (!g_hInstance) {
 		state->lastError = 1;
@@ -337,7 +545,7 @@ startupLegacy
 													NULL,
 													NULL,
 													g_hInstance,
-													NULL);
+													state);
 	if (!g_hWnd) {
 		//
 		UnregisterClass(g_className, g_hInstance);
@@ -351,8 +559,15 @@ startupLegacy
 		state->lastError = 1;
 		longjmp(state->jumpTarget->environment, -1);
 	}
-	g_hDc = GetDC(g_hWnd);
-	if (!g_hDc) {
+	//
+	COLORREF color = RGB(0, 0, 0);
+	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+	if (!setjmp(jumpTarget.environment)) {
+		createIcons(state, g_hWnd, color);
+		Zeitgeist_State_popJumpTarget(state);
+	} else {
+		Zeitgeist_State_popJumpTarget(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -364,10 +579,29 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
-	Zeitgeist_JumpTarget jumpTarget;
+	SendMessage(g_hWnd, WM_SETICON, ICON_BIG, (LPARAM)g_hBigIcon);
+	SendMessage(g_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)g_hSmallIcon);
+	//
+	g_hDc = GetDC(g_hWnd);
+	if (!g_hDc) {
+		//
+		destroyIcons(state);
+		//
+		DestroyWindow(g_hWnd);
+		g_hWnd = NULL;
+		//
+		UnregisterClass(g_className, g_hInstance);
+		g_classHandle = 0;
+		//
+		free(g_className);
+		g_className = NULL;
+		//
+		g_hInstance = NULL;
+		//
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
 		choosePixelFormatLegacy(state);
@@ -378,6 +612,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -389,8 +625,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	g_hGlrc = wglCreateContext(g_hDc);
 	if (!g_hGlrc) {
@@ -398,6 +633,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -409,8 +646,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	if (!wglMakeCurrent(g_hDc, g_hGlrc)) {
 		//
@@ -420,6 +656,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -431,8 +669,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	//
 	wglGetPixelFormatAttribivARB = (PFNWGLGETPIXELFORMATATTRIBIVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribivARB");
@@ -444,6 +681,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -455,8 +694,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	wglGetPixelFormatAttribfvARB = (PFNWGLGETPIXELFORMATATTRIBFVARBPROC)wglGetProcAddress("wglGetPixelFormatAttribfvARB");
 	if (!wglGetPixelFormatAttribfvARB) {
@@ -468,6 +706,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -479,8 +719,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
 	if (!wglGetPixelFormatAttribfvARB) {
@@ -493,6 +732,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -504,8 +745,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
 	if (!wglGetPixelFormatAttribfvARB) {
@@ -519,6 +759,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -530,8 +772,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 	if (!wglCreateContextAttribsARB) {
@@ -545,6 +786,8 @@ startupLegacy
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -556,8 +799,7 @@ startupLegacy
 		//
 		g_hInstance = NULL;
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	//
 	wglDeleteContext(g_hGlrc);
@@ -594,6 +836,8 @@ shutdown
 		g_hDc = NULL;
 	}
 	//
+	destroyIcons(state);
+	//
 	if (g_hWnd) {
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
@@ -620,12 +864,13 @@ startup
 		Zeitgeist_State* state
 	)
 {
+	Zeitgeist_JumpTarget jumpTarget;
+
 	g_hInstance = GetModuleHandle(NULL);
 	if (!g_hInstance) {
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	g_className = _strdup("windowClass");
 	if (!g_className) {
@@ -633,8 +878,7 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	WNDCLASSEX wcex;
@@ -660,21 +904,20 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	g_hWnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
-		g_className,
-		"Zeitgeist",
-		WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		NULL,
-		NULL,
-		g_hInstance,
-		NULL);
+													g_className,
+													"Zeitgeist",
+													WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+													CW_USEDEFAULT,
+													CW_USEDEFAULT,
+													CW_USEDEFAULT,
+													CW_USEDEFAULT,
+													NULL,
+													NULL,
+													g_hInstance,
+													state);
 	if (!g_hWnd) {
 		//
 		UnregisterClass(g_className, g_hInstance);
@@ -687,11 +930,38 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
+	//
+	COLORREF color = RGB(0, 0, 0);
+	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+	if (!setjmp(jumpTarget.environment)) {
+		createIcons(state, g_hWnd, color);
+		Zeitgeist_State_popJumpTarget(state);
+	} else {
+		Zeitgeist_State_popJumpTarget(state);
+		//
+		DestroyWindow(g_hWnd);
+		g_hWnd = NULL;
+		//
+		UnregisterClass(g_className, g_hInstance);
+		g_classHandle = 0;
+		//
+		free(g_className);
+		g_className = NULL;
+		//
+		g_hInstance = NULL;
+		//
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	SendMessage(g_hWnd, WM_SETICON, ICON_BIG, (LPARAM)g_hBigIcon);
+	SendMessage(g_hWnd, WM_SETICON, ICON_SMALL, (LPARAM)g_hSmallIcon);
+	//
 	g_hDc = GetDC(g_hWnd);
 	if (!g_hDc) {
+		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -705,10 +975,9 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
-	Zeitgeist_JumpTarget jumpTarget;
+	//
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
 		choosePixelFormat(state);
@@ -719,6 +988,8 @@ startup
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -732,8 +1003,7 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	//
 	ShowWindow(g_hWnd, SW_SHOW);
@@ -751,6 +1021,8 @@ startup
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -764,8 +1036,7 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 	if (!wglMakeCurrent(g_hDc, g_hGlrc)) {
 		//
@@ -775,6 +1046,8 @@ startup
 		ReleaseDC(g_hWnd, g_hDc);
 		g_hDc = NULL;
 		//
+		destroyIcons(state);
+		//
 		DestroyWindow(g_hWnd);
 		g_hWnd = NULL;
 		//
@@ -788,8 +1061,7 @@ startup
 		//
 		shutdownLegacy(state);
 		//
-		state->lastError = 1;
-		longjmp(state->jumpTarget->environment, -1);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 }
 
