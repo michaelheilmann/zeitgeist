@@ -6,6 +6,9 @@
 #include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
+// size_t
+#include <stddef.h>
+
 struct Zeitgeist_Object {
 	Zeitgeist_Gc_Object _parent;
 	/** For being added to the "gray" list during the "mark" phase of the garbage collector. */
