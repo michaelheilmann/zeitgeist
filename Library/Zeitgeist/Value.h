@@ -80,9 +80,9 @@ typedef struct Zeitgeist_Map Zeitgeist_Map;
 
 /**
  * @since 0.1
- * A Zeitgeist_Object object.
+ * A Zeitgeist_ForeignObject object.
  */
-typedef struct Zeitgeist_Object Zeitgeist_Object;
+typedef struct Zeitgeist_ForeignObject Zeitgeist_ForeignObject;
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -167,65 +167,65 @@ typedef struct Zeitgeist_Value Zeitgeist_Value;
  /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.foreignFunctionValue holds a Zeitgeist_ForeignFunction value.
+ * then v.foreignFunctionValue holds a Zeitgeist_ForeignFunction* value.
  */
 #define Zeitgeist_ValueTag_ForeignFunction (1)
+
+/**
+ * @since 0.1
+ * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
+ * then v.objectValue holds a Zeitgeist_ForeignObject* value.
+ */
+#define Zeitgeist_ValueTag_ForeignObject (2)
 
  /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.integerValue holds a Zeitgeist_Integer value.
  */
-#define Zeitgeist_ValueTag_Integer (1)
+#define Zeitgeist_ValueTag_Integer (3)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.listValue holds a Zeitgeist_List value.
+ * then v.listValue holds a Zeitgeist_List* value.
  */
-#define Zeitgeist_ValueTag_List (2)
+#define Zeitgeist_ValueTag_List (4)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.mapValue holds a Zeitgeist_Map value.
+ * then v.mapValue holds a Zeitgeist_Map* value.
  */
-#define Zeitgeist_ValueTag_Map (3)
-
-/**
- * @since 0.1
- * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
- * then v.objectValue holds a Zeitgeist_Object value.
- */
-#define Zeitgeist_ValueTag_Object (4)
+#define Zeitgeist_ValueTag_Map (5)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.stringValue holds a Zeitgeist_Real32 value.
  */
-#define Zeitgeist_ValueTag_Real32 (5)
+#define Zeitgeist_ValueTag_Real32 (6)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.stringValue holds a Zeitgeist_String value.
  */
-#define Zeitgeist_ValueTag_String (6)
+#define Zeitgeist_ValueTag_String (7)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.voidValue holds a Zeitgeist_Void value.
  */
-#define Zeitgeist_ValueTag_Void (7)
+#define Zeitgeist_ValueTag_Void (8)
 
 /**
  * @since 0.1
  * Symbolic constant. If its value is assigned to the field v.tag of a Zeitgeist_Value v,
  * then v.weakReference holds a Zeitgeist_WeakReference* value.
  */
-#define Zeitgeist_ValueTag_WeakReference (8)
+#define Zeitgeist_ValueTag_WeakReference (9)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -250,6 +250,11 @@ struct Zeitgeist_Value {
 		Zeitgeist_ForeignFunction* foreignFunction;
 		/**
 		 * @since 0.1
+		 * Holds a Zeitgeist_ForeignObject* value if tag is Zeitgeist_ValueTag_ForeignObject.
+		 */
+		Zeitgeist_ForeignObject* foreignObjectValue;
+		/**
+		 * @since 0.1
 		 * Holds a Zeitgeist_Integer value if tag is Zeitgeist_ValueTag_Integer.
 		 */
 		Zeitgeist_Integer integerValue;
@@ -263,11 +268,6 @@ struct Zeitgeist_Value {
 		 * Holds a Zeitgeist_Map* value if tag is Zeitgeist_ValueTag_Map.
 		 */
 		Zeitgeist_Map* mapValue;
-		/**
-		 * @since 0.1
-		 * Holds a Zeitgeist_Object* value if tag is Zeitgeist_ValueTag_Object.
-		 */
-		Zeitgeist_Object* objectValue;
 		/**
 		 * @since 0.1
 		 * Holds a Zeitgeist_Real32 value if tag is Zeitgeist_ValueTag_Real32.
@@ -392,6 +392,47 @@ Zeitgeist_Value_getForeignFunction
 
 /**
  * @since 0.1
+ * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_ForeignObject* value.
+ * @param value A pointer to a Zeitgeist_value object.
+ * @return true if the Zeitgeist_Value object stores a Zeitgeist_ForeignObject* value. false otherwise.
+ */
+bool
+Zeitgeist_Value_hasForeignObject
+	(
+		Zeitgeist_Value const* value
+	);
+
+/**
+ * @since 0.1 
+ * @brief Store a Zeitgeist_ForeignObject* value in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @param foreignObjectValue A Zeitgeist_ForeignObject* value.
+ */
+void
+Zeitgeist_Value_setForeignObject
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_ForeignObject* foreignObjectValue
+	);
+
+/**
+ * @since 0.1
+ * @brief Get the Zeitgeist_ForeignObject* value stored in a Zeitgeist_Value object.
+ * @param value A pointer to a Zeitgeist_Value object.
+ * @return The Zeitgeist_FoeignObject* value.
+ * @undefined value does not point to a Zeitgeist_Value object.
+ * @undefined The Zeitgeist_Value object does not store an Zeitgeist_ForeignObject* value.
+ */
+Zeitgeist_ForeignObject*
+Zeitgeist_Value_getForeignObject
+	(
+		Zeitgeist_Value const* value
+	);
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @since 0.1
  * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Integer value.
  * @param value A pointer to a Zeitgeist_value object.
  * @return true if the Zeitgeist_Value object stores a Zeitgeist_Integer value. false otherwise.
@@ -507,47 +548,6 @@ Zeitgeist_Value_setMap
  */
 Zeitgeist_Map*
 Zeitgeist_Value_getMap
-	(
-		Zeitgeist_Value const* value
-	);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @since 0.1
- * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Object* value.
- * @param value A pointer to a Zeitgeist_value object.
- * @return true if the Zeitgeist_Value object stores a Zeitgeist_Object* value. false otherwise.
- */
-bool
-Zeitgeist_Value_hasObject
-	(
-		Zeitgeist_Value const* value
-	);
-
-/**
- * @since 0.1 
- * @brief Store a Zeitgeist_Integer value in a Zeitgeist_Value object.
- * @param value A pointer to a Zeitgeist_Value object.
- * @param objectValue A Zeitgeist_Object value.
- */
-void
-Zeitgeist_Value_setObject
-	(
-		Zeitgeist_Value* value,
-		Zeitgeist_Object* objectValue
-	);
-
-/**
- * @since 0.1
- * @brief Get the Zeitgeist_Object* value stored in a Zeitgeist_Value object.
- * @param value A pointer to a Zeitgeist_Value object.
- * @return The Zeitgeist_Object* value.
- * @undefined value does not point to a Zeitgeist_Value object.
- * @undefined The Zeitgeist_Value object does not store an Zeitgeist_Object* value.
- */
-Zeitgeist_Object*
-Zeitgeist_Value_getObject
 	(
 		Zeitgeist_Value const* value
 	);

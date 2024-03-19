@@ -20,7 +20,7 @@ typedef struct Zeitgeist_UpstreamRequest Zeitgeist_UpstreamRequest;
 #define Zeitgeist_UpstreamRequestType_ExitProcessRequest (1)
 
 struct Zeitgeist_UpstreamRequest {
-  Zeitgeist_Object _parent;
+  Zeitgeist_ForeignObject _parent;
   Zeitgeist_Integer type;
 };
 

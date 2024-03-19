@@ -1,5 +1,5 @@
 # Zeitgeist Built-In Types
-*Zeitgeist* knows the following types: *Boolean*, *Integer*, *List*, *Map*, *Real32*, *String*, and *Void*.
+*Zeitgeist* knows the following types: *Boolean*, *ForeignFunction*, *ForeignObject*, *Integer*, *List*, *Map*, *Real32*, *String*, and *Void*.
 
 ## List
 The *List* type is represented by `Zeitgeist_List`.

@@ -29,18 +29,18 @@ Zeitgeist_Value_visit
 				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->mapValue);
 			}
 		} break;
+		case Zeitgeist_ValueTag_ForeignObject: {
+			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->foreignObjectValue)) {
+				value->foreignObjectValue->gclist = state->gc.gray;
+				state->gc.gray = (Zeitgeist_Gc_Object*)value->foreignObjectValue;
+				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->foreignObjectValue);
+			}
+		} break;
 		case Zeitgeist_ValueTag_List: {
 			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->listValue)) {
 				value->listValue->gclist = state->gc.gray;
 				state->gc.gray = (Zeitgeist_Gc_Object*)value->listValue;
 				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->listValue);
-			}
-		} break;
-		case Zeitgeist_ValueTag_Object: {
-			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->objectValue)) {
-				value->objectValue->gclist = state->gc.gray;
-				state->gc.gray = (Zeitgeist_Gc_Object*)value->objectValue;
-				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->objectValue);
 			}
 		} break;
 		case Zeitgeist_ValueTag_String: {
@@ -102,6 +102,33 @@ Zeitgeist_Value_getForeignFunction
 		Zeitgeist_Value* value
 	)
 { return value->foreignFunction; }
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+bool
+Zeitgeist_Value_hasForeignObject
+	(
+		Zeitgeist_Value const* value
+	)
+{ return Zeitgeist_ValueTag_ForeignObject == value->tag; }
+
+void
+Zeitgeist_Value_setForeignObject
+	(
+		Zeitgeist_Value* value,
+		Zeitgeist_ForeignObject* foreignObjectValue
+	)
+{
+	value->tag = Zeitgeist_ValueTag_ForeignObject;
+	value->foreignObjectValue = foreignObjectValue;
+}
+
+Zeitgeist_ForeignObject*
+Zeitgeist_Value_getForeignObject
+	(
+		Zeitgeist_Value const* value
+	)
+{ return value->foreignObjectValue; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -185,33 +212,6 @@ Zeitgeist_Value_getMap
 		Zeitgeist_Value const* value
 	)
 { return value->mapValue; }
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-bool
-Zeitgeist_Value_hasObject
-	(
-		Zeitgeist_Value const* value
-	)
-{ return Zeitgeist_ValueTag_Object == value->tag; }
-
-void
-Zeitgeist_Value_setObject
-	(
-		Zeitgeist_Value* value,
-		Zeitgeist_Object* objectValue
-	)
-{
-	value->tag = Zeitgeist_ValueTag_Object;
-	value->objectValue = objectValue;
-}
-
-Zeitgeist_Object*
-Zeitgeist_Value_getObject
-	(
-		Zeitgeist_Value const* value
-	)
-{ return value->objectValue; }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 

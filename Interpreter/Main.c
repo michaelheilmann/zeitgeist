@@ -48,7 +48,7 @@ loadRenditions
 				Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ffd.cFileName, strlen(ffd.cFileName));
 				Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
 				Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
-				Zeitgeist_List_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
+				Zeitgeist_List_appendForeignObject(state, renditions, (Zeitgeist_ForeignObject*)rendition);
 			}
 		} while (FindNextFile(hFind, &ffd) != 0);
 		Zeitgeist_State_popJumpTarget(state);
@@ -107,7 +107,7 @@ loadRenditions
 					Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
 					Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
 					Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
-					Zeitgeist_List_appendObject(state, renditions, (Zeitgeist_Object*)rendition);
+					Zeitgeist_List_appendForeignObject(state, renditions, (Zeitgeist_Object*)rendition);
 				}
 			}
 			Zeitgeist_State_popJumpTarget(state);
@@ -140,11 +140,11 @@ onListRenditions
 	Zeitgeist_Value size = Zeitgeist_List_getSize(state, renditions);
 	for (size_t i = 0, n = Zeitgeist_Value_getInteger(&size); i < n; ++i) {
 		Zeitgeist_Value value = Zeitgeist_List_getValue(state, renditions, i);
-		if (!Zeitgeist_Value_hasObject(&value)) {
+		if (!Zeitgeist_Value_hasForeignObject(&value)) {
 			state->lastError = 1;
 			longjmp(state->jumpTarget->environment, -1);
 		}
-		Zeitgeist_Rendition* rendition = (Zeitgeist_Rendition*)Zeitgeist_Value_getObject(&value);
+		Zeitgeist_Rendition* rendition = (Zeitgeist_Rendition*)Zeitgeist_Value_getForeignObject(&value);
 		Zeitgeist_String* name = Zeitgeist_Rendition_getName(state, rendition);
 		fprintf(stdout, "%zu) `%.*s`\n", i + 1, (int)name->numberOfBytes, name->bytes);
 	}
@@ -177,7 +177,7 @@ onRendition1
 	Zeitgeist_JumpTarget jumpTarget1;
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget1);
 	if (!setjmp(jumpTarget1.environment)) {
-		Zeitgeist_Stack_pushObject(state, (Zeitgeist_Object*)rendition);
+		Zeitgeist_Stack_pushForeignObject(state, (Zeitgeist_ForeignObject*)rendition);
 		Zeitgeist_JumpTarget jumpTarget2;
 		Zeitgeist_State_pushJumpTarget(state, &jumpTarget2);
 		if (!setjmp(jumpTarget1.environment)) {
@@ -213,11 +213,11 @@ onRendition
 	Zeitgeist_Value size = Zeitgeist_List_getSize(state, loadedRenditions);
 	for (size_t i = 0, n = Zeitgeist_Value_getInteger(&size); i < n; ++i) {
 		Zeitgeist_Value value = Zeitgeist_List_getValue(state, loadedRenditions, i);
-		if (!Zeitgeist_Value_hasObject(&value)) {
+		if (!Zeitgeist_Value_hasForeignObject(&value)) {
 			state->lastError = 1;
 			longjmp(state->jumpTarget->environment, -1);
 		}
-		Zeitgeist_Rendition* loadedRendition = (Zeitgeist_Rendition*)Zeitgeist_Value_getObject(&value);
+		Zeitgeist_Rendition* loadedRendition = (Zeitgeist_Rendition*)Zeitgeist_Value_getForeignObject(&value);
 		Zeitgeist_String* loadedRenditionName = Zeitgeist_Rendition_getName(state, loadedRendition);
 		if (Zeitgeist_String_areEqual(state, renditionName, loadedRenditionName)) {
 			onRendition1(state, loadedRendition);

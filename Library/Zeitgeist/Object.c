@@ -11,22 +11,22 @@
 #include <malloc.h>
 
 void*
-Zeitgeist_allocateObject
+Zeitgeist_allocateForeignObject
 	(
 		Zeitgeist_State* state,
 		size_t size,
-		void (*finalize)(Zeitgeist_State*, Zeitgeist_Object*),
-		void (*visit)(Zeitgeist_State*, Zeitgeist_Object*)
+		void (*finalize)(Zeitgeist_State*, Zeitgeist_ForeignObject*),
+		void (*visit)(Zeitgeist_State*, Zeitgeist_ForeignObject*)
 	)
 {
-	Zeitgeist_Object* self = malloc(size);
+	Zeitgeist_ForeignObject* self = malloc(size);
 	if (!self) {
 		fprintf(stderr, "%s:%d: unable to allocate %zu Bytes\n", __FILE__, __LINE__, size);
 		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
 	}
 
-	((Zeitgeist_Object*)self)->finalize = finalize;
-	((Zeitgeist_Object*)self)->visit = visit;
+	((Zeitgeist_ForeignObject*)self)->finalize = finalize;
+	((Zeitgeist_ForeignObject*)self)->visit = visit;
 
 	// This is currently a constant as the incremental GC is not yet implemented.
 	static const bool isGcRunning = false;
@@ -35,8 +35,8 @@ Zeitgeist_allocateObject
 	((Zeitgeist_Gc_Object*)self)->next = state->gc.all;
 	state->gc.all = (Zeitgeist_Gc_Object*)self;
 
-	// Set its type tag to "object".
-	((Zeitgeist_Gc_Object*)self)->typeTag = Zeitgeist_Gc_TypeTag_Object;
+	// Set its type tag to "foreign object".
+	((Zeitgeist_Gc_Object*)self)->typeTag = Zeitgeist_Gc_TypeTag_ForeignObject;
 
 	if (isGcRunning) {
 		// If the GC is running, color the object "gray" and add it to the "gray" list.
@@ -52,25 +52,25 @@ Zeitgeist_allocateObject
 }
 
 void
-Zeitgeist_Object_visit
+Zeitgeist_ForeignObject_visit
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_Object* object
+		Zeitgeist_ForeignObject* foreignObject
 	)
 {
-	if (object->visit) {
-		object->visit(state, object);
+	if (foreignObject->visit) {
+		foreignObject->visit(state, foreignObject);
 	}
 }
 
 void
-Zeitgeist_Object_finalize
+Zeitgeist_ForeignObject_finalize
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_Object* object
+		Zeitgeist_ForeignObject* foreignObject
 	)
 {
-	if (object->finalize) {
-		object->finalize(state, object);
+	if (foreignObject->finalize) {
+		foreignObject->finalize(state, foreignObject);
 	}
 }

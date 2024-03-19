@@ -143,9 +143,9 @@ finalize
 			Zeitgeist_Map_finalize(state, (Zeitgeist_Map*)object);
 			free(object);
 		} break;
-		case Zeitgeist_Gc_TypeTag_Object: {
+		case Zeitgeist_Gc_TypeTag_ForeignObject: {
 			WeakReferences_notifyDestroy(state, object);
-			Zeitgeist_Object_finalize(state, (Zeitgeist_Object*)object);
+			Zeitgeist_ForeignObject_finalize(state, (Zeitgeist_ForeignObject*)object);
 			free(object);
 		} break;
 		case Zeitgeist_Gc_TypeTag_String: {
@@ -196,10 +196,10 @@ mark
 				((Zeitgeist_Map*)object)->gclist = NULL;
 				Zeitgeist_Map_visit(state, (Zeitgeist_Map*)object);
 			} break;
-			case Zeitgeist_Gc_TypeTag_Object: {
-				state->gc.gray = ((Zeitgeist_Object*)object)->gclist;
-				((Zeitgeist_Object*)object)->gclist = NULL;
-				Zeitgeist_Object_visit(state, (Zeitgeist_Object*)object);
+			case Zeitgeist_Gc_TypeTag_ForeignObject: {
+				state->gc.gray = ((Zeitgeist_ForeignObject*)object)->gclist;
+				((Zeitgeist_ForeignObject*)object)->gclist = NULL;
+				Zeitgeist_ForeignObject_visit(state, (Zeitgeist_ForeignObject*)object);
 			} break;
 			case Zeitgeist_Gc_TypeTag_String:
 			case Zeitgeist_Gc_TypeTag_WeakReference:

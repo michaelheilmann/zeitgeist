@@ -1,3 +1,5 @@
+// Copyright (c) 2024 Michael Heilmann. All rights reserved.
+
 #include "Zeitgeist/Stack.h"
 
 // malloc, free
@@ -12,6 +14,7 @@ Stack_preLastGcCheck
 		Zeitgeist_State* state
 	)
 {
+	// Perfrom a sanity check before the last gargabe collection is performed before shutdown.
 	if (state->stack->size > 0) {
 		fprintf(stderr, "%s:%d: warning: stack is not empty\n", __FILE__, __LINE__);
 	}
@@ -73,6 +76,13 @@ Stack_uninitialize
 	state->stack = NULL;
 }
 
+size_t
+Zeitgeist_Stack_getSize
+	(
+		Zeitgeist_State* state
+	)
+{ return state->stack->size; }
+
 void
 Zeitgeist_Stack_push
 	(
@@ -106,6 +116,13 @@ Zeitgeist_Stack_push
 }
 
 void
+Zeitgeist_Stack_pop
+	(
+		Zeitgeist_State* state
+	)
+{ state->stack->size--; }
+
+void
 Zeitgeist_Stack_pushBoolean
 	(
 		Zeitgeist_State* state,
@@ -114,7 +131,56 @@ Zeitgeist_Stack_pushBoolean
 {
 	Zeitgeist_Value value;
 	Zeitgeist_Value_setBoolean(&value, booleanValue);
+	Zeitgeist_Stack_push(state, &value);
 }
+
+bool
+Zeitgeist_Stack_isBoolean
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasBoolean(state->stack->elements + index); }
+
+void
+Zeitgeist_Stack_pushForeignFunction
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ForeignFunction* foreignFunctionValue
+	)
+{
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setForeignFunction(&value, foreignFunctionValue);
+	Zeitgeist_Stack_push(state, &value);
+}
+
+bool
+Zeitgeist_Stack_isForeignFunction
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasForeignFunction(state->stack->elements + index); }
+
+void
+Zeitgeist_Stack_pushForeignObject
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ForeignObject* foreignObjectValue
+	)
+{
+	Zeitgeist_Value value;
+	Zeitgeist_Value_setForeignObject(&value, foreignObjectValue);
+	Zeitgeist_Stack_push(state, &value);
+}
+
+bool
+Zeitgeist_Stack_isForeignObject
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasForeignObject(state->stack->elements + index); }
 
 void
 Zeitgeist_Stack_pushInteger
@@ -128,6 +194,14 @@ Zeitgeist_Stack_pushInteger
 	Zeitgeist_Stack_push(state, &value);
 }
 
+bool
+Zeitgeist_Stack_isInteger
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasInteger(state->stack->elements + index); }
+
 void
 Zeitgeist_Stack_pushList
 	(
@@ -139,6 +213,15 @@ Zeitgeist_Stack_pushList
 	Zeitgeist_Value_setList(&value, listValue);
 	Zeitgeist_Stack_push(state, &value);
 }
+
+bool
+Zeitgeist_Stack_isList
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasList(state->stack->elements + index); }
+
 
 void
 Zeitgeist_Stack_pushMap
@@ -152,17 +235,13 @@ Zeitgeist_Stack_pushMap
 	Zeitgeist_Stack_push(state, &value);
 }
 
-void
-Zeitgeist_Stack_pushObject
+bool
+Zeitgeist_Stack_isMap
 	(
 		Zeitgeist_State* state,
-		Zeitgeist_Object* objectValue
+		size_t index
 	)
-{
-	Zeitgeist_Value value;
-	Zeitgeist_Value_setObject(&value, objectValue);
-	Zeitgeist_Stack_push(state, &value);
-}
+{ return Zeitgeist_Value_hasMap(state->stack->elements + index); }
 
 void
 Zeitgeist_Stack_pushReal32
@@ -176,6 +255,14 @@ Zeitgeist_Stack_pushReal32
 	Zeitgeist_Stack_push(state, &value);
 }
 
+bool
+Zeitgeist_Stack_isReal32
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasReal32(state->stack->elements + index); }
+
 void
 Zeitgeist_Stack_pushString
 	(
@@ -187,6 +274,14 @@ Zeitgeist_Stack_pushString
 	Zeitgeist_Value_setString(&value, stringValue);
 	Zeitgeist_Stack_push(state, &value);
 }
+
+bool
+Zeitgeist_Stack_isString
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasString(state->stack->elements + index); }
 
 void
 Zeitgeist_Stack_pushVoid
@@ -200,6 +295,14 @@ Zeitgeist_Stack_pushVoid
 	Zeitgeist_Stack_push(state, &value);
 }
 
+bool
+Zeitgeist_Stack_isVoid
+	(
+		Zeitgeist_State* state,
+		size_t index
+	)
+{ return Zeitgeist_Value_hasVoid(state->stack->elements + index); }
+
 void
 Zeitgeist_Stack_pushWeakReference
 	(
@@ -212,11 +315,10 @@ Zeitgeist_Stack_pushWeakReference
 	Zeitgeist_Stack_push(state, &value);
 }
 
-void
-Zeitgeist_Stack_pop
+bool
+Zeitgeist_Stack_isWeakReference
 	(
-		Zeitgeist_State* state
+		Zeitgeist_State* state,
+		size_t index
 	)
-{
-	state->stack->size--;
-}
+{ return Zeitgeist_Value_hasWeakReference(state->stack->elements + index); }

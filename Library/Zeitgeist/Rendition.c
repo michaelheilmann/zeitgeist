@@ -116,12 +116,12 @@ Zeitgeist_createRendition
 		Zeitgeist_String* folderPath
 	)
 {
-	Zeitgeist_Rendition* self = Zeitgeist_allocateObject(state, sizeof(Zeitgeist_Rendition), NULL, NULL);
+	Zeitgeist_Rendition* self = Zeitgeist_allocateForeignObject(state, sizeof(Zeitgeist_Rendition), NULL, NULL);
 	self->folderPath = folderPath;
 	self->libraryHandle = NULL;
 
-	((Zeitgeist_Object*)self)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_finalize;
-	((Zeitgeist_Object*)self)->visit = (void (*)(Zeitgeist_State*, Zeitgeist_Object*)) & Zeitgeist_Rendition_visit;
+	((Zeitgeist_ForeignObject*)self)->finalize = (void (*)(Zeitgeist_State*, Zeitgeist_ForeignObject*)) & Zeitgeist_Rendition_finalize;
+	((Zeitgeist_ForeignObject*)self)->visit = (void (*)(Zeitgeist_State*, Zeitgeist_ForeignObject*)) & Zeitgeist_Rendition_visit;
 
 	return self;
 }

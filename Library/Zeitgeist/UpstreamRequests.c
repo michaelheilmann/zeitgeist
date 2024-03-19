@@ -13,7 +13,7 @@ Zeitgeist_UpstreamRequest_createExitProcessRequest
     Zeitgeist_State* state
   )
 {
-  Zeitgeist_UpstreamRequest* self = Zeitgeist_allocateObject(state, sizeof(Zeitgeist_UpstreamRequest), NULL, NULL);
+  Zeitgeist_UpstreamRequest* self = Zeitgeist_allocateForeignObject(state, sizeof(Zeitgeist_UpstreamRequest), NULL, NULL);
   self->type = Zeitgeist_UpstreamRequestType_ExitProcessRequest;
   return self;
 }

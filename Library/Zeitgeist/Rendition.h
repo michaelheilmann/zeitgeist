@@ -28,7 +28,7 @@ typedef void (Zeitgeist_ForeignProcedure)(Zeitgeist_State*);
 typedef struct Zeitgeist_Rendition Zeitgeist_Rendition;
 
 struct Zeitgeist_Rendition {
-	Zeitgeist_Object _parent;
+	Zeitgeist_ForeignObject _parent;
 
 	/** The path to the folder of the rendition. */
 	Zeitgeist_String* folderPath;

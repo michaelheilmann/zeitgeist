@@ -28,7 +28,7 @@
  * @since 0.1
  * Type tag. See Zeitgeist_Gc_Objectc::typeTag for more information.
  */
-#define Zeitgeist_Gc_TypeTag_Object (3)
+#define Zeitgeist_Gc_TypeTag_ForeignObject (3)
 
 /**
  * @since 0.1
@@ -74,7 +74,7 @@ struct Zeitgeist_Gc_Object {
 	 * @brief The type of the garbage collected object.
 	 * Zeitgeist_Gc_TypeTag_List indicates an GC object of type List.
 	 * Zeitgeist_Gc_TypeTag_Map indicates an GC object of type Map.
-	 * Zeitgeist_Gc_TypeTag_Object indicates a GC object of type Object.
+	 * Zeitgeist_Gc_TypeTag_ForeignObject indicates a GC object of type ForeignObject.
 	 * Zeitgeist_Gc_TypeTag_String indicates a GC object of type String.
 	 * Zeitgeist_Gc_TypeTag_WeakReference indicates a GC object of type WeakReference.
 	 */
