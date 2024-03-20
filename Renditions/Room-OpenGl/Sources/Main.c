@@ -128,13 +128,42 @@ Zeitgeist_Rendition_update
 	ServiceGl_endFrame(state);
 }
 
+#include "KeyboardKeyMessage.h"
+
 static void
 onKeyboardKeyMessage
 	(
 		Zeitgeist_State* state
 	)
 {
+	if (Zeitgeist_Stack_getSize(state) < 2) {
+		fprintf(stderr, "%s:%d: too few arguments\n", __FILE__, __LINE__);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	if (!Zeitgeist_Stack_isInteger(state, 0)) {
+		fprintf(stderr, "%s:%d: invalid argument type\n", __FILE__, __LINE__);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	if (1 != Zeitgeist_Stack_getInteger(state, 0)) {
+		fprintf(stderr, "%s:%d: invalid number of arguments\n", __FILE__, __LINE__);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+	if (!Zeitgeist_Stack_isForeignObject(state, 1)) {
+		fprintf(stderr, "%s:%d: invalid argument type\n", __FILE__, __LINE__);
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
 	fprintf(stdout, "%s:%d: keyboard key message received\n", __FILE__, __LINE__);
+	KeyboardKeyMessage* message = (KeyboardKeyMessage*)Zeitgeist_Stack_getForeignObject(state, 1);
+	if (KeyboardKey_Action_Released == KeyboardKeyMessage_getAction(state, message)) {
+		switch (KeyboardKeyMessage_getKey(state, message)) {
+			case KeyboardKey_Escape: {
+				Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
+				Zeitgeist_sendUpstreamRequest(state, request);
+			} break;
+		};
+	}
+	Zeitgeist_Stack_pop(state);
+	Zeitgeist_Stack_pop(state);
 }
 
 Zeitgeist_Rendition_Export void
