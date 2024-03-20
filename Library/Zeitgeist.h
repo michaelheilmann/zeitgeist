@@ -3,9 +3,31 @@
 #if !defined(ZEITGEIST_H_INCLUDED)
 #define ZEITGEIST_H_INCLUDED
 
+// malloc
+#include <malloc.h>
+
+// fprintf, stderr
+#include <stdio.h>
+
+// exit, EXIT_FAILURE
+#include <stdlib.h>
+
+#define cAllocate(size) \
+	(malloc(size > 0 ? size : 1))
+
+#define cDeallocate(pointer) \
+	(free(pointer))
+
+#define cDebugAssert(expression) \
+	if (!(expression)) { \
+		fprintf(stderr, "%s:%d: assertion `%s` failed\n", __FILE__, __LINE__, #expression);	\
+		exit(EXIT_FAILURE); \
+	}
+
 #if Zeitgeist_Configuration_OperatingSystem_Linux == Zeitgeist_Configuration_OperatingSystem
 	#include <stddef.h>
 #endif
+
 #include "Zeitgeist/List.h"
 #include "Zeitgeist/Map.h"
 #include "Zeitgeist/Object.h"
