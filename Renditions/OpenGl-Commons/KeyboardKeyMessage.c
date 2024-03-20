@@ -1,8 +1,5 @@
 #include "KeyboardKeyMessage.h"
 
-// malloc
-#include <malloc.h>
-
 KeyboardKeyMessage*
 KeyboardKeyMessage_create
 	(
@@ -17,4 +14,28 @@ KeyboardKeyMessage_create
 	self->key = key;
 
 	return self;
+}
+
+Zeitgeist_Integer
+KeyboardKeyMessage_getAction
+	(
+		Zeitgeist_State* state,
+		KeyboardKeyMessage* self
+	)
+{
+	cDebugAssert(NULL != state);
+	cDebugAssert(NULL != self);
+	return self->action;
+}
+
+Zeitgeist_Integer
+KeyboardKeyMessage_getKey
+	(
+		Zeitgeist_State* state,
+		KeyboardKeyMessage* self
+	)
+{
+	cDebugAssert(NULL != state);
+	cDebugAssert(NULL != self);
+	return self->key;
 }

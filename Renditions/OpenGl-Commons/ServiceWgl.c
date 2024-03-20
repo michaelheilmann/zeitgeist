@@ -130,6 +130,12 @@ windowCallbackLegacy
 		LPARAM lparam
 	);
 
+static Zeitgeist_Value
+mapKeyboardKey
+	(
+		WPARAM wParam
+	);
+
 static LRESULT CALLBACK
 windowCallback
 	(
@@ -340,6 +346,46 @@ windowCallbackLegacy
 	return DefWindowProc(wnd, msg, wparam, lparam);
 }
 
+static Zeitgeist_Value
+mapKeyboardKey
+	(
+		WPARAM wParam
+	)
+{
+	switch (wParam) {
+		case VK_UP: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Up);
+			return value;
+		} break;
+		case VK_DOWN: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Down);
+			return value;
+		} break;
+		case VK_LEFT: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Left);
+			return value;
+		} break;
+		case VK_RIGHT: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Right);
+			return value;
+		} break;
+		case VK_ESCAPE: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Escape);
+			return value;
+		} break;
+		default: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setVoid(&value, Zeitgeist_Void_Void);
+			return value;
+		} break;
+	};
+}
+
 static LRESULT CALLBACK
 windowCallback
 	(
@@ -368,13 +414,15 @@ windowCallback
 			return 0;
 		} break;
 		case WM_KEYDOWN: {
+			//fprintf(stdout, "[service wgl] WM_KEYDOWN\n");
 			Zeitgeist_State* state = (Zeitgeist_State*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			if (state) {
 				Zeitgeist_JumpTarget jumpTarget;
 				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 				if (!setjmp(jumpTarget.environment)) {
-					if (wParam == VK_ESCAPE) {
-						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Pressed, KeyboardKey_Down);
+					Zeitgeist_Value mappedKey = mapKeyboardKey(wParam);
+					if (Zeitgeist_Value_hasInteger(&mappedKey)) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Pressed, Zeitgeist_Value_getInteger(&mappedKey));
 						ServiceGl_emitKeyboardKeyMessage(state, message);
 					}
 					Zeitgeist_State_popJumpTarget(state);
@@ -385,13 +433,15 @@ windowCallback
 			return 0;
 		} break;
 		case WM_KEYUP: {
+			//fprintf(stdout, "[service wgl] WM_KEYUP\n");
 			Zeitgeist_State* state = (Zeitgeist_State*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			if (state) {
 				Zeitgeist_JumpTarget jumpTarget;
 				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 				if (!setjmp(jumpTarget.environment)) {
-					if (wParam == VK_ESCAPE) {
-						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Released, KeyboardKey_Up);
+					Zeitgeist_Value mappedKey = mapKeyboardKey(wParam);
+					if (Zeitgeist_Value_hasInteger(&mappedKey)) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Released, Zeitgeist_Value_getInteger(&mappedKey));
 						ServiceGl_emitKeyboardKeyMessage(state, message);
 					}
 					Zeitgeist_State_popJumpTarget(state);

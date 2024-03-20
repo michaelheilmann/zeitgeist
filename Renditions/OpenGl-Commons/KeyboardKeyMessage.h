@@ -10,6 +10,7 @@
 #define KeyboardKey_Down (2)
 #define KeyboardKey_Left (3)
 #define KeyboardKey_Right (4)
+#define KeyboardKey_Escape (5)
 
 typedef struct KeyboardKeyMessage {
 	Zeitgeist_ForeignObject _parent;
@@ -23,6 +24,20 @@ KeyboardKeyMessage_create
 		Zeitgeist_State* state,
 		Zeitgeist_Integer action,
 		Zeitgeist_Integer key
+	);
+
+Zeitgeist_Integer
+KeyboardKeyMessage_getAction
+	(
+		Zeitgeist_State* state,
+		KeyboardKeyMessage* self
+	);
+
+Zeitgeist_Integer
+KeyboardKeyMessage_getKey
+	(
+		Zeitgeist_State* state,
+		KeyboardKeyMessage* self
 	);
 
 #endif // KEYBOARDKEYMESSAGE_H_INCLUDED
