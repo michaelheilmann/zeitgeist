@@ -107,7 +107,7 @@ loadRenditions
 					Zeitgeist_String* suffix = Zeitgeist_State_createString(state, ent->d_name, strlen(ent->d_name));
 					Zeitgeist_String* path = Zeitgeist_String_concatenate(state, prefix, suffix);
 					Zeitgeist_Rendition* rendition = Zeitgeist_createRendition(state, path);
-					Zeitgeist_List_appendForeignObject(state, renditions, (Zeitgeist_Object*)rendition);
+					Zeitgeist_List_appendForeignObject(state, renditions, (Zeitgeist_ForeignObject*)rendition);
 				}
 			}
 			Zeitgeist_State_popJumpTarget(state);
@@ -226,6 +226,18 @@ onRendition
 }
 
 static void
+onHelp
+	(
+		Zeitgeist_State* state
+	)
+{
+	fprintf(stdout, "usage: zeitgeist-interpreter [--rendition <name> ] [--list-renditions] [--help]\n");
+	fprintf(stdout, "--rendition <name> Execute rendition by its name\n");
+	fprintf(stdout, "--list-renditions List names of all available renditions\n");
+	fprintf(stdout, "--help Show this help\n");
+}
+
+static void
 main1
 	(
 		Zeitgeist_State* state,
@@ -263,6 +275,7 @@ main1
 			onRendition(state, Zeitgeist_State_createString(state, argv[argi + 1], strlen(argv[argi + 1])));
 			break;
 		} else if (Zeitgeist_String_areEqual(state, arg, help)) {
+			onHelp(state);
 			state->exitProcessRequested = Zeitgeist_Boolean_True;
 		} else {
 			fprintf(stderr, "error: unknown command `%.*s`\n", (int)arg->numberOfBytes, arg->bytes);

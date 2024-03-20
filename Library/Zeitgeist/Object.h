@@ -3,6 +3,7 @@
 #if !defined(ZEITGEIST_FOREIGNOBJECT_H_INCLUDED)
 #define ZEITGEIST_FOREIGNOBJECT_H_INCLUDED
 
+#include <stddef.h>
 #include "Zeitgeist/Gc.h"
 #include "Zeitgeist/Value.h"
 
