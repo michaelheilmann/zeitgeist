@@ -16,6 +16,10 @@
 
 #include <X11/Xatom.h>
 
+// ServiceGl_emitKeyboardKeyMessage
+#include "ServiceGl.h"
+#include "KeyboardKeyMessage.h"
+
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static int (*g_oldErrorHandler)(Display*, XErrorEvent*) = NULL;
@@ -28,6 +32,54 @@ static GLXContext g_context;
 static Atom WM_DELETE_WINDOW;
 
 static bool g_quitRequested = false;
+
+// Helper to check for extension string presence.	Adapted from:
+// http://www.opengl.org/resources/features/OGLextensions/
+static bool
+isExtensionSupported
+	(
+		const char *extensions,
+		const char *extension
+	);
+
+static int
+getBestFbc
+	(
+		Zeitgeist_State* state,
+		GLXFBConfig* configs,
+		int numberOfConfigs
+	);
+
+static int
+errorHandler
+	(
+		Display* display,
+		XErrorEvent*
+	);
+
+static void
+shutdownContext
+	(
+		Zeitgeist_State* state
+	);
+
+static void
+startupWindow
+	(
+		Zeitgeist_State* state
+	);
+
+static void
+shutdownWindow
+	(
+		Zeitgeist_State* state
+	);
+
+static Zeitgeist_Value
+mapKeyboardKey
+	(
+		unsigned int keycode
+	);
 
 // Helper to check for extension string presence.	Adapted from:
 // http://www.opengl.org/resources/features/OGLextensions/
@@ -368,14 +420,86 @@ ServiceGlx_setTitle
 	XSetErrorHandler(g_oldErrorHandler);
 }
 
+static Zeitgeist_Value
+mapKeyboardKey
+	(
+		XEvent *event
+	)
+{
+	KeySym keySym = XLookupKeysym(event, 0);
+	switch (keySym) {
+		case XK_Escape: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Escape);
+			return value;
+		} break;
+		case XK_Up: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Up);
+			return value;
+		} break;
+		case XK_Down: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Down);
+			return value;
+		} break;
+		case XK_Left: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Left);
+			return value;
+		} break;
+		case XK_Right: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Right);
+			return value;
+		} break;
+		default: {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setVoid(&value, Zeitgeist_Void_Void);
+			return value;
+		} break;
+	};
+}
+
 void ServiceGlx_update(Zeitgeist_State* state) {
 	XEvent e;
 	while (XPending(g_display)) {
 		XNextEvent(g_display, &e);
-		if ((e.type == ClientMessage) && (e.xclient.data.l[0] == WM_DELETE_WINDOW)) {
-			g_quitRequested = true;
-			break;
-		}
+		switch (e.type) {
+			case ClientMessage: {
+				if (e.xclient.data.l[0] == WM_DELETE_WINDOW) {
+					g_quitRequested = true;
+				}
+			} break;
+			case KeyPress: {
+				Zeitgeist_JumpTarget jumpTarget;
+				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+				if (!setjmp(jumpTarget.environment)) {
+					Zeitgeist_Value mappedKey = mapKeyboardKey(&e);
+					if (Zeitgeist_Value_hasInteger(&mappedKey)) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Pressed, Zeitgeist_Value_getInteger(&mappedKey));
+						ServiceGl_emitKeyboardKeyMessage(state, message);
+					}
+					Zeitgeist_State_popJumpTarget(state);
+				} else {
+					Zeitgeist_State_popJumpTarget(state);
+				}
+			} break;
+			case KeyRelease: {
+				Zeitgeist_JumpTarget jumpTarget;
+				Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
+				if (!setjmp(jumpTarget.environment)) {
+					Zeitgeist_Value mappedKey = mapKeyboardKey(&e);
+					if (Zeitgeist_Value_hasInteger(&mappedKey)) {
+						KeyboardKeyMessage* message = KeyboardKeyMessage_create(state, KeyboardKey_Action_Released, Zeitgeist_Value_getInteger(&mappedKey));
+						ServiceGl_emitKeyboardKeyMessage(state, message);
+					}
+					Zeitgeist_State_popJumpTarget(state);
+				} else {
+					Zeitgeist_State_popJumpTarget(state);
+				}
+			} break;
+		};
 	}
 }
 

@@ -9,6 +9,7 @@ Define(PFNGLUSEPROGRAMPROC, glUseProgram)
 // uniforms
 Define(PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation)
 Define(PFNGLUNIFORMMATRIX4FVPROC, glUniformMatrix4fv)
+Define(PFNGLUNIFORM1IPROC, glUniform1i)
 Define(PFNGLUNIFORM4FVPROC, glUniform4fv)
 Define(PFNGLUNIFORM3FVPROC, glUniform3fv)
 
@@ -33,3 +34,9 @@ Define(PFNGLBINDVERTEXARRAYPROC, glBindVertexArray)
 Define(PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays)
 Define(PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer)
 Define(PFNGLENABLEVERTEXATTRIBARRAYPROC, glEnableVertexAttribArray)
+
+// new vertex arrays
+Define(PFNGLVERTEXATTRIBFORMATPROC, glVertexAttribFormat)
+Define(PFNGLVERTEXATTRIBBINDINGPROC, glVertexAttribBinding)
+Define(PFNGLVERTEXBINDINGDIVISORPROC, glVertexBindingDivisor)
+Define(PFNGLBINDVERTEXBUFFERPROC, glBindVertexBuffer)

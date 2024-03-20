@@ -1,10 +1,6 @@
 #include "Matrix4R32.h"
 
-// malloc
-#include <malloc.h>
-
 #include "Vector3R32.h"
-
 
 Matrix4R32*
 Matrix4R32_createIdentity
@@ -13,27 +9,7 @@ Matrix4R32_createIdentity
 	)
 {
 	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
-
-	self->e[0][0] = 1.f;
-	self->e[0][1] = 0.f;
-	self->e[0][2] = 0.f;
-	self->e[0][3] = 0.f;
-
-	self->e[1][0] = 0.f;
-	self->e[1][1] = 1.f;
-	self->e[1][2] = 0.f;
-	self->e[1][3] = 0.f;
-
-	self->e[2][0] = 0.f;
-	self->e[2][1] = 0.f;
-	self->e[2][2] = 1.f;
-	self->e[2][3] = 0.f;
-
-	self->e[3][0] = 0.f;
-	self->e[3][1] = 0.f;
-	self->e[3][2] = 0.f;
-	self->e[3][3] = 1.f;
-
+	idlib_matrix_4x4_f32_set_identity(&self->m);
 	return self;
 }
 
@@ -45,26 +21,50 @@ Matrix4R32_createTranslate
 	)
 {
 	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_set_translation(&self->m, &translate->v);
+	return self;
+}
 
-	self->e[0][0] = 1.f;
-	self->e[0][1] = 0.f;
-	self->e[0][2] = 0.f;
-	self->e[0][3] = 0.f;
+Matrix4R32*
+Matrix4R32_createRotateY
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Real32 degrees
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_set_rotation_y(&self->m, degrees);
+	return self;
+}
 
-	self->e[1][0] = 0.f;
-	self->e[1][1] = 1.f;
-	self->e[1][2] = 0.f;
-	self->e[1][3] = 0.f;
+Matrix4R32*
+Matrix4R32_createPerspective
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Real32 fieldOfViewY,
+		Zeitgeist_Real32 aspectRatio,
+		Zeitgeist_Real32 near,
+		Zeitgeist_Real32 far
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_set_perspective(&self->m, fieldOfViewY, aspectRatio, near, far);
+	return self;
+}
 
-	self->e[2][0] = 0.f;
-	self->e[2][1] = 0.f;
-	self->e[2][2] = 1.f;
-	self->e[2][3] = 0.f;
-
-	self->e[3][0] = translate->e[0];
-	self->e[3][1] = translate->e[1];
-	self->e[3][2] = translate->e[2];
-	self->e[3][3] = 1.f;
-
+Matrix4R32*
+Matrix4R32_createOrthographic
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Real32 left,
+		Zeitgeist_Real32 right,
+		Zeitgeist_Real32 bottom,
+		Zeitgeist_Real32 top,
+		Zeitgeist_Real32 near,
+		Zeitgeist_Real32 far
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_set_ortho(&self->m, left, right, bottom, top, near, far);
 	return self;
 }

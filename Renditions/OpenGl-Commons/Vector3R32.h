@@ -2,10 +2,11 @@
 #define VECTOR3R32_H_INCLUDED
 
 #include "Zeitgeist.h"
+#include "idlib.h"
 
 typedef struct Vector3R32 {
 	Zeitgeist_ForeignObject _parent;
-	Zeitgeist_Real32 e[3];
+	idlib_vector_3_f32 v;
 } Vector3R32;
 
 Vector3R32*
