@@ -6,6 +6,8 @@ set(project_name "Zeitgeist")
 
 project(${project_name})
 
+add_subdirectory(3rdParty)
+
 # Copy the files of the rendition to the interpreter binary directory.
 # rendition_name The rendition name.
 macro(copy_plugin interpreter_name rendition_name)
