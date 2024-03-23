@@ -61,4 +61,11 @@ Matrix4R32_createLookAt
 		Vector3R32* up
 	);
 
+Matrix4R32*
+Matrix4R32_createScale
+	(
+		Zeitgeist_State* state,
+		Vector3R32* scale
+	);
+
 #endif // MATRIX4R32_H_INCLUDED
