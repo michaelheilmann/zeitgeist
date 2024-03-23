@@ -52,4 +52,13 @@ Matrix4R32_createOrthographic
 		Zeitgeist_Real32 far
 	);
 
+Matrix4R32*
+Matrix4R32_createLookAt
+	(
+		Zeitgeist_State* state,
+		Vector3R32* source,
+		Vector3R32* target,
+		Vector3R32* up
+	);
+
 #endif // MATRIX4R32_H_INCLUDED

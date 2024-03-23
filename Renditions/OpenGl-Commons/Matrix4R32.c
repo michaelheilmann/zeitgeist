@@ -68,3 +68,17 @@ Matrix4R32_createOrthographic
 	idlib_matrix_4x4_f32_set_ortho(&self->m, left, right, bottom, top, near, far);
 	return self;
 }
+
+Matrix4R32*
+Matrix4R32_createLookAt
+	(
+		Zeitgeist_State* state,
+		Vector3R32* source,
+		Vector3R32* target,
+		Vector3R32* up
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_set_look_at(&self->m, &source->v, &target->v, &up->v);
+	return self;
+}
