@@ -94,3 +94,15 @@ Matrix4R32_createScale
 	idlib_matrix_4x4_f32_set_scale(&self->m, &scale->v);
 	return self;
 }
+
+Matrix4R32*
+Matrix4R32_negate
+	(
+		Zeitgeist_State* state,
+		Matrix4R32* matrix
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_negate(&self->m, &matrix->m);
+	return self;
+}

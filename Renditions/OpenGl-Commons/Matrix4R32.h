@@ -68,4 +68,11 @@ Matrix4R32_createScale
 		Vector3R32* scale
 	);
 
+Matrix4R32*
+Matrix4R32_negate
+	(
+		Zeitgeist_State* state,
+		Matrix4R32* matrix
+	);
+
 #endif // MATRIX4R32_H_INCLUDED
