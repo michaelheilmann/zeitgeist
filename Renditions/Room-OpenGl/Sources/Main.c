@@ -51,9 +51,13 @@ static const GLchar* g_vertexShader =
 	"uniform int inputFragmentAmbientColorType = 0;\n"
 	"uniform vec4 meshAmbientColor = vec4(1.0, 0.8, 0.2, 1.0);\n"
 	"out vec4 inputFragmentAmbientColor;\n"
-	"uniform mat4 scale = mat4(1);\n"
+	"uniform mat4 projection = mat4(1);\n"
+	"uniform mat4 view = mat4(1);\n"
+	"uniform mat4 world = mat4(1);\n"
 	"void main() {\n"
-	"  gl_Position = scale * vec4(vertexPosition.xyz, 1.0);\n"
+	"  mat4 worldProjection = projection * view * world;"
+	"  vec4 scaledVertex = vec4(vertexPosition.xyz, 1.0);\n"
+	"  gl_Position = worldProjection * scaledVertex;\n"
 	"  if(inputFragmentAmbientColorType == 1) {\n"
 	"    inputFragmentAmbientColor = vec4(vertexAmbientColor.rgb, vertexAmbientColor.a);\n"
 	"  } else {\n"
@@ -86,7 +90,7 @@ typedef struct Player {
 
 static Player g_player = {
 	.rotation = { .y = 0 },
-	.position = { .x = 0, .y = 0, .z = 0 },
+	.position = { .x = 0, .y = 0, .z = 0.f },
 };
 
 static GLint g_vertexPositionIndex = 0;
@@ -102,14 +106,31 @@ typedef struct VERTEX {
 } VERTEX;
 
 static VERTEX const FRONT[] = {
-	{.position = { -1.0f,  1.0f, -1.f, }, .ambientColor = { 1.f, 0.f, 0.f, 1.f }, },
-	{.position = { -1.0f, -1.0f, -1.f, }, .ambientColor = { 1.f, 1.f, 0.f, 1.f }, },
-	{.position = {  1.0f,  1.0f, -1.f, }, .ambientColor = { 1.f, 0.f, 1.f, 1.f }, },
-	{.position = {  1.0f, -1.0f, -1.f, }, .ambientColor = { 1.f, 1.f, 1.f, 1.f }, },
+	{.position = { -1.f,  1.f, -1.f, }, .ambientColor = { 1.f, 0.f, 0.f, 1.f }, },
+	{.position = { -1.f, -1.f, -1.f, }, .ambientColor = { 1.f, 1.f, 0.f, 1.f }, },
+	{.position = {  1.f,  1.f, -1.f, }, .ambientColor = { 1.f, 0.f, 1.f, 1.f }, },
+	{.position = {  1.f, -1.f, -1.f, }, .ambientColor = { 1.f, 1.f, 1.f, 1.f }, },
 };
 
 static GLuint g_programId = 0;
 static StaticGeometryGl* g_buildingGeometry = NULL;
+
+static void
+bindMatrix4Uniform
+	(
+		Zeitgeist_State* state,
+		GLuint programID,
+		char const* name,
+		Matrix4R32* value
+	)
+{
+	GLint location = glGetUniformLocation(g_programId, name);
+	if (-1 == location) {
+		fprintf(stderr, "%s:%d: unable to get uniform location of uniform `%s`\n", __FILE__, __LINE__, name);
+	} else {
+		glUniformMatrix4fv(location, 1, GL_TRUE, idlib_matrix_4x4_f32_get_data(&value->m));
+	}
+}
 
 Zeitgeist_Rendition_Export void
 Zeitgeist_Rendition_update
@@ -128,24 +149,26 @@ Zeitgeist_Rendition_update
 	ServiceGl_getClientSize(state, &viewportWidth, &viewportHeight);
 	ServiceGl_beginFrame(state);
 
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	glViewport(0, 0, viewportWidth, viewportHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(g_programId);
 
+	//
+	Matrix4R32* world = NULL;
+	world = Matrix4R32_createScale(state, Vector3R32_create(state, 0.75f, 0.75f, 1.f));
+	bindMatrix4Uniform(state, g_programId, "world", world);
+	//
+	Matrix4R32* view = NULL;
+	view = Matrix4R32_createTranslate(state, Vector3R32_create(state, -g_player.position.x, -g_player.position.y, -g_player.position.z));
+	bindMatrix4Uniform(state, g_programId, "view", view);
+	//
+	Matrix4R32* projection = NULL;
+	projection = Matrix4R32_createOrthographic(state, -1.f, +1.f, -1.f, +1.f, -100.f, +100.f);
+	bindMatrix4Uniform(state, g_programId, "projection", projection);
+	
 	GLint location;
-
-	location = glGetUniformLocation(g_programId, "scale");
-	if (-1 == location) {
-		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "scale");
-	} else {
-		GLfloat matrix[16] = {
-			.75f, 0.f,  0.f, 0.f,
-			0.f,  .75f, 0.f, 0.f,
-			0.f,  0.f,  1.f, 0.f,
-			0.f,  0.f,  0.f, 1.f,
-		};
-		glUniformMatrix4fv(location, 1, GL_FALSE, &matrix[0]);
-	}
 
 	location = glGetUniformLocation(g_programId, "meshAmbientColor");
 	if (-1 == location) {
@@ -162,15 +185,6 @@ Zeitgeist_Rendition_update
 	} else {
 		GLint scalar = 1;
 		glUniform1i(location, scalar);
-	}
-
-	location = glGetUniformLocation(g_programId, "meshAmbientColor");
-	if (-1 == location) {
-		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "meshAmbientColor");
-	} else {
-		// The color (255, 204, 51) is the websafe color "sunglow".
-		GLfloat vector[4] = { 1.0, 0.8, 0.2, 1.0 };
-		glUniform4fv(location, 1, &vector[0]);
 	}
 
 	glBindVertexArray(g_buildingGeometry->vertexArrayId);
@@ -211,36 +225,16 @@ onKeyboardKeyMessage
 				Zeitgeist_sendUpstreamRequest(state, request);
 			} break;
 			case KeyboardKey_Up: {
-				//g_playerRotation -= 0.1f;
+				g_player.position.z -= 0.25f;
 			} break;
 			case KeyboardKey_Down: {
-				//g_playerRotation += 0.1f;
+				g_player.position.z += 0.25;
 			} break;
 			case KeyboardKey_Left: {
-				g_player.rotation.y -= 0.1f;
-				// clamp rotation to [0, 360)
-				if (g_player.rotation.y >= 360.f) {
-					do {
-						g_player.rotation.y -= 360.f;
-					} while (g_player.rotation.y > 360.f);
-				} else if (g_player.rotation.y < 0.f) {
-					do {
-						g_player.rotation.y += 360.f;
-					} while (g_player.rotation.y < 0.f);
-				}
+				g_player.position.x -= 0.25;
 			} break;
 			case KeyboardKey_Right: {
-				g_player.rotation.y += 0.1f;
-				// clamp rotation to [0, 360)
-				if (g_player.rotation.y >= 360.f) {
-					do {
-						g_player.rotation.y -= 360.f;
-					} while (g_player.rotation.y > 360.f);
-				} else if (g_player.rotation.y < 0.f) {
-					do {
-						g_player.rotation.y += 360.f;
-					} while (g_player.rotation.y < 0.f);
-				}
+				g_player.position.x += 0.25;
 			} break;
 		};
 	}
