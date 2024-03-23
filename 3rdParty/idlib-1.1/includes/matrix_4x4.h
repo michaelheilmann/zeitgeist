@@ -270,6 +270,18 @@ idlib_matrix_4x4_f32_get_data
 		idlib_matrix_4x4_f32* operand
 	);
 
+/// @since 1.1
+/// @brief Negate a matrix.
+/// @param target Pointer to the idlib_matrix_4x4_f32 object to assign the result to.
+/// @param operand Pointer to the idlib_matrix_4x4_f32 object to negate.
+/// @remarks @a target and @a operand all may refer to the same idlib_matrix_4x4_f32 object.
+static inline void
+idlib_matrix_4x4_f32_negate
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_matrix_4x4_f32 const* operand
+	);
+
 static inline void
 idlib_matrix_4x4_f32_set_identity
 	(
@@ -651,6 +663,20 @@ idlib_matrix_4x4_f32_get_data
 	(
 		idlib_matrix_4x4_f32* operand
 	)
-{ return &(operand->e[0][0]); } 
+{ return &(operand->e[0][0]); }
+
+static inline void
+idlib_matrix_4x4_f32_negate
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_matrix_4x4_f32 const* operand
+	)
+{
+	for (size_t i = 0; i < 4; ++i) {
+		for (size_t j = 0; j < 4; ++j) {
+			target->e[i][j] = -operand->e[i][j];
+		}
+	}
+}
 
 #endif // IDLIB_MATRIX_4X4_H_INCLUDED
