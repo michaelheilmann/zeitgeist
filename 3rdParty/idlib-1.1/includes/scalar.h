@@ -2,6 +2,12 @@
 #if !defined(IDLIB_SCALAR_H_INCLUDED)
 #define IDLIB_SCALAR_H_INCLUDED
 
+// bool, true, false
+#include <stdbool.h>
+
+// uint8_t
+#include <inttypes.h>
+
 /// @since 1.0
 /// Alias for float.
 typedef float idlib_f32;
@@ -10,7 +16,8 @@ typedef float idlib_f32;
 /// Alias for double.
 typedef double idlib_f64;
 
-#include <stdbool.h>
+/// @since 1.1
+typedef uint8_t idlib_u8;
 
 #if _DEBUG
   

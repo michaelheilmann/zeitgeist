@@ -37,7 +37,7 @@ idlib_matrix_4x4_f32_set_identity
 
 /// @since 1.0
 /// @brief Assign an idlib_matrix_4x4_f32 object the values of a translation matrix.
-/// @param target Pointer to the idlib_matrix_4x4_f32 object.
+/// @param target Pointer to the idlib_matrix_4x4_f32 object to assign the result to.
 /// @param operand Pointer to the idlib_vector_3_f32 object representing the translation vector.
 /// @remarks
 /// @code
@@ -54,10 +54,10 @@ idlib_matrix_4x4_f32_set_translation
 	);
 
 /// @since 1.0
-/// @brief Assign an idlib_matrix_4x4_f32 object the values of a rotation matrix.
-/// @details The rotation matrix is a counter-clockwise rotation around the x-axis by the specified number of degrees.
-/// @param m A pointer to this matrix.
-/// @param a The angle of rotation, in degrees.
+/// @brief Assign an idlib_matrix_4x4_f32 object the values of a "rotation matrix"
+/// (for a counter-clockwise rotation around the x-axis).
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
+/// @param operand The angle of rotation, in degrees.
 /// @remarks
 /// @code
 /// | 1 | 0 |  0 | 0 |
@@ -73,10 +73,10 @@ idlib_matrix_4x4_f32_set_rotation_x
 	);
 
 /// @since 1.0
-/// @brief Assign this matrix the values of transformation matrix representing
-/// a counter-clockwise rotation around the y-axis by the specified number of degrees.
-/// @param m A pointer to this matrix.
-/// @param a The angle of rotation, in degrees.
+/// @brief Assign an idlib_matrix_4x4_f32 object the values of a "rotation matrix"
+/// (for a counter-clockwise rotation around the y-axis).
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
+/// @param operand The angle of rotation, in degrees.
 /// @remarks
 /// @code
 /// |  c | 0 | s | 0 |
@@ -92,9 +92,9 @@ idlib_matrix_4x4_f32_set_rotation_y
 	);
 
 /// @since 1.0
-/// @brief Assign this matrix the values of transformation matrix representing
-/// a counter-clockwise rotation around the z-axis by the specified number of degrees.
-/// @param target A pointer to this matrix.
+/// @brief Assign an idlib_matrix_4x4_f32 object the values of a "rotation matrix"
+/// (for a counter-clockwise rotation around the z-axis).
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
 /// @param operand The angle of rotation, in degrees.
 /// @remarks
 /// @code
@@ -111,8 +111,8 @@ idlib_matrix_4x4_f32_set_rotation_z
 	);
 
 /// @since 1.0
-/// @brief Assign this matrix the values of an orthographic projection matrix.
-/// @param target A pointer to this matrix.
+/// @brief Assign an idlib_matrix_4x4_f32 object the values of an "orthographic projection matrix".
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
 /// @param left The distance to the left clip plane.
 /// @param right The distance to the right clip plane.
 /// @param bottom The distance to the bottom clip plane.
@@ -142,7 +142,7 @@ idlib_matrix_4x4_f32_set_rotation_z
 /// - the positive x-axis points to the right
 /// - the positive y-axis points to the top
 static inline void
-idlib_matrix_4x4_f32_set_ortho
+idlib_matrix_4x4_f32_set_orthographic
 	(
 		idlib_matrix_4x4_f32* target,
 		idlib_f32 left,
@@ -154,8 +154,8 @@ idlib_matrix_4x4_f32_set_ortho
 	);
 
 /// @since 1.0
-/// @brief Assign this matrix the values of a perspective projection matrix.
-/// @param target A pointer to this matrix.
+/// @brief Assign an idlib_matrix_4x4_f32 object the values of a "perspective projection matrix".
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
 /// @param field_of_view_y The field of view along the y-axis in degrees.
 /// In other terms: The angle, in degrees, in between a plane passing through the camera position as well as the top of your screen and another plane passing
 /// through the camera position and the bottom of your screen.  The bigger this angle is, the more you can see of the world - but at the same time, the objects
@@ -240,6 +240,34 @@ idlib_matrix_4x4_f32_set_look_at
 		idlib_vector_3_f32 const* operand1,
 		idlib_vector_3_f32 const* operand2,
 		idlib_vector_3_f32 const* operand3
+	);
+
+/// @since 1.1
+/// @brief Assign this matrix the values of scaling matrix representing.
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
+/// @param operand The angle of rotation, 
+/// @remarks
+/// @code
+/// | c | -s | 0 | 0 |
+/// | s |  c | 0 | 0 |
+/// | 0 |  0 | 1 | 0 |
+/// | 0 |  0 | 0 | 1 |
+/// @endcode
+static inline void
+idlib_matrix_4x4_f32_set_scale
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_vector_3_f32* operand
+	);
+
+/// @since 1.1
+/// @brief Get a pointer to the data of a idlib_matrix_4x4_f32 object.
+/// @param operand A pointer to the idlib_matrix_4x4_f32 object.
+/// @return A pointer to the data. The pointer remains valid as long as the object remains valid and is not modified.
+static inline void*
+idlib_matrix_4x4_f32_get_data
+	(
+		idlib_matrix_4x4_f32* operand
 	);
 
 static inline void
@@ -416,7 +444,7 @@ idlib_matrix_4x4_f32_set_rotation_z
 }
 
 inline void
-idlib_matrix_4x4_f32_set_ortho
+idlib_matrix_4x4_f32_set_orthographic
 	(
 		idlib_matrix_4x4_f32* target,
 		idlib_f32 left,
@@ -588,5 +616,41 @@ idlib_matrix_4x4_f32_set_look_at
 
 	idlib_matrix_4x4_f32_multiply(target, &r, &t);
 }
+
+static inline void
+idlib_matrix_4x4_f32_set_scale
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_vector_3_f32* operand
+	)
+{
+	// First column.
+	target->e[0][0] = operand->e[0];
+	target->e[1][0] = 0.f;
+	target->e[2][0] = 0.f;
+	target->e[3][0] = 0.f;
+	// Second column.
+	target->e[0][1] = 0.f;
+	target->e[1][1] = operand->e[1];
+	target->e[2][1] = 0.f;
+	target->e[3][1] = 0.f;
+	// Third column.
+	target->e[0][2] = 0.f;
+	target->e[1][2] = 0.f;
+	target->e[2][2] = operand->e[2];
+	target->e[3][2] = 0.f;
+	// Fourth column.
+	target->e[0][3] = 0.f;
+	target->e[1][3] = 0.f;
+	target->e[2][3] = 0.f;
+	target->e[3][3] = 1.f;
+}
+
+static inline void*
+idlib_matrix_4x4_f32_get_data
+	(
+		idlib_matrix_4x4_f32* operand
+	)
+{ return &(operand->e[0][0]); } 
 
 #endif // IDLIB_MATRIX_4X4_H_INCLUDED
