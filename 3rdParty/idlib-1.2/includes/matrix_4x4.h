@@ -2,10 +2,7 @@
 #if !defined(IDLIB_MATRIX_4X4_H_INCLUDED)
 #define IDLIB_MATRIX_4X4_H_INCLUDED
 
-#include "configure.h"
 #include "scalar.h"
-// NULL
-#include <stddef.h>
 #include "vector_3.h"
 
 // 'Windows.h', which is frequently included in Windows

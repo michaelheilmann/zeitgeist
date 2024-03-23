@@ -3,8 +3,6 @@
 #define IDLIB_VECTOR_3_H_INCLUDED
 
 #include "scalar.h"
-// NULL
-#include <stddef.h>
 
 /// @since 1.0
 /// @brief A three component vector with elements of type idlib_f32.
@@ -17,7 +15,7 @@ typedef struct idlib_vector_3_f32 {
 /// @param operand A pointer to the idlib_vector_3_f32 object of which the squared length is computed.
 /// @return The squared length of the idlib_Vector_3_f32 object pointed to by @a operand.
 static inline idlib_f32
-idlib_vector_3_f32_get_squared_length
+idlib_vector_3_f32_squared_length
 	(
 		idlib_vector_3_f32 const* operand
 	);
@@ -27,7 +25,7 @@ idlib_vector_3_f32_get_squared_length
 /// @param operand A pointer to the idlib_vector_3_f32 object of which the length is computed.
 /// @return The length of the idlib_Vector_3_f32 object pointed to by @a operand.
 static inline idlib_f32
-idlib_vector_3_f32_get_length
+idlib_vector_3_f32_length
 	(
 		idlib_vector_3_f32 const* operand
 	);
@@ -162,7 +160,7 @@ idlib_vector_3_f32_get_data
 	);
 
 static inline idlib_f32
-idlib_vector_3_f32_get_squared_length
+idlib_vector_3_f32_squared_length
 	(
 		idlib_vector_3_f32 const* operand
 	)
@@ -175,11 +173,11 @@ idlib_vector_3_f32_get_squared_length
 }
 
 static inline idlib_f32
-idlib_vector_3_f32_get_length
+idlib_vector_3_f32_length
 	(
 		idlib_vector_3_f32 const* operand
 	)
-{ return idlib_sqrt_f32(idlib_vector_3_f32_get_squared_length(operand)); }
+{ return idlib_sqrt_f32(idlib_vector_3_f32_squared_length(operand)); }
 
 static inline bool
 idlib_vector_3_f32_normalize
@@ -188,7 +186,7 @@ idlib_vector_3_f32_normalize
 		idlib_vector_3_f32 const* operand
 	)
 {
-	idlib_f32 sql = idlib_vector_3_f32_get_squared_length(operand);
+	idlib_f32 sql = idlib_vector_3_f32_squared_length(operand);
 	if (sql == 0.f) {
 		target->e[0] = 0.f;
 		target->e[1] = 0.f;

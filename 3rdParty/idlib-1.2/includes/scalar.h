@@ -2,11 +2,21 @@
 #if !defined(IDLIB_SCALAR_H_INCLUDED)
 #define IDLIB_SCALAR_H_INCLUDED
 
+#include "configure.h"
+
 // bool, true, false
 #include <stdbool.h>
 
+// NULL
+#include <stddef.h>
+
 // uint8_t
 #include <inttypes.h>
+
+
+/// @since 1.2
+/// Alias for uint8_t.
+typedef uint8_t idlib_u8;
 
 /// @since 1.0
 /// Alias for float.
@@ -16,26 +26,24 @@ typedef float idlib_f32;
 /// Alias for double.
 typedef double idlib_f64;
 
-/// @since 1.1
-typedef uint8_t idlib_u8;
 
 #if _DEBUG
-  
-  void
-  idlib_debug_assert
-    (
-      bool expression_value,
-      char const* file,
-      int line,
-      char const* expression_string
-    );
 
-  #define IDLIB_DEBUG_ASSERT(expression) \
-    idlib_debug_assert(expression, __FILE__, __LINE__, #expression);
+	void
+	idlib_debug_assert
+		(
+			bool expression_value,
+			char const* file,
+			int line,
+			char const* expression_string
+		);
+
+	#define IDLIB_DEBUG_ASSERT(expression) \
+		idlib_debug_assert(expression, __FILE__, __LINE__, #expression);
 
 #else
 
-  #define IDLIB_DEBUG_ASSERT(expression)
+	#define IDLIB_DEBUG_ASSERT(expression)
 
 #endif // _DEBUG
 
@@ -45,13 +53,13 @@ typedef uint8_t idlib_u8;
  */
 #define IDLIB_PI_F32 3.1415926f
 
-/** 
+/**
  * @since 1.0
  * Symbolic constant for the idlib_f64 representation of Pi.
  */
 #define IDLIB_PI_F64 3.1415926
 
-/** 
+/**
  * @since 1.0
  * Convert an angle in degrees into the corresponding angle in radians.
  * @param operand The angle in degrees.
@@ -59,12 +67,12 @@ typedef uint8_t idlib_u8;
  */
 static inline idlib_f32
 idlib_deg_to_rad_f32
-  (
-    idlib_f32 x
-  )
+	(
+		idlib_f32 x
+	)
 { return (x / 180.f) * IDLIB_PI_F32; }
 
-/** 
+/**
  * @since 1.0
  * Convert an angle in degrees into the corresponding angle in radians.
  * @param operand The angle in degrees.
@@ -72,9 +80,9 @@ idlib_deg_to_rad_f32
  */
 static inline idlib_f64
 idlib_deg_to_rad_f64
-  (
-    idlib_f64 operand
-  )
+	(
+		idlib_f64 operand
+	)
 { return (operand / 180.) * IDLIB_PI_F64; }
 
 /**
@@ -85,9 +93,9 @@ idlib_deg_to_rad_f64
  */
 idlib_f32
 idlib_sqrt_f32
-  (
-    idlib_f32 operand
-  );
+	(
+		idlib_f32 operand
+	);
 
 /**
  * @since 1.0
@@ -97,9 +105,9 @@ idlib_sqrt_f32
  */
 idlib_f64
 idlib_sqrt_f64
-  (
-    idlib_f64 operand
-  );
+	(
+		idlib_f64 operand
+	);
 
 /**
  * @since 1.0
@@ -109,9 +117,9 @@ idlib_sqrt_f64
  */
 idlib_f32
 idlib_cos_f32
-  (
-    idlib_f32 operand
-  );
+	(
+		idlib_f32 operand
+	);
 
 /**
  * @since 1.0
@@ -121,9 +129,9 @@ idlib_cos_f32
  */
 idlib_f64
 idlib_cos_f64
-  (
-    idlib_f64 operand
-  );
+	(
+		idlib_f64 operand
+	);
 
 /**
  * @since 1.0
@@ -133,9 +141,9 @@ idlib_cos_f64
  */
 idlib_f32
 idlib_sin_f32
-  (
-    idlib_f32 operand
-  );
+	(
+		idlib_f32 operand
+	);
 
 /**
  * @since 1.0
@@ -145,9 +153,9 @@ idlib_sin_f32
  */
 idlib_f64
 idlib_sin_f64
-  (
-    idlib_f64 operand
-  );
+	(
+		idlib_f64 operand
+	);
 
 /**
  * @since 1.0
@@ -157,9 +165,9 @@ idlib_sin_f64
  */
 idlib_f32
 idlib_tan_f32
-  (
-    idlib_f32 operand
-  );
+	(
+		idlib_f32 operand
+	);
 
 /**
  * @since 1.0
@@ -169,9 +177,9 @@ idlib_tan_f32
  */
 idlib_f64
 idlib_tan_f64
-  (
-    idlib_f64 operand
-  );
+	(
+		idlib_f64 operand
+	);
 
 /**
  * @since 1.0
@@ -181,13 +189,13 @@ idlib_tan_f64
  */
 static inline idlib_f32
 idlib_clamp_f32
-  (
-    idlib_f32 operand
-  )
+	(
+		idlib_f32 operand
+	)
 {
-  if (operand < 0.f) return 0.f;
-  else if (operand > 1.f) return 1.f;
-  else return operand;
+	if (operand < 0.f) return 0.f;
+	else if (operand > 1.f) return 1.f;
+	else return operand;
 }
 
 /**
@@ -198,13 +206,13 @@ idlib_clamp_f32
  */
 static inline idlib_f64
 idlib_clamp_f64
-  (
-    idlib_f64 operand
-  )
+	(
+		idlib_f64 operand
+	)
 {
-  if (operand < 0.) return 0.;
-  else if (operand > 1.) return 1.;
-  else return operand;
+	if (operand < 0.) return 0.;
+	else if (operand > 1.) return 1.;
+	else return operand;
 }
 
 #endif // IDLIB_SCALAR_H_INCLUDED
