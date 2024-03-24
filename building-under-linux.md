@@ -8,12 +8,16 @@
 - *cmake* Version 3.22.1 or better.
 - Optional: *gdb* Version 12.1 or better.
 
-## Building
+## Building the program
+The following instructions will perform an out-of-source build. An out-of-source build does not modify the source directory
+by storing any build file, intermediate file, or product file in a dedicated build directory outside of the source directory.
+An out of source build is the recommended way of building *Zeitgeist*.
+
 - Checkout `zeitgeist` [https://github.com/michaelheilmann/zeitgeist.git](https://github.com/michaelheilmann/zeitgeist.git) into a directory in your file system.
-  For the remainder of this manual, we denote this by the `<source-directory>`.
-- Create a directory in which the build files will be generate.
-  That directory should not be below the source directory `<source-directory>`.
-  For the remainder of this manual, we denote this by the `<build-directory>`.
+  For the remainder of this manual, we call this directory *source directory* and denote it in command-line prompts by the meta variable `<source-directory>`.
+- Create a directory outside of the *source directory* in which the build will be performed.
+  That directory *must not* reside in the source directory `<source-directory>`.
+  For the remainder of this manual, we call this directory *build directory* and denote it in command-line prompts by the meta variable `<build-directory>`.
 - Open a console and enter the build directory `<build-directory>`.
 - Enter `cmake <source-directory>`.
 - The makefiles should have been generated in `<build-directory>`.
