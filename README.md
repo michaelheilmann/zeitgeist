@@ -3,9 +3,10 @@
 It protects the actual software from environment idiosyncrasies like compilers and operating systems.
 
 ## Building Zeitgeist
-*Zeitgeist* currently builds under *Windows 11*.
+*Zeitgeist* successfully builds and runs under *Windows 11* and *Linux*.
 
 - [Building Zeitgeist: Windows 11/Visual Studio Community](building-under-windows-11-visual-studio-community-20222)
+- [Building Zeitgeist: Linux](building-under-linux)
 
 ## Contribute
 If you have questions on using *Zeitgeist* or you want to contribute,
