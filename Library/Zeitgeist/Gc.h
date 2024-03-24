@@ -157,4 +157,72 @@ Zeitgeist_Gc_Object_isGray
 		Zeitgeist_Gc_Object* object
 	);
 
+typedef struct Zeitgeist_State Zeitgeist_State;
+typedef struct Zeitgeist_ForeignObject Zeitgeist_ForeignObject;
+typedef struct Zeitgeist_List Zeitgeist_List;
+typedef struct Zeitgeist_Map Zeitgeist_Map;
+typedef struct Zeitgeist_String Zeitgeist_String;
+typedef struct Zeitgeist_Value Zeitgeist_Value;
+typedef struct Zeitgeist_WeakReference Zeitgeist_WeakReference;
+
+/**
+ * @brief If the foreign object is white, color it gray and put it into the gray list.
+ */
+void
+Zeitgeist_Gc_visitForeignObject
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_ForeignObject* foreignObject
+	);
+
+/**
+ * @brief If the list is white, color it gray and put it into the gray list.
+ */
+void
+Zeitgeist_Gc_visitList
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_List* list
+	);
+
+/**
+ * @brief If the map is white, color it gray and put it into the gray list.
+ */
+void
+Zeitgeist_Gc_visitMap
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Map* map
+	);
+
+/**
+ * @brief Color the string black.
+ */
+void
+Zeitgeist_Gc_visitString
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_String* string
+	);
+
+/**
+ * @brief Traverbase the value, calling Zeitgeist_Gc_visit(ForeignObject|List|Map|String|WeakReference) if required.
+ */
+void
+Zeitgeist_Gc_visitValue
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Value* value
+	);
+
+/**
+ * @brief Color the weak reference black.
+ */
+void
+Zeitgeist_Gc_visitWeakReference
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_WeakReference* weakReference
+	);
+
 #endif // ZEITGEIST_GC_H_INCLUDED

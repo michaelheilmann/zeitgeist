@@ -295,21 +295,6 @@ struct Zeitgeist_Value {
 
 /**
  * @since 0.1
- * @brief Visit a Zeitgeist_Value object.
- * @param state A pointer to the state.
- * @param value A pointer to the value.
- */
-void
-Zeitgeist_Value_visit
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_Value* value
-	);
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/**
- * @since 0.1
  * @brief Get if a Zeitgeist_Value object stores a Zeitgeist_Boolean value.
  * @param value A pointer to a Zeitgeist_value object.
  * @return true if the Zeitgeist_Value object stores a Zeitgeist_Boolean value. false otherwise.

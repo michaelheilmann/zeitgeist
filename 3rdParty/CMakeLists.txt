@@ -1,1 +1,1 @@
-add_subdirectory(idlib-1.1)
+add_subdirectory(idlib-1.2)

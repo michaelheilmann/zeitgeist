@@ -14,43 +14,6 @@
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-void
-Zeitgeist_Value_visit
-	(
-		Zeitgeist_State* state,
-		Zeitgeist_Value* value
-	)
-{
-	switch (value->tag) {
-		case Zeitgeist_ValueTag_Map: {
-			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->mapValue)) {
-				value->mapValue->gclist = state->gc.gray;
-				state->gc.gray = (Zeitgeist_Gc_Object*)value->mapValue;
-				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->mapValue);
-			}
-		} break;
-		case Zeitgeist_ValueTag_ForeignObject: {
-			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->foreignObjectValue)) {
-				value->foreignObjectValue->gclist = state->gc.gray;
-				state->gc.gray = (Zeitgeist_Gc_Object*)value->foreignObjectValue;
-				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->foreignObjectValue);
-			}
-		} break;
-		case Zeitgeist_ValueTag_List: {
-			if (Zeitgeist_Gc_Object_isWhite((Zeitgeist_Gc_Object*)value->listValue)) {
-				value->listValue->gclist = state->gc.gray;
-				state->gc.gray = (Zeitgeist_Gc_Object*)value->listValue;
-				Zeitgeist_Gc_Object_setGray((Zeitgeist_Gc_Object*)value->listValue);
-			}
-		} break;
-		case Zeitgeist_ValueTag_String: {
-			Zeitgeist_Gc_Object_setBlack((Zeitgeist_Gc_Object*)value->stringValue);
-		} break;
-	};
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 bool
 Zeitgeist_Value_hasBoolean
 	(

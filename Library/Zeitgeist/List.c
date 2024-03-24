@@ -36,7 +36,7 @@ Zeitgeist_List_visit
 	)
 {
 	for (size_t i = 0, n = list->size; i < n; ++i) {
-		Zeitgeist_Value_visit(state, list->elements + i);
+		Zeitgeist_Gc_visitValue(state, list->elements + i);
 	}
 }
 

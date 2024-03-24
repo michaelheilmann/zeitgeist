@@ -28,7 +28,7 @@ Stack_premark
 {
 	// Premark stack.
 	for (size_t i = 0, n = state->stack->size; i < n; ++i) {
-		Zeitgeist_Value_visit(state, state->stack->elements + i);
+		Zeitgeist_Gc_visitValue(state, state->stack->elements + i);
 	}
 }
 

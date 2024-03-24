@@ -2,8 +2,15 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-message(STATUS "defining target ${project_name}-Interpreter")
-add_executable(${project_name}-Interpreter Main.c)
+include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-1.2/cmake/all.cmake)
 
-target_link_libraries(${project_name}-Interpreter ${project_name}-Library)
+set(name ${project_name}-Interpreter)
+set(${name}.sources "")
+set(${name}.headers "")
+add_executable(${name})
+
+list(APPEND ${name}.sources Main.c)
+
+target_sources(${name} PRIVATE ${${name}.sources} ${${name}.headers})
+target_link_libraries(${name} ${project_name}-Library)
 

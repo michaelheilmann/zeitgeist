@@ -41,7 +41,8 @@ Zeitgeist_Map_visit
 	for (size_t i = 0, n = map->capacity; i < n; ++i) {
 		Zeitgeist_Map_Node* node = map->buckets[i];
 		while (node) {
-			Zeitgeist_Value_visit(state, &node->value);
+			Zeitgeist_Gc_visitValue(state, &node->key);
+			Zeitgeist_Gc_visitValue(state, &node->value);
 			node = node->next;
 		}
 	}
