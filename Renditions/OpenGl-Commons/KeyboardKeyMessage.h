@@ -11,6 +11,12 @@
 #define KeyboardKey_Left (3)
 #define KeyboardKey_Right (4)
 #define KeyboardKey_Escape (5)
+#define KeyboardKey_Q (6)
+#define KeyboardKey_E (7)
+#define KeyboardKey_W (8)
+#define KeyboardKey_A (9)
+#define KeyboardKey_S (10)
+#define KeyboardKey_D (11)
 
 typedef struct KeyboardKeyMessage {
 	Zeitgeist_ForeignObject _parent;

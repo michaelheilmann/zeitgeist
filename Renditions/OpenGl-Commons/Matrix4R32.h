@@ -75,4 +75,12 @@ Matrix4R32_negate
 		Matrix4R32* matrix
 	);
 
+Matrix4R32*
+Matrix4R32_multiply
+	(
+		Zeitgeist_State* state,
+		Matrix4R32* operand1,
+		Matrix4R32* operand2
+	);
+
 #endif // MATRIX4R32_H_INCLUDED

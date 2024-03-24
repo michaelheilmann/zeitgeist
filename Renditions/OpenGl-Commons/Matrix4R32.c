@@ -106,3 +106,16 @@ Matrix4R32_negate
 	idlib_matrix_4x4_f32_negate(&self->m, &matrix->m);
 	return self;
 }
+
+Matrix4R32*
+Matrix4R32_multiply
+	(
+		Zeitgeist_State* state,
+		Matrix4R32* operand1,
+		Matrix4R32* operand2
+	)
+{
+	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
+	idlib_matrix_4x4_f32_multiply(&self->m, &operand1->m, &operand2->m);
+	return self;
+}

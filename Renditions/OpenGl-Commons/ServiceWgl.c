@@ -352,6 +352,7 @@ mapKeyboardKey
 		WPARAM wParam
 	)
 {
+	// https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 	switch (wParam) {
 		case VK_UP: {
 			Zeitgeist_Value value;
@@ -378,6 +379,37 @@ mapKeyboardKey
 			Zeitgeist_Value_setInteger(&value, KeyboardKey_Escape);
 			return value;
 		} break;
+		case 0x51: /*Q*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_Q);
+			return value;
+		} break;
+		case 0x45: /*E*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_E);
+			return value;
+		} break;
+		case 0x57: /*W*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_W);
+			return value;
+		} break;
+		case 0x41: /*A*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_A);
+			return value;
+		} break;
+		case 0x53: /*S*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_S);
+			return value;
+		} break;
+		case 0x44: /*D*/ {
+			Zeitgeist_Value value;
+			Zeitgeist_Value_setInteger(&value, KeyboardKey_D);
+			return value;
+		} break;
+
 		default: {
 			Zeitgeist_Value value;
 			Zeitgeist_Value_setVoid(&value, Zeitgeist_Void_Void);

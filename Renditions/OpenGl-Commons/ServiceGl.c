@@ -292,7 +292,7 @@ ServiceGl_addKeyboardKeyCallback
 	)
 {
 	if (!g_keyboardKeyListeners) {
-		g_keyboardKeyListeners = Zeitgeist_createList(state);
+		g_keyboardKeyListeners = Zeitgeist_List_create(state);
 		Zeitgeist_JumpTarget jumpTarget;
 		Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 		if (!setjmp(jumpTarget.environment)) {

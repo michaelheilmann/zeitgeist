@@ -10,3 +10,9 @@ Provides OpenGL 3.x windowing & context creation/destruction:
 - (5) Activate the OpenGL 3.x context. Use OpenGL 3.x.
 - (6) Relinquish the two linked functions.
 - (7) Destroy the OpenGL 3.x context and the OpenGL 3.x window.
+
+# Coordinate Systems
+*OpenGL Commons* uses a *right handed coordinate system*.
+The positive x axis is pointing from the left side of the canvas to the right side,
+The positive y axis is pointing from the bottom side of the canvas to the top side.
+The negative z axis is pointing into the screen.
