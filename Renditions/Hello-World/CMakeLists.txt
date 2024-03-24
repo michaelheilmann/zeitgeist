@@ -2,11 +2,18 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-set(sources "")
-list(APPEND sources Sources/Main.c)
+include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-1.2/cmake/all.cmake)
 
-add_library(${project_name}-Hello-World MODULE ${sources})
-target_link_libraries(${project_name}-Hello-World ${project_name}-Library)
-add_dependencies(${project_name}-Hello-World ${project_name}-Interpreter)
+set(name ${project_name}-Hello-World)
+set(${name}.sources "")
+set(${name}.headers "")
+add_library(${name} MODULE)
 
-copy_plugin(${project_name}-Interpreter ${project_name}-Hello-World)
+list(APPEND ${name}.sources Sources/Main.c)
+
+configure_warnings_and_errors(${name})
+target_sources(${name} PRIVATE ${${name}.sources} ${${name}.headers})
+target_link_libraries(${name} ${project_name}-Library)
+add_dependencies(${name} ${project_name}-Interpreter)
+
+copy_plugin(${project_name}-Interpreter ${name})
