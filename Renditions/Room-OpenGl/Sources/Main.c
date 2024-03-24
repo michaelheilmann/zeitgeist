@@ -46,8 +46,10 @@ Zeitgeist_Rendition_getName
 //  vertexAmbientColor vec4: The vertex ambient color in RGBF32.
 static const GLchar* g_vertexShader =
 	"#version 330 core\n"
+	// vertex variables
 	"layout(location = 0) in vec3 vertexPosition;\n"
 	"layout(location = 1) in vec4 vertexAmbientColor;\n"
+	// decide if mesh ambient color or vertex ambient color is used.
 	"uniform int inputFragmentAmbientColorType = 0;\n"
 	"uniform vec4 meshAmbientColor = vec4(1.0, 0.8, 0.2, 1.0);\n"
 	"out vec4 inputFragmentAmbientColor;\n"
@@ -56,8 +58,7 @@ static const GLchar* g_vertexShader =
 	"uniform mat4 world = mat4(1);\n"
 	"void main() {\n"
 	"  mat4 worldProjection = projection * view * world;"
-	"  vec4 scaledVertex = vec4(vertexPosition.xyz, 1.0);\n"
-	"  gl_Position = worldProjection * scaledVertex;\n"
+	"  gl_Position = worldProjection * vec4(vertexPosition, 1.);\n"
 	"  if(inputFragmentAmbientColorType == 1) {\n"
 	"    inputFragmentAmbientColor = vec4(vertexAmbientColor.rgb, vertexAmbientColor.a);\n"
 	"  } else {\n"
@@ -77,43 +78,11 @@ static const GLchar* g_fragmentShader =
 	"}\n"
 	;
 
-typedef struct Player {
-	struct {
-		/** Rotation around the y-axis. */
-		float y;
-	} rotation;
-	/** @brief Position in world coordinates. */
-	struct {
-		float x, y, z;
-	} position;
-} Player;
-
-static Player g_player = {
-	.rotation = { .y = 0 },
-	.position = { .x = 0, .y = 0, .z = 0.f },
-};
-
 static GLint g_vertexPositionIndex = 0;
 static GLint g_vertexAmbientColorIndex = 1;
 
-typedef struct VERTEX {
-	struct {
-		float x, y, z;
-	} position;
-	struct {
-		float r, g, b, a;
-	} ambientColor;
-} VERTEX;
-
-static VERTEX const FRONT[] = {
-	{.position = { -1.f,  1.f, -1.f, }, .ambientColor = { 1.f, 0.f, 0.f, 1.f }, },
-	{.position = { -1.f, -1.f, -1.f, }, .ambientColor = { 1.f, 1.f, 0.f, 1.f }, },
-	{.position = {  1.f,  1.f, -1.f, }, .ambientColor = { 1.f, 0.f, 1.f, 1.f }, },
-	{.position = {  1.f, -1.f, -1.f, }, .ambientColor = { 1.f, 1.f, 1.f, 1.f }, },
-};
-
 static GLuint g_programId = 0;
-static StaticGeometryGl* g_buildingGeometry = NULL;
+static World* g_world = NULL;
 
 static void
 bindMatrix4Uniform
@@ -149,10 +118,10 @@ Zeitgeist_Rendition_update
 	ServiceGl_getClientSize(state, &viewportWidth, &viewportHeight);
 	ServiceGl_beginFrame(state);
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+
 	glViewport(0, 0, viewportWidth, viewportHeight);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glUseProgram(g_programId);
 
 	//
@@ -160,12 +129,18 @@ Zeitgeist_Rendition_update
 	world = Matrix4R32_createScale(state, Vector3R32_create(state, 0.75f, 0.75f, 1.f));
 	bindMatrix4Uniform(state, g_programId, "world", world);
 	//
+	Matrix4R32* viewTranslate = NULL;
+	viewTranslate = Matrix4R32_createTranslate(state, Vector3R32_create(state, -g_world->player->position->v.e[0], -g_world->player->position->v.e[1], -g_world->player->position->v.e[2]));
+	Matrix4R32* viewRotateY = NULL;
+	viewRotateY = Matrix4R32_createRotateY(state, g_world->player->rotationY);
 	Matrix4R32* view = NULL;
-	view = Matrix4R32_createTranslate(state, Vector3R32_create(state, -g_player.position.x, -g_player.position.y, -g_player.position.z));
+	view = Matrix4R32_multiply(state, viewTranslate, viewRotateY);
 	bindMatrix4Uniform(state, g_programId, "view", view);
+	
 	//
 	Matrix4R32* projection = NULL;
-	projection = Matrix4R32_createOrthographic(state, -1.f, +1.f, -1.f, +1.f, -100.f, +100.f);
+	//projection = Matrix4R32_createOrthographic(state, -1.f, +1.f, -1.f, +1.f, -100.f, +100.f);
+	projection = Matrix4R32_createPerspective(state, 90.f, viewportHeight > 0.f ? viewportWidth / viewportHeight : 16.f/9.f, 0.1f, 100.f);
 	bindMatrix4Uniform(state, g_programId, "projection", projection);
 	
 	GLint location;
@@ -187,8 +162,14 @@ Zeitgeist_Rendition_update
 		glUniform1i(location, scalar);
 	}
 
-	glBindVertexArray(g_buildingGeometry->vertexArrayId);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(FRONT) / sizeof(VERTEX));
+	Zeitgeist_Value sizeValue = Zeitgeist_List_getSize(state, g_world->geometries);
+	for (Zeitgeist_Integer i = 0, n = Zeitgeist_Value_getInteger(&sizeValue); i < n; ++i) {
+		Zeitgeist_Value elementValue = Zeitgeist_List_getValue(state, g_world->geometries, i);
+		StaticGeometryGl *element = (StaticGeometryGl*)Zeitgeist_Value_getForeignObject(&elementValue);
+		glBindVertexArray(element->vertexArrayId);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, element->numberOfVertices);
+	}
+
 	glBindVertexArray(0);
 	glUseProgram(0);
 
@@ -224,25 +205,33 @@ onKeyboardKeyMessage
 				Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
 				Zeitgeist_sendUpstreamRequest(state, request);
 			} break;
+			case KeyboardKey_Q: {
+				g_world->player->rotationY -= 0.25f;
+			} break;
+			case KeyboardKey_E: {
+				g_world->player->rotationY += 0.25f;
+			} break;
+			case KeyboardKey_W:
 			case KeyboardKey_Up: {
-				g_player.position.z -= 0.25f;
+				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, 0.f, 0.f, -0.25f));
 			} break;
+			case KeyboardKey_S:
 			case KeyboardKey_Down: {
-				g_player.position.z += 0.25;
+				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, 0.f, 0.f, +0.25f));
 			} break;
+			case KeyboardKey_A:
 			case KeyboardKey_Left: {
-				g_player.position.x -= 0.25;
+				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, -0.25f, 0.f, 0.f));
 			} break;
+			case KeyboardKey_D:
 			case KeyboardKey_Right: {
-				g_player.position.x += 0.25;
+				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, +0.25f, 0.f, 0.f));
 			} break;
 		};
 	}
 	Zeitgeist_Stack_pop(state);
 	Zeitgeist_Stack_pop(state);
 }
-
-#include "Zeitgeist/Locks.h"
 
 Zeitgeist_Rendition_Export void
 Zeitgeist_Rendition_load
@@ -269,7 +258,7 @@ Zeitgeist_Rendition_load
 	//
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
-		g_buildingGeometry = StaticGeometryGl_create(state);
+		g_world = World_create(state);
 		Zeitgeist_State_popJumpTarget(state);
 	} else {
 		Zeitgeist_State_popJumpTarget(state);
@@ -280,38 +269,29 @@ Zeitgeist_Rendition_load
 	//
 	Zeitgeist_State_pushJumpTarget(state, &jumpTarget);
 	if (!setjmp(jumpTarget.environment)) {
-		Zeitgeist_lock(state, (Zeitgeist_Gc_Object*)g_buildingGeometry);
+		Zeitgeist_lock(state, (Zeitgeist_Gc_Object*)g_world);
 		Zeitgeist_State_popJumpTarget(state);
 	} else {
 		Zeitgeist_State_popJumpTarget(state);
-		g_buildingGeometry = NULL;
+		g_world = NULL;
 		glDeleteProgram(g_programId);
 		g_programId = 0;
 		longjmp(state->jumpTarget->environment, -1);
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, g_buildingGeometry->bufferId);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(FRONT), FRONT, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
-	glBindVertexArray(g_buildingGeometry->vertexArrayId);
-	glBindBuffer(GL_ARRAY_BUFFER, g_buildingGeometry->bufferId);
-
-	glEnableVertexAttribArray(g_vertexPositionIndex);
-	glVertexAttribPointer(g_vertexPositionIndex, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX),
-		                    (void*)(uintptr_t)offsetof(VERTEX, position));
-
-	glEnableVertexAttribArray(g_vertexAmbientColorIndex);
-	glVertexAttribPointer(g_vertexAmbientColorIndex, 4, GL_FLOAT, GL_TRUE, sizeof(VERTEX),
-		                    (void*)(uintptr_t)offsetof(VERTEX, ambientColor));
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.f);
+
+	glDepthFunc(GL_LEQUAL);
 	glClearDepth(1.f);
+
+	fprintf(stdout, "OpenGL renderer: %s\n", glGetString(GL_RENDERER));
+	fprintf(stdout, "OpenGL vendor:   %s\n", glGetString(GL_VENDOR));
+	fprintf(stdout, "OpenGL version:  %s\n", glGetString(GL_VERSION));
 }
 
 Zeitgeist_Rendition_Export void
@@ -320,9 +300,14 @@ Zeitgeist_Rendition_unload
 		Zeitgeist_State* state
 	)
 {
-	StaticGeometryGl_unmaterialize(state, g_buildingGeometry);
-	Zeitgeist_unlock(state, (Zeitgeist_Gc_Object*)g_buildingGeometry);
-	g_buildingGeometry = NULL;
+	Zeitgeist_Value sizeValue = Zeitgeist_List_getSize(state, g_world->geometries);
+	for (Zeitgeist_Integer i = 0, n = Zeitgeist_Value_getInteger(&sizeValue); i < n; ++i) {
+		Zeitgeist_Value elementValue = Zeitgeist_List_getValue(state, g_world->geometries, i);
+		StaticGeometryGl* element = (StaticGeometryGl*)Zeitgeist_Value_getForeignObject(&elementValue);
+		StaticGeometryGl_unmaterialize(state, element);
+	}
+	Zeitgeist_unlock(state, (Zeitgeist_Gc_Object*)g_world);
+	g_world = NULL;
 	glDeleteProgram(g_programId);
 	g_programId = 0;
 	ServiceGl_shutdown(state);
