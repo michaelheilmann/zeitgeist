@@ -62,7 +62,7 @@ Zeitgeist_Map_finalize
  * @undefined state does not point to a Zeitgeist_State object.
  */
 Zeitgeist_Map*
-Zeitgeist_State_createMap
+Zeitgeist_Map_create
 	(
 		Zeitgeist_State* state
 	);

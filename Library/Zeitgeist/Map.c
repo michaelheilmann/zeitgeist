@@ -67,7 +67,7 @@ Zeitgeist_Map_finalize
 }
 
 Zeitgeist_Map*
-Zeitgeist_State_createMap
+Zeitgeist_Map_create
 	(
 		Zeitgeist_State* state
 	)

@@ -41,7 +41,7 @@ Zeitgeist_List_finalize
  * @undefined state does not point to a Zeitgeist_State object.
  */
 Zeitgeist_List*
-Zeitgeist_createList
+Zeitgeist_List_create
 	(
 		Zeitgeist_State* state
 	);

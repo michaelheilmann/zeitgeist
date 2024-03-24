@@ -54,7 +54,7 @@ Zeitgeist_List_finalize
 }
 
 Zeitgeist_List*
-Zeitgeist_createList
+Zeitgeist_List_create
 	(
 		Zeitgeist_State* state
 	)

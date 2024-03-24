@@ -24,7 +24,7 @@ loadRenditions
 		Zeitgeist_State* state
 	)
 {
-	Zeitgeist_List* renditions = Zeitgeist_createList(state);
+	Zeitgeist_List* renditions = Zeitgeist_List_create(state);
 #if Zeitgeist_Configuration_OperatingSystem_Windows == Zeitgeist_Configuration_OperatingSystem
 	WIN32_FIND_DATA ffd;
 	TCHAR szDir[MAX_PATH];
