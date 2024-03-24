@@ -2,11 +2,17 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-set(name ${project_name}-Hello-World-OpenGl)
-set(sources "")
-list(APPEND sources Sources/Main.c)
+include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-1.2/cmake/all.cmake)
 
-add_library(${name} MODULE ${sources})
+set(name ${project_name}-Hello-World-OpenGl)
+set(${name}.sources "")
+set(${name}.headers "")
+add_library(${name} MODULE)
+
+list(APPEND ${name}.sources Sources/Main.c)
+
+configure_warnings_and_errors(${name})
+target_sources(${name} PRIVATE ${${name}.sources} ${${name}.headers})
 target_link_libraries(${name} ${project_name}-OpenGl-Commons ${project_name}-Library)
 add_dependencies(${name} ${project_name}-Interpreter)
 
