@@ -16,3 +16,16 @@ Provides OpenGL 3.x windowing & context creation/destruction:
 The positive x axis is pointing from the left side of the canvas to the right side,
 The positive y axis is pointing from the bottom side of the canvas to the top side.
 The negative z axis is pointing into the screen.
+
+# Lights Types
+*OpenGL Commons* knows various kinds of lights sources.
+
+## Point Lights
+A point light consists of a point. It emits light from the point in every direction.
+
+## Directional Lights
+A directional light consists of a plane at infinity.
+Every point in the plane emits a light into the direction of the plane normal.
+
+## Spot Lights
+A spot light consists of a point which emits a cone of light into a direction.

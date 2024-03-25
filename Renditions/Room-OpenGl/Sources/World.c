@@ -1,6 +1,9 @@
 #include "World.h"
 
 #include "Zeitgeist/List.h"
+#include "Zeitgeist/UpstreamRequests.h"
+
+#include "KeyboardKeyMessage.h"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -14,6 +17,9 @@ Player_visit
 	if (self->position) {
 		Zeitgeist_Gc_visitForeignObject(state, (Zeitgeist_ForeignObject*)self->position);
 	}
+	if (self->positionSpeed) {
+		Zeitgeist_Gc_visitForeignObject(state, (Zeitgeist_ForeignObject*)self->positionSpeed);
+	}
 }
 
 Player*
@@ -24,7 +30,17 @@ Player_create
 {
 	Player* self = Zeitgeist_allocateForeignObject(state, sizeof(Player), NULL, NULL);
 	self->position = Vector3R32_create(state, 0.f, 0.f, 0.f);
+	self->positionSpeed = Vector3R32_create(state, 0.f, 0.f, 0.f);
 	self->rotationY = 0.f;
+	self->rotationYSpeed = 0.f;
+
+	self->strafeLeftDown = false;
+	self->strafeRightDown = false;
+	self->moveForwardDown = false;
+	self->moveBackwardDown = false;
+	self->turnLeftDown = false ;
+	self->turnRightDown = false;
+
 	((Zeitgeist_ForeignObject*)self)->visit = (void(*)(Zeitgeist_State*, Zeitgeist_ForeignObject*)) & Player_visit;
 	return self;
 }
@@ -36,8 +52,84 @@ Player_onKeyboardKeyMessage
 		Player* self,
 		KeyboardKeyMessage* message
 	)
-{ }
+{ 
+	switch (KeyboardKeyMessage_getKey(state, message)) {
+		case KeyboardKey_Q: {
+			self->turnLeftDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+		case KeyboardKey_E: {
+			self->turnRightDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+		case KeyboardKey_W:
+		case KeyboardKey_Up: {
+			self->moveForwardDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+		case KeyboardKey_S:
+		case KeyboardKey_Down: {
+			self->moveBackwardDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+		case KeyboardKey_A:
+		case KeyboardKey_Left: {
+			self->strafeLeftDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+		case KeyboardKey_D:
+		case KeyboardKey_Right: {
+			self->strafeRightDown = KeyboardKey_Action_Pressed == KeyboardKeyMessage_getAction(state, message);
+		} break;
+	};
+}
 
+void
+Player_update
+	(
+		Zeitgeist_State* state,
+		Player* self,
+		Zeitgeist_Real32 tick
+	)
+{
+	self->positionSpeed = Vector3R32_create(state, 0.f, 0.f, 0.f);
+	if (self->strafeLeftDown != self->strafeRightDown) {
+		if (self->strafeLeftDown) {
+			Vector3R32* speed = Vector3R32_create(state, -1.f, 0.f, 0.f);
+			self->positionSpeed = Vector3R32_add(state, self->positionSpeed, speed);
+		} else {
+			Vector3R32* speed = Vector3R32_create(state, +1.f, 0.f, 0.f);
+			self->positionSpeed = Vector3R32_add(state, self->positionSpeed, speed);
+		}
+	}
+	if (self->moveForwardDown != self->moveBackwardDown) {
+		if (self->moveForwardDown) {
+			Vector3R32* speed = Vector3R32_create(state, 0.f, 0.f, -1.f);
+			self->positionSpeed = Vector3R32_add(state, self->positionSpeed, speed);
+		} else {
+			Vector3R32* speed = Vector3R32_create(state, 0.f, 0.f, +1.f);
+			self->positionSpeed = Vector3R32_add(state, self->positionSpeed, speed);
+		}
+	}
+	self->rotationYSpeed = 0.f;
+	if (self->turnLeftDown != self->turnRightDown) {
+		if (self->turnLeftDown) {
+			self->rotationYSpeed += +1.f;
+		} else {
+			self->rotationYSpeed += -1.f;
+		}
+	}
+
+	// update rotation.
+	self->rotationY += 0.005f * self->rotationYSpeed * tick;
+
+	// update position.
+	idlib_vector_3_f32 v = self->positionSpeed->v;
+	if (idlib_vector_3_f32_normalize(&v, &v)) {
+		Matrix4R32* rotationY = Matrix4R32_createRotateY(state, self->rotationY);
+		idlib_matrix_4x4_3f_transform_direction(&v, &rotationY->m, &v);
+		Zeitgeist_Real32 speed = 0.0001f * tick;
+		v.e[0] *= speed;
+		v.e[1] *= speed;
+		v.e[2] *= speed;
+		idlib_vector_3_f32_add(&self->position->v, &self->position->v, &v);
+	}
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -110,7 +202,9 @@ StaticGeometryGl_setData
 {
 	static const GLint POSITION_INDEX = 0;
 	
-	static const GLint AMBIENT_COLOR_INDEX = 1;
+	static const GLint NORMAL_INDEX = 1;
+
+	static const GLint AMBIENT_COLOR_INDEX = 2;
 
 	// Compute vertex size.
 	size_t vertexSize = numberOfBytes / numberOfVertices;
@@ -138,13 +232,21 @@ StaticGeometryGl_setData
 		                    vertexSize,
 		                    (void*)(uintptr_t)0);
 
+	glEnableVertexAttribArray(NORMAL_INDEX);
+	glVertexAttribPointer(NORMAL_INDEX,
+												3,
+												GL_FLOAT,
+												GL_FALSE,
+												vertexSize,
+												(void*)(uintptr_t)(sizeof(float) * 3));
+
 	glEnableVertexAttribArray(AMBIENT_COLOR_INDEX);
 	glVertexAttribPointer(AMBIENT_COLOR_INDEX,
-		                    4,
+		                    3,
 		                    GL_FLOAT,
 		                    GL_TRUE,
 		                    vertexSize,
-		                    (void*)(uintptr_t)(sizeof(float)*3));
+		                    (void*)(uintptr_t)(sizeof(float)*6));
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
@@ -157,17 +259,18 @@ StaticGeometryGl_setDataSouthWall
 		StaticGeometryGl* self
 	)
 {
-	idlib_color_4_f32 ambientColor;
-	idlib_color_convert_3_u8_to_4_f32(&ambientColor, &idlib_colors_lightgray_3_u8, 1.f);
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = { -1.f,  1.f, -1.f, }, .ambientColor = ambientColor },
-		{.position = { -1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f,  1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f,  1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor },
+		{.position = { -1.f, -1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f,  1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, -1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -197,15 +300,18 @@ StaticGeometryGl_setDataNorthWall
 		StaticGeometryGl* self
 	)
 {
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = {  1.f,  1.f, +1.f, }, .ambientColor = { 1.f, 0.f, 0.f, 1.f }, },
-		{.position = {  1.f, -1.f, +1.f, }, .ambientColor = { 1.f, 1.f, 0.f, 1.f }, },
-		{.position = { -1.f,  1.f, +1.f, }, .ambientColor = { 1.f, 0.f, 1.f, 1.f }, },
-		{.position = { -1.f, -1.f, +1.f, }, .ambientColor = { 1.f, 1.f, 1.f, 1.f }, },
+		{.position = {  1.f,  1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, -1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f,  1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, -1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -235,17 +341,18 @@ StaticGeometryGl_setDataWestWall
 		StaticGeometryGl* self
 	)
 {
-	idlib_color_4_f32 ambientColor;
-	idlib_color_convert_3_u8_to_4_f32(&ambientColor, &idlib_colors_magenta_3_u8, 1.f);
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = { +1.f,  1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = { +1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = { +1.f,  1.f, +1.f, }, .ambientColor = ambientColor, },
-		{.position = { +1.f, -1.f, +1.f, }, .ambientColor = ambientColor, },
+		{.position = { +1.f,  1.f, -1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { +1.f, -1.f, -1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { +1.f,  1.f, +1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { +1.f, -1.f, +1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -275,17 +382,18 @@ StaticGeometryGl_setDataEastWall
 		StaticGeometryGl* self
 	)
 {
-	idlib_color_4_f32 ambientColor;
-	idlib_color_convert_3_u8_to_4_f32(&ambientColor, &idlib_colors_lightgray_3_u8, 1.f);
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = { -1.f,  1.f, +1.f, }, .ambientColor = ambientColor },
-		{.position = { -1.f, -1.f, +1.f, }, .ambientColor = ambientColor, },
-		{.position = { -1.f,  1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = { -1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f,  1.f, +1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor },
+		{.position = { -1.f, -1.f, +1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f,  1.f, -1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, -1.f, -1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -315,17 +423,18 @@ StaticGeometryGl_setDataFloor
 		StaticGeometryGl* self
 	)
 {
-	idlib_color_4_f32 ambientColor;
-	idlib_color_convert_3_u8_to_4_f32(&ambientColor, &idlib_colors_lightgray_3_u8, 1.f);
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = { -1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = { -1.f, -1.f,  1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f, -1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f, -1.f,  1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, -1.f, -1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, -1.f,  1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, -1.f, -1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, -1.f,  1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -355,17 +464,18 @@ StaticGeometryGl_setDataCeiling
 		StaticGeometryGl* self
 	)
 {
-	idlib_color_4_f32 ambientColor;
-	idlib_color_convert_3_u8_to_4_f32(&ambientColor, &idlib_colors_lightgray_3_u8, 1.f);
+	idlib_color_3_f32 ambientColor;
+	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
 	struct VERTEX {
 		idlib_vector_3_f32 position;
-		idlib_color_4_f32 ambientColor;
+		idlib_vector_3_f32 normal;
+		idlib_color_3_f32 ambientColor;
 	};
 	struct VERTEX vertices[] = {
-		{.position = { -1.f, +1.f,  1.f, }, .ambientColor = ambientColor, },
-		{.position = { -1.f, +1.f, -1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f, +1.f,  1.f, }, .ambientColor = ambientColor, },
-		{.position = {  1.f, +1.f, -1.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, +1.f,  1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = { -1.f, +1.f, -1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, +1.f,  1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
+		{.position = {  1.f, +1.f, -1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
 #if 0
@@ -437,8 +547,23 @@ World_create
 	StaticGeometryGl_setDataWestWall(state, geometry);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
+	geometry = StaticGeometryGl_create(state);
+	StaticGeometryGl_setDataNorthWall(state, geometry);
+	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
+
 	self->player = Player_create(state);
 
 	((Zeitgeist_ForeignObject*)self)->visit = (void(*)(Zeitgeist_State*, Zeitgeist_ForeignObject*)) & World_visit;
 	return self;
+}
+
+void
+World_update
+	(
+		Zeitgeist_State* state,
+		World* self,
+		Zeitgeist_Real32 tick
+	)
+{
+	Player_update(state, self->player, tick);
 }

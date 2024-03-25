@@ -48,38 +48,58 @@ static const GLchar* g_vertexShader =
 	"#version 330 core\n"
 	// vertex variables
 	"layout(location = 0) in vec3 vertexPosition;\n"
-	"layout(location = 1) in vec4 vertexAmbientColor;\n"
-	// decide if mesh ambient color or vertex ambient color is used.
-	"uniform int inputFragmentAmbientColorType = 0;\n"
-	"uniform vec4 meshAmbientColor = vec4(1.0, 0.8, 0.2, 1.0);\n"
-	"out vec4 inputFragmentAmbientColor;\n"
+	"layout(location = 1) in vec3 vertexNormal;\n"
+	"layout(location = 2) in vec3 vertexColor;\n"
+	// decide if mesh color or vertex color is used.
+	"uniform int inputFragmentColorType = 0;\n"
+	"uniform vec3 meshColor = vec3(1.0, 0.8, 0.2);\n"
+	"out vec3 inputFragmentPosition;\n"
+	"out vec3 inputFragmentNormal;\n"
+	"out vec3 inputFragmentColor;\n"
 	"uniform mat4 projection = mat4(1);\n"
 	"uniform mat4 view = mat4(1);\n"
 	"uniform mat4 world = mat4(1);\n"
 	"void main() {\n"
-	"  mat4 worldProjection = projection * view * world;"
+	"  mat4 worldProjection = projection * view * world;\n"
 	"  gl_Position = worldProjection * vec4(vertexPosition, 1.);\n"
-	"  if(inputFragmentAmbientColorType == 1) {\n"
-	"    inputFragmentAmbientColor = vec4(vertexAmbientColor.rgb, vertexAmbientColor.a);\n"
+	"  inputFragmentPosition = (worldProjection * vec4(vertexPosition, 1.)).xyz;\n"
+	"  inputFragmentNormal = vertexNormal;\n"
+	"  if(inputFragmentColorType == 1) {\n"
+	"    inputFragmentColor = vertexColor;\n"
 	"  } else {\n"
-	"    inputFragmentAmbientColor = vec4(meshAmbientColor.rgb, meshAmbientColor.a);\n"
+	"    inputFragmentColor = meshColor;\n"
 	"  }\n"
 	"}\n"
 	;
 
 // Fragment shader.
+// light type 1:
+// directionless, locationless light
+// 
+// light type 2:
+// emit light rays from the points on a plane in the direction of the normal vector
+// 
 // The color (255, 204, 51) is the websafe color "sunglow".
 static const GLchar* g_fragmentShader =
 	"#version 330 core\n"
 	"out vec4 outputFragmentColor;\n"
-	"in vec4 inputFragmentAmbientColor;\n"
+	"in vec3 inputFragmentPosition;\n"
+	"in vec3 inputFragmentNormal;\n"
+	"in vec3 inputFragmentColor;\n"
 	"void main() {\n"
-	"  outputFragmentColor = inputFragmentAmbientColor;\n"
+	"  vec3 diffuseLightPosition = vec3(+100., +100., +100.);\n"
+	"  vec3 diffuseLightColor = vec3(1., 1., 1.);\n"
+  "  vec3 ambientLightColor = vec3(1., 1., 1.);\n"
+	"  float ambientIntensity = 0.1f;\n"
+	"  vec3 n = normalize(inputFragmentNormal);\n"
+	"  vec3 d = normalize(diffuseLightPosition - inputFragmentPosition);\n"
+	"  float diffuseIntensity = max(dot(n, d), 0.0);\n"
+	"  vec3 diffuse = diffuseIntensity * diffuseLightColor;\n"
+	"  vec3 ambient = ambientIntensity * ambientLightColor;\n"
+	"  vec3 color = (ambient + diffuse) * inputFragmentColor;\n"
+	"  outputFragmentColor = vec4(color, 1.f);\n"
 	"}\n"
 	;
-
-static GLint g_vertexPositionIndex = 0;
-static GLint g_vertexAmbientColorIndex = 1;
 
 static GLuint g_programId = 0;
 static World* g_world = NULL;
@@ -88,16 +108,51 @@ static void
 bindMatrix4Uniform
 	(
 		Zeitgeist_State* state,
-		GLuint programID,
+		GLuint programId,
 		char const* name,
 		Matrix4R32* value
 	)
 {
-	GLint location = glGetUniformLocation(g_programId, name);
+	GLint location = glGetUniformLocation(programId, name);
 	if (-1 == location) {
 		fprintf(stderr, "%s:%d: unable to get uniform location of uniform `%s`\n", __FILE__, __LINE__, name);
 	} else {
 		glUniformMatrix4fv(location, 1, GL_TRUE, idlib_matrix_4x4_f32_get_data(&value->m));
+	}
+}
+
+static void
+bindVector3Uniform
+	(
+		Zeitgeist_State* state,
+		GLuint programId,
+		char const* name,
+		Vector3R32* value
+	)
+{
+	GLint location = glGetUniformLocation(programId, name);
+	if (-1 == location) {
+		fprintf(stderr, "%s:%d: unable to get uniform location of uniform `%s`\n", __FILE__, __LINE__, name);
+	} else {
+		glUniform3fv(location, 1, &value->v.e[0]);
+	}
+}
+
+static void
+bindIntegerUniform
+	(
+		Zeitgeist_State* state,
+		GLuint programId,
+		char const* name,
+		Zeitgeist_Integer value
+	)
+{
+	GLint location = glGetUniformLocation(programId, name);
+	if (-1 == location) {
+		fprintf(stderr, "%s:%d: unable to get uniform location of uniform `%s`\n", __FILE__, __LINE__, name);
+	} else {
+		/// @todo Check bounds.
+		glUniform1i(location, value);
 	}
 }
 
@@ -108,6 +163,7 @@ Zeitgeist_Rendition_update
 	)
 {
 	ServiceGl_update(state);
+	World_update(state, g_world, 200); /* TODO: Pass delta time. */
 
 	if (ServiceGl_quitRequested(state)) {
 		Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
@@ -128,13 +184,18 @@ Zeitgeist_Rendition_update
 	Matrix4R32* world = NULL;
 	world = Matrix4R32_createScale(state, Vector3R32_create(state, 0.75f, 0.75f, 1.f));
 	bindMatrix4Uniform(state, g_programId, "world", world);
-	//
+	// (viewRotateY^-1 * viewTranslate^-1)
+	// is equivalent to
+	// (viewTranslate * viewRotateY)^-1
+	// as in general
+	// (AB)^-1 = (B^-1) * (A^-1)
+	// for two square matrices A and B holds.
 	Matrix4R32* viewTranslate = NULL;
 	viewTranslate = Matrix4R32_createTranslate(state, Vector3R32_create(state, -g_world->player->position->v.e[0], -g_world->player->position->v.e[1], -g_world->player->position->v.e[2]));
 	Matrix4R32* viewRotateY = NULL;
-	viewRotateY = Matrix4R32_createRotateY(state, g_world->player->rotationY);
+	viewRotateY = Matrix4R32_createRotateY(state, -g_world->player->rotationY);
 	Matrix4R32* view = NULL;
-	view = Matrix4R32_multiply(state, viewTranslate, viewRotateY);
+	view = Matrix4R32_multiply(state, viewRotateY, viewTranslate);
 	bindMatrix4Uniform(state, g_programId, "view", view);
 	
 	//
@@ -143,24 +204,22 @@ Zeitgeist_Rendition_update
 	projection = Matrix4R32_createPerspective(state, 90.f, viewportHeight > 0.f ? viewportWidth / viewportHeight : 16.f/9.f, 0.1f, 100.f);
 	bindMatrix4Uniform(state, g_programId, "projection", projection);
 	
+#if 0
 	GLint location;
+#endif
+	// The color (255, 204, 51) is the websafe color "sunglow".
+	bindVector3Uniform(state, g_programId, "meshColor", Vector3R32_create(state, 1.0f, 0.8f, 0.2f));
 
-	location = glGetUniformLocation(g_programId, "meshAmbientColor");
+	bindIntegerUniform(state, g_programId, "inputFragmentColorType", 1);
+#if 0
+	location = glGetUniformLocation(g_programId, "inputFragmentColorType");
 	if (-1 == location) {
-		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "meshAmbientColor");
-	} else {
-		// The color (255, 204, 51) is the websafe color "sunglow".
-		GLfloat vector[4] = { 1.0, 0.8, 0.2, 1.0 };
-		glUniform4fv(location, 1, &vector[0]);
-	}
-
-	location = glGetUniformLocation(g_programId, "inputFragmentAmbientColorType");
-	if (-1 == location) {
-		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "inputFragmentAmbientColorType");
+		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "inputFragmentColorType");
 	} else {
 		GLint scalar = 1;
 		glUniform1i(location, scalar);
 	}
+#endif
 
 	Zeitgeist_Value sizeValue = Zeitgeist_List_getSize(state, g_world->geometries);
 	for (Zeitgeist_Integer i = 0, n = Zeitgeist_Value_getInteger(&sizeValue); i < n; ++i) {
@@ -199,35 +258,13 @@ onKeyboardKeyMessage
 	}
 	fprintf(stdout, "%s:%d: keyboard key message received\n", __FILE__, __LINE__);
 	KeyboardKeyMessage* message = (KeyboardKeyMessage*)Zeitgeist_Stack_getForeignObject(state, 1);
-	if (KeyboardKey_Action_Released == KeyboardKeyMessage_getAction(state, message)) {
-		switch (KeyboardKeyMessage_getKey(state, message)) {
-			case KeyboardKey_Escape: {
-				Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
-				Zeitgeist_sendUpstreamRequest(state, request);
-			} break;
-			case KeyboardKey_Q: {
-				g_world->player->rotationY -= 0.25f;
-			} break;
-			case KeyboardKey_E: {
-				g_world->player->rotationY += 0.25f;
-			} break;
-			case KeyboardKey_W:
-			case KeyboardKey_Up: {
-				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, 0.f, 0.f, -0.25f));
-			} break;
-			case KeyboardKey_S:
-			case KeyboardKey_Down: {
-				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, 0.f, 0.f, +0.25f));
-			} break;
-			case KeyboardKey_A:
-			case KeyboardKey_Left: {
-				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, -0.25f, 0.f, 0.f));
-			} break;
-			case KeyboardKey_D:
-			case KeyboardKey_Right: {
-				g_world->player->position = Vector3R32_add(state, g_world->player->position, Vector3R32_create(state, +0.25f, 0.f, 0.f));
-			} break;
-		};
+	if (KeyboardKey_Escape == KeyboardKeyMessage_getKey(state, message)) {
+		if (KeyboardKey_Action_Released == KeyboardKeyMessage_getAction(state, message)) {
+			Zeitgeist_UpstreamRequest* request = Zeitgeist_UpstreamRequest_createExitProcessRequest(state);
+			Zeitgeist_sendUpstreamRequest(state, request);
+		}
+	} else {
+		Player_onKeyboardKeyMessage(state, g_world->player, message);
 	}
 	Zeitgeist_Stack_pop(state);
 	Zeitgeist_Stack_pop(state);

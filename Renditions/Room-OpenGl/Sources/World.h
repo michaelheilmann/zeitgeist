@@ -21,11 +21,42 @@ struct Player {
 	 * @remarks The default position is (0,0,0).
 	 */
 	Vector3R32* position;
+	Vector3R32* positionSpeed;
 	/**
 	 * @brief A scalar indicating the rotation of the player around the Y axis.
 	 * @remarks The default direction is (0,0,-1), the default rotation is 0.
 	 */
 	Zeitgeist_Real32 rotationY;
+	Zeitgeist_Real32 rotationYSpeed;
+
+	/**
+	 * @brief If "strate left" is down.
+	 */
+	bool strafeLeftDown;
+	/**
+	 * @brief If "strafe right" is down.
+	 */
+	bool strafeRightDown;
+
+	/**
+	 * @brief If "move forward" is down.
+	 */
+	bool moveForwardDown;
+
+	/**
+   * @brief If "move backward" is down.
+	 */
+	bool moveBackwardDown;
+
+	/**
+   * @brief If "turn left" is down.
+	 */
+	bool turnLeftDown;
+
+	/**
+	 * @brief If "turn right is down.
+	 */
+	bool turnRightDown;
 };
 
 Player*
@@ -40,6 +71,14 @@ Player_onKeyboardKeyMessage
 		Zeitgeist_State* state,
 		Player* self,
 		KeyboardKeyMessage* message
+	);
+
+void
+Player_update
+	(
+		Zeitgeist_State* state,
+		Player* self,
+		Zeitgeist_Real32 tick
 	);
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -243,6 +282,14 @@ World*
 World_create
 	(
 		Zeitgeist_State* state
+	);
+
+void
+World_update
+	(
+		Zeitgeist_State* state,
+		World* self,
+		Zeitgeist_Real32 tick
 	);
 
 #endif // WORLD_H_INCLUDED
