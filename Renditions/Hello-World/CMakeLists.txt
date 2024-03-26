@@ -9,6 +9,11 @@ set(${name}.sources "")
 set(${name}.headers "")
 add_library(${name} MODULE)
 
+define_languages(${name})
+detect_c_compiler(${name})
+detect_instruction_set_architecture(${name})
+detect_operating_system(${name})
+
 list(APPEND ${name}.sources Sources/Main.c)
 
 configure_warnings_and_errors(${name})
