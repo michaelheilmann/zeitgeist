@@ -3,13 +3,13 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(idlib LANGUAGES C)
+project(idlib-math LANGUAGES C)
 
 ###############################################################################################################################################################
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/all.cmake)
 
-set(name idlib)
+set(name idlib-math)
 
 add_library(${name} STATIC)
 set(${name}.source_files "")
@@ -56,8 +56,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/includes/configure.h.in ${CMAKE_CURRE
 target_include_directories(${name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/includes)
 list(APPEND ${name}.configuration_files "${CMAKE_CURRENT_BINARY_DIR}/includes/configure.h")
 
-list(APPEND ${name}.header_files "${CMAKE_CURRENT_SOURCE_DIR}/includes/idlib.h")
-list(APPEND ${name}.source_files "${CMAKE_CURRENT_SOURCE_DIR}/sources/idlib.c")
+list(APPEND ${name}.header_files "${CMAKE_CURRENT_SOURCE_DIR}/includes/idlib-math.h")
+list(APPEND ${name}.source_files "${CMAKE_CURRENT_SOURCE_DIR}/sources/idlib-math.c")
 
 list(APPEND ${name}.header_files "${CMAKE_CURRENT_SOURCE_DIR}/includes/scalar.h")
 list(APPEND ${name}.source_files "${CMAKE_CURRENT_SOURCE_DIR}/sources/scalar.c")
@@ -90,4 +90,4 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.header_files})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${${name}.source_files})
 
 target_include_directories(${name} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/includes")
-#target_source_files(${name} PRIVATE ${${name}.header_files} ${${name}.source_files})
+

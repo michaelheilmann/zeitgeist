@@ -1,1 +1,1 @@
-add_subdirectory(idlib-1.2)
+add_subdirectory(idlib-math-1.3)

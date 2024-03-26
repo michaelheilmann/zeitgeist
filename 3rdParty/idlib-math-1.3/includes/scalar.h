@@ -29,21 +29,21 @@ typedef double idlib_f64;
 
 #if _DEBUG
 
-	void
-	idlib_debug_assert
-		(
-			bool expression_value,
-			char const* file,
-			int line,
-			char const* expression_string
-		);
+  void
+  idlib_debug_assert
+    (
+      bool expression_value,
+      char const* file,
+      int line,
+      char const* expression_string
+    );
 
-	#define IDLIB_DEBUG_ASSERT(expression) \
-		idlib_debug_assert(expression, __FILE__, __LINE__, #expression);
+  #define IDLIB_DEBUG_ASSERT(expression) \
+    idlib_debug_assert(expression, __FILE__, __LINE__, #expression);
 
 #else
 
-	#define IDLIB_DEBUG_ASSERT(expression)
+  #define IDLIB_DEBUG_ASSERT(expression)
 
 #endif // _DEBUG
 
@@ -67,9 +67,9 @@ typedef double idlib_f64;
  */
 static inline idlib_f32
 idlib_deg_to_rad_f32
-	(
-		idlib_f32 x
-	)
+  (
+    idlib_f32 x
+  )
 { return (x / 180.f) * IDLIB_PI_F32; }
 
 /**
@@ -80,9 +80,9 @@ idlib_deg_to_rad_f32
  */
 static inline idlib_f64
 idlib_deg_to_rad_f64
-	(
-		idlib_f64 operand
-	)
+  (
+    idlib_f64 operand
+  )
 { return (operand / 180.) * IDLIB_PI_F64; }
 
 /**
@@ -93,9 +93,9 @@ idlib_deg_to_rad_f64
  */
 idlib_f32
 idlib_sqrt_f32
-	(
-		idlib_f32 operand
-	);
+  (
+    idlib_f32 operand
+  );
 
 /**
  * @since 1.0
@@ -105,9 +105,9 @@ idlib_sqrt_f32
  */
 idlib_f64
 idlib_sqrt_f64
-	(
-		idlib_f64 operand
-	);
+  (
+    idlib_f64 operand
+  );
 
 /**
  * @since 1.0
@@ -117,9 +117,9 @@ idlib_sqrt_f64
  */
 idlib_f32
 idlib_cos_f32
-	(
-		idlib_f32 operand
-	);
+  (
+    idlib_f32 operand
+  );
 
 /**
  * @since 1.0
@@ -129,9 +129,9 @@ idlib_cos_f32
  */
 idlib_f64
 idlib_cos_f64
-	(
-		idlib_f64 operand
-	);
+  (
+    idlib_f64 operand
+  );
 
 /**
  * @since 1.0
@@ -141,9 +141,9 @@ idlib_cos_f64
  */
 idlib_f32
 idlib_sin_f32
-	(
-		idlib_f32 operand
-	);
+  (
+    idlib_f32 operand
+  );
 
 /**
  * @since 1.0
@@ -153,9 +153,9 @@ idlib_sin_f32
  */
 idlib_f64
 idlib_sin_f64
-	(
-		idlib_f64 operand
-	);
+  (
+    idlib_f64 operand
+  );
 
 /**
  * @since 1.0
@@ -165,9 +165,9 @@ idlib_sin_f64
  */
 idlib_f32
 idlib_tan_f32
-	(
-		idlib_f32 operand
-	);
+  (
+    idlib_f32 operand
+  );
 
 /**
  * @since 1.0
@@ -177,9 +177,9 @@ idlib_tan_f32
  */
 idlib_f64
 idlib_tan_f64
-	(
-		idlib_f64 operand
-	);
+  (
+    idlib_f64 operand
+  );
 
 /**
  * @since 1.0
@@ -189,13 +189,13 @@ idlib_tan_f64
  */
 static inline idlib_f32
 idlib_clamp_f32
-	(
-		idlib_f32 operand
-	)
+  (
+    idlib_f32 operand
+  )
 {
-	if (operand < 0.f) return 0.f;
-	else if (operand > 1.f) return 1.f;
-	else return operand;
+  if (operand < 0.f) return 0.f;
+  else if (operand > 1.f) return 1.f;
+  else return operand;
 }
 
 /**
@@ -206,13 +206,13 @@ idlib_clamp_f32
  */
 static inline idlib_f64
 idlib_clamp_f64
-	(
-		idlib_f64 operand
-	)
+  (
+    idlib_f64 operand
+  )
 {
-	if (operand < 0.) return 0.;
-	else if (operand > 1.) return 1.;
-	else return operand;
+  if (operand < 0.) return 0.;
+  else if (operand > 1.) return 1.;
+  else return operand;
 }
 
 #endif // IDLIB_SCALAR_H_INCLUDED

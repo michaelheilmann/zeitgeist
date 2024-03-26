@@ -22,7 +22,7 @@
  */
 #define IDLIB_OPERATING_SYSTEM_UNIX (2)
 
-/** 
+/**
  * @since 1.0
  * @brief The "Linux" operating system.
  */
@@ -58,7 +58,7 @@
  */
 #define IDLIB_OPERATING_SYSTEM_MSYS (8)
 
-/** 
+/**
  * @since 1.0
  * @brief The "MinGW" operating system.
  */

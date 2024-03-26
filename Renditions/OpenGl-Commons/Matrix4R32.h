@@ -2,7 +2,7 @@
 #define MATRIX4R32_H_INCLUDED
 
 #include "Zeitgeist.h"
-#include "idlib.h"
+#include "idlib-math.h"
 typedef struct Vector3R32 Vector3R32;
 
 typedef struct Matrix4R32 {

@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-1.2/cmake/all.cmake)
+include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-math-1.3/cmake/all.cmake)
 
 set(name ${project_name}-OpenGl-Commons)
 set(${name}.sources "")
@@ -53,4 +53,4 @@ else()
 	set_property(TARGET ${name} PROPERTY POSITION_INDEPENDENT_CODE ON)
 	target_link_libraries(${name} OpenGL::GLX ${X11_LIBRARIES})
 endif()
-target_link_libraries(${name} idlib)
+target_link_libraries(${name} idlib-math)

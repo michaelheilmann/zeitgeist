@@ -1,6 +1,6 @@
 // Copyright (c) 2023-2024 Michael Heilmann.All rights reserved.
-#if !defined(IDLIB_H_INCLUDED)
-#define IDLIB_H_INCLUDED
+#if !defined(IDLIB_MATH_H_INCLUDED)
+#define IDLIB_MATH_H_INCLUDED
 
 #include "color.h"
 #include "colors.h"
@@ -10,4 +10,4 @@
 #include "vector_3.h"
 #include "version.h"
 
-#endif // IDLIB_H_INCLUDED
+#endif // IDLIB_MATH_H_INCLUDED

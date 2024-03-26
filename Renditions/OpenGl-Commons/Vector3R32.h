@@ -2,7 +2,7 @@
 #define VECTOR3R32_H_INCLUDED
 
 #include "Zeitgeist.h"
-#include "idlib.h"
+#include "idlib-math.h"
 
 typedef struct Vector3R32 {
 	Zeitgeist_ForeignObject _parent;
