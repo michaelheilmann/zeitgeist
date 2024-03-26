@@ -57,10 +57,10 @@ idlib_matrix_4x4_f32_set_translation
 /// @param operand The angle of rotation, in degrees.
 /// @remarks
 /// @code
-/// | 1 | 0 |  0 | 0 |
+/// | 1 | 0 |	0 | 0 |
 /// | 0 | c | -s | 0 |
-/// | 0 | s |  c | 0 |
-/// | 0 | 0 |  0 | 1 |
+/// | 0 | s |	c | 0 |
+/// | 0 | 0 |	0 | 1 |
 /// @endcode
 static inline void
 idlib_matrix_4x4_f32_set_rotation_x
@@ -76,10 +76,10 @@ idlib_matrix_4x4_f32_set_rotation_x
 /// @param operand The angle of rotation, in degrees.
 /// @remarks
 /// @code
-/// |  c | 0 | s | 0 |
-/// |  0 | 1 | 0 | 0 |
+/// |	c | 0 | s | 0 |
+/// |	0 | 1 | 0 | 0 |
 /// | -s | 0 | c | 0 |
-/// |  0 | 0 | 0 | 1 |
+/// |	0 | 0 | 0 | 1 |
 /// @endcode
 static inline void
 idlib_matrix_4x4_f32_set_rotation_y
@@ -96,9 +96,9 @@ idlib_matrix_4x4_f32_set_rotation_y
 /// @remarks
 /// @code
 /// | c | -s | 0 | 0 |
-/// | s |  c | 0 | 0 |
-/// | 0 |  0 | 1 | 0 |
-/// | 0 |  0 | 0 | 1 |
+/// | s |	c | 0 | 0 |
+/// | 0 |	0 | 1 | 0 |
+/// | 0 |	0 | 0 | 1 |
 /// @endcode
 static inline void
 idlib_matrix_4x4_f32_set_rotation_z
@@ -119,10 +119,10 @@ idlib_matrix_4x4_f32_set_rotation_z
 /// @remarks
 /// The following matrix is created
 /// @code
-/// | 2/a | 0   | 0     | u |
-/// | 0   | 2/b | 0     | v |
-/// | 0   | 0   | - 2/c | w |
-/// | 0   | 0   | 0     | 1 |
+/// | 2/a | 0	 | 0		 | u |
+/// | 0	 | 2/b | 0		 | v |
+/// | 0	 | 0	 | - 2/c | w |
+/// | 0	 | 0	 | 0		 | 1 |
 /// @endcode
 /// where
 /// @code
@@ -155,7 +155,7 @@ idlib_matrix_4x4_f32_set_orthographic
 /// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
 /// @param field_of_view_y The field of view along the y-axis in degrees.
 /// In other terms: The angle, in degrees, in between a plane passing through the camera position as well as the top of your screen and another plane passing
-/// through the camera position and the bottom of your screen.  The bigger this angle is, the more you can see of the world - but at the same time, the objects
+/// through the camera position and the bottom of your screen.	The bigger this angle is, the more you can see of the world - but at the same time, the objects
 /// you can see will become smaller.
 /// @param aspect_ratio The aspect ratio, that is, the ratio of the width to the height of the screen.
 /// An aspect ratio of x means that the width is x times the height.
@@ -166,10 +166,10 @@ idlib_matrix_4x4_f32_set_orthographic
 /// @remarks
 /// This function creates the following matrix
 /// @code
-/// | f / aspectRatio | 0                       | 0                          0 |
-/// | 0               | f                       | 0                          0 |
-/// | 0               | 0 (far+near)/(near-far) | (2 * far *  near)/(near-far) |
-/// | 0               | 0                    -1 |                            0 |
+/// | f / aspectRatio | 0											 | 0													0 |
+/// | 0							 | f											 | 0													0 |
+/// | 0							 | 0 (far+near)/(near-far) | (2 * far *	near)/(near-far) |
+/// | 0							 | 0										-1 |														0 |
 /// @endcode
 /// where
 /// @code
@@ -225,10 +225,10 @@ idlib_matrix_4x4_f32_multiply
 /// Then the view matrix <code>V</code> is given by
 /// @code
 /// V :=
-/// | right.x    | right.y    | right.z    | 0
-/// | up'.x      | up'.y      | u'.z       | 0
+/// | right.x		| right.y		| right.z		| 0
+/// | up'.x			| up'.y			| u'.z			 | 0
 /// | -forward.x | -forward.y | -forward.z | 0
-/// | 0          | 0          | 0          | 1
+/// | 0					| 0					| 0					| 1
 /// @endcode
 static inline void
 idlib_matrix_4x4_f32_set_look_at
@@ -246,9 +246,9 @@ idlib_matrix_4x4_f32_set_look_at
 /// @remarks
 /// @code
 /// | c | -s | 0 | 0 |
-/// | s |  c | 0 | 0 |
-/// | 0 |  0 | 1 | 0 |
-/// | 0 |  0 | 0 | 1 |
+/// | s |	c | 0 | 0 |
+/// | 0 |	0 | 1 | 0 |
+/// | 0 |	0 | 0 | 1 |
 /// @endcode
 static inline void
 idlib_matrix_4x4_f32_set_scale
@@ -277,6 +277,43 @@ idlib_matrix_4x4_f32_negate
 	(
 		idlib_matrix_4x4_f32* target,
 		idlib_matrix_4x4_f32 const* operand
+	);
+
+/// @since 1.3
+/// @brief Transpose a matrix.
+/// @param target A pointer to the idlib_matrix_4x4_f32 object to assign the result to.
+/// @param operand Pointer to the idlib_matrix_4x4_f32 object to transpose.
+/// @remarks @a target and @a operand all may refer to the same idlib_matrix_4x4_f32 object.
+static inline void
+idlib_matrix_4x4_f32_transpose
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_matrix_4x4_f32 const* operand
+	);
+
+/// @since 1.3
+/// @brief Transform a position vector.
+/// @param target Pointer to an idlib_vector_3_f32 object receiving the result.
+/// @param operand1 Pointer to an idlib_matrix_4x4_f32 object, the multiplier (first operand).
+/// @param operand2 Pointer to an idlib_vector_3_f32 object, the multiplicand (second operand).
+static inline void
+idlib_matrix_4x4_3f_transform_point
+	(
+		idlib_vector_3_f32* target,
+		idlib_matrix_4x4_f32 const* operand1,
+		idlib_vector_3_f32 const* operand2
+	);
+/// @since 1.3
+/// @brief Transform a direction vector.
+/// @param target Pointer to an idlib_vector_3_f32 object receiving the result.
+/// @param operand1 Pointer to an idlib_matrix_4x4_f32 object, the multiplier (first operand).
+/// @param operand2 Pointer to an idlib_vector_3_f32 object, the multiplicand (second operand).
+static inline void
+idlib_matrix_4x4_3f_transform_direction
+	(
+		idlib_vector_3_f32* target,
+		idlib_matrix_4x4_f32 const* operand1,
+		idlib_vector_3_f32 const* operand2
 	);
 
 static inline void
@@ -674,6 +711,147 @@ idlib_matrix_4x4_f32_negate
 			target->e[i][j] = -operand->e[i][j];
 		}
 	}
+}
+
+static inline void
+idlib_matrix_4x4_f32_transpose
+	(
+		idlib_matrix_4x4_f32* target,
+		idlib_matrix_4x4_f32 const* operand
+	)
+{
+	/*
+		* Given a matrix
+		* (0,0)(0,1)(0,2)(0,3)
+		* (1,0)(1,1)(1,2)(1,3)
+		* (2,0)(2,1)(2,2)(2,3)
+		* (3,0)(3,1)(3,2)(3,3)
+		* the algorith below is correct as
+		* i = 0, i < 4 continue
+		* j = 0, 0 < 0 = false => abort
+		* i = 1, i < 4 = true => swap continue
+		* j = 0, 0 < 1 = true => swap(1,0)
+		* j = 1, 1 < 1 = false => abort
+		* i = 2, i < 4 = true => continue
+		* j = 0, 0 < 2 = true => swap(2,0)
+		* j = 1, 1 < 2 = true => swap(2,1)
+		* j = 2, 2 < 2 = false => abort
+		* i = 3, i < 4 = true => continue
+		* j = 0, 0 < 3 = true => swap(3,0)
+		* j = 1, 1 < 3 = true => swap(3,1)
+		* j = 2, 2 < 3 = true => swap(3,2)
+		* j = 3, 3 < 3 = false => abort,
+		* i = 4, i < 4 = false => abort
+		*/
+	if (target == operand) {
+		// in place transpose
+
+		#if IDLIB_COMPILER_C == IDLIB_COMPILER_C_MSVC
+		#pragma push_macro("SWAP")
+		#undef SWAP
+		#endif
+
+		#define SWAP(x, y) \
+		{ \
+			idlib_f32 t = operand->e[x][y]; \
+			target->e[x][y] = operand->e[y][x]; \
+			target->e[y][x] = t; \
+		}
+		// rows from top to bottom
+		for (size_t i = 0; i < 4; ++i) {
+			for (size_t j = 1; j < i; ++j) {
+				SWAP(i, j);
+			}
+		}
+
+		#if defined(_MSVC_VER)
+		#pragma pop_macro("SWAP")
+		#endif
+
+	} else {
+		// out of place transpose
+
+		#if IDLIB_COMPILER_C == IDLIB_COMPILER_C_MSVC
+		#pragma push_macro("SWAP")
+		#undef SWAP
+		#endif
+
+		#define SWAP(x, y) \
+			{ \
+				target->e[y][x] = operand->e[y][x]; \
+			}
+
+		// rows from top to bottom
+		for (size_t i = 0; i < 4; ++i) {
+			for (size_t j = i; j < i; ++j) {
+				SWAP(i, j);
+			}
+		}
+
+		#if defined(_MSVC_VER)
+		#pragma pop_macro("SWAP")
+		#endif
+	}
+}
+
+static inline void
+idlib_matrix_4x4_3f_transform_point
+	(
+		idlib_vector_3_f32* target,
+		idlib_matrix_4x4_f32 const* operand1,
+		idlib_vector_3_f32 const* operand2
+	)
+{
+  idlib_f32 e[3];
+  
+  e[0] = operand1->e[0][0] * operand2->e[0]
+       + operand1->e[0][1] * operand2->e[1]
+       + operand1->e[0][2] * operand2->e[2]
+       + operand1->e[0][3] * 1.f;
+  
+  e[1] = operand1->e[1][0] * operand2->e[0]
+       + operand1->e[1][1] * operand2->e[1]
+       + operand1->e[1][2] * operand2->e[2]
+       + operand1->e[1][3] * 1.f;
+
+  e[2] = operand1->e[2][0] * operand2->e[0]
+       + operand1->e[2][1] * operand2->e[1]
+       + operand1->e[2][2] * operand2->e[2]
+       + operand1->e[2][3] * 1.f;
+
+	target->e[0] = e[0];
+	target->e[1] = e[1];
+	target->e[2] = e[2];
+}
+
+static inline void
+idlib_matrix_4x4_3f_transform_direction
+	(
+		idlib_vector_3_f32* target,
+		idlib_matrix_4x4_f32 const* operand1,
+		idlib_vector_3_f32 const* operand2
+	)
+{
+  idlib_f32 e[3];
+  
+  e[0] = operand1->e[0][0] * operand2->e[0]
+       + operand1->e[0][1] * operand2->e[1]
+       + operand1->e[0][2] * operand2->e[2]
+       + operand1->e[0][3] * 0.f;
+  
+  e[1] = operand1->e[1][0] * operand2->e[0]
+       + operand1->e[1][1] * operand2->e[1]
+       + operand1->e[1][2] * operand2->e[2]
+       + operand1->e[1][3] * 0.f;
+
+  e[2] = operand1->e[2][0] * operand2->e[0]
+       + operand1->e[2][1] * operand2->e[1]
+       + operand1->e[2][2] * operand2->e[2]
+       + operand1->e[2][3] * 0.f;
+
+  target->e[0] = e[0];
+  target->e[1] = e[1];
+  target->e[2] = e[2];
 }
 
 #endif // IDLIB_MATRIX_4X4_H_INCLUDED

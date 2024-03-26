@@ -5,7 +5,7 @@
 #include "color.h"
 
 #define DEFINE(NAME, R, G, B) \
-  extern idlib_color_3_u8 const idlib_colors_##NAME##_3_u8;
+	extern idlib_color_3_u8 const idlib_colors_##NAME##_3_u8;
 
 #include "colors.i"
 
