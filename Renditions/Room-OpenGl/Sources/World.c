@@ -253,10 +253,12 @@ StaticGeometryGl_setData
 }
 
 void
-StaticGeometryGl_setDataSouthWall
+StaticGeometryGl_setDataNorthWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -286,7 +288,7 @@ StaticGeometryGl_setDataSouthWall
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
-	self->flags = SOUTH_FACING_WALL;
+	self->flags = NORTH_WALL;
 	self->left = -1;
 	self->right = +1;
 	self->bottom = -1;
@@ -294,10 +296,12 @@ StaticGeometryGl_setDataSouthWall
 }
 
 void
-StaticGeometryGl_setDataNorthWall
+StaticGeometryGl_setDataSouthWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -327,7 +331,7 @@ StaticGeometryGl_setDataNorthWall
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
-	self->flags = NORTH_FACING_WALL;
+	self->flags = SOUTH_WALL;
 	self->left = -1;
 	self->right = +1;
 	self->bottom = -1;
@@ -335,10 +339,12 @@ StaticGeometryGl_setDataNorthWall
 }
 
 void
-StaticGeometryGl_setDataWestWall
+StaticGeometryGl_setDataEastWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -368,7 +374,7 @@ StaticGeometryGl_setDataWestWall
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
-	self->flags = WEST_FACING_WALL;
+	self->flags = EAST_WALL;
 	self->left = -1;
 	self->right = +1;
 	self->bottom = -1;
@@ -376,10 +382,12 @@ StaticGeometryGl_setDataWestWall
 }
 
 void
-StaticGeometryGl_setDataEastWall
+StaticGeometryGl_setDataWestWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -409,7 +417,7 @@ StaticGeometryGl_setDataEastWall
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
-	self->flags = EAST_FACING_WALL;
+	self->flags = WEST_WALL;
 	self->left = -1;
 	self->right = +1;
 	self->bottom = -1;
@@ -420,7 +428,9 @@ void
 StaticGeometryGl_setDataFloor
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 length
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -461,7 +471,9 @@ void
 StaticGeometryGl_setDataCeiling
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 length
 	)
 {
 	idlib_color_3_f32 ambientColor;
@@ -528,27 +540,27 @@ World_create
 	StaticGeometryGl* geometry = NULL;
 	
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataSouthWall(state, geometry);
+	StaticGeometryGl_setDataSouthWall(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataFloor(state, geometry);
+	StaticGeometryGl_setDataFloor(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataCeiling(state, geometry);
+	StaticGeometryGl_setDataCeiling(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataEastWall(state, geometry);
+	StaticGeometryGl_setDataEastWall(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataWestWall(state, geometry);
+	StaticGeometryGl_setDataWestWall(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	geometry = StaticGeometryGl_create(state);
-	StaticGeometryGl_setDataNorthWall(state, geometry);
+	StaticGeometryGl_setDataNorthWall(state, geometry, 2.f, 2.f);
 	Zeitgeist_List_appendForeignObject(state, self->geometries, (Zeitgeist_ForeignObject*)geometry);
 
 	self->player = Player_create(state);

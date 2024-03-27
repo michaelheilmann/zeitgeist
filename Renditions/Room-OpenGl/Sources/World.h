@@ -85,43 +85,43 @@ Player_update
 
 /**
  * @since 0.2
- * Indicates "north-facing" wall geometry.
- * "north-facing wall" geometry has the normal (0,0,-1).
+ * Indicates the geometry of the south wall (6 o'clock) of a room.
+ * The south wall has the normal (0,0,-1).
  */
-#define NORTH_FACING_WALL (1)
+#define SOUTH_WALL (1)
 
 /**
  * @since 0.2
- * Indicates "east-facing wall" geometry.
- * "east-facing wall" geometry has the normal (-1,0,0).
+ * Indicates the geometry of the east wall (3 o'clock) of a room.
+ * The east wall has the the normal (-1,0,0).
  */
-#define EAST_FACING_WALL (2)
+#define EAST_WALL (2)
 
 /**
  * @since 0.2
- * Indicates "south facing wall" geometry.
- * "south-facing wall" geometry has the normal (0,0,+1).
+ * Indicates the geometry of the north wall (12 o'clock) of a room.
+ * The north wall has the normal (0,0,+1).
  */
-#define SOUTH_FACING_WALL (3)
+#define NORTH_WALL (3)
 
 /**
  * @since 0.2
- * Indicates a west-facing wall geometry.
- * "west-facing wall" geometry has the normal (+1,0,0).
+ * Indicates the geometry of the west wall (9 o'clock) of a room.
+ * The west wall has the normal (+1,0,0).
  */
-#define WEST_FACING_WALL (4)
+#define WEST_WALL (4)
 
 /**
  * @since 2.0
- * Indicates "floor" geometry.
- * "floor" geometry has the normal (0,+1,0).
+ * Indicates the geometry of the floor of a room.
+ * The floor has the normal (0,+1,0).
  */
 #define FLOOR (5)
 
 /**
  * @since 2.0
- * Indicates "ceiling geometry.
- * "ceiling" geometry has the normal (0,-1,0).
+ * Indicates geometry of the ceiling of a room.
+ * The ceiling has the normal (0,-1,0).
  */
 #define CEILING (6)
 
@@ -195,69 +195,93 @@ StaticGeometryGl_setData
 	);
 
 /**
- * @brief Set the vertex data to represent a south-facing wall.
- * "south-facing" means the normal is (0,0,+1).
- */
-void
-StaticGeometryGl_setDataSouthWall
-	(
-		Zeitgeist_State* state,
-		StaticGeometryGl* self
-	);
-
-/**
- * @brief Set the vertex data to represent a north-facing wall.
- * "north-facing" means the normal is (0,0,-1).
+ * @brief Set the vertex data for the geometry of the north wall (12 o'clock).
+ * The north wall has the normal (0,0,+1).
+ * @param breadth The extend along the x-axis. Must be positive.
+ * @param height The extend along the y-axis. Must be positive.
  */
 void
 StaticGeometryGl_setDataNorthWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	);
 
 /**
- * @brief Set the vertex data to represent a west-facing wall.
- * "west-facing" the normal is (-1,0,0).
+ * @brief Set the vertex data for the geometry of the south wall (6 o'clock).
+ * The south wall has the normal (0,0,-1).
+ * @param breadth The extend along the x-axis. Must be positive.
+ * @param height The extend along the y-axis. Must be positive.
  */
 void
-StaticGeometryGl_setDataWestWall
+StaticGeometryGl_setDataSouthWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	);
 
 /**
- * @brief Set the vertex data to represent a east-facing wall.
- * "east-facing" means the normal is (+1,0,0).
+ * @brief Set the vertex data for the geometry of the east wall (3 o'clock).
+ * The east wall has the normal (-1,0,0).
+ * @param breadth The extend along the z-axis. Must be positive.
+ * @param height The extend along the y-axis. Must be positive.
  */
 void
 StaticGeometryGl_setDataEastWall
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
 	);
 
 /**
- * @brief Set the vertex data to represent a floor.
- * "floor" means the normal is (0,+1,0).
+ * @brief Set the vertex data for the geometry of the west wall (9 o'clock).
+ * The west wall has the normal (+1,0,0).
+ * @param breadth The extend along the z-axis. Must be positive.
+ * @param height The extend along the y-axis. Must be positive.
+ */
+void
+StaticGeometryGl_setDataWestWall
+	(
+		Zeitgeist_State* state,
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 height
+	);
+
+/**
+ * @brief Set the vertex data for the geometry of the floor.
+ * The floor has the normal (0,+1,0).
+ * @param breadth The breadth (the extend along the x-axis). Must be positive.
+ * @param length The length (the extend along the z-axis). Must be positive.
  */
 void
 StaticGeometryGl_setDataFloor
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 length
 	);
 
 /**
- * @brief Set the vertex data to represent a ceiling.
- * "ceiling" means the normal is (0,+1,0).
+ * @brief Set the vertex data for the geometry of the ceiling.
+ * The ceiling has the normal (0,+1,0).
+ * @param breadth The breadth (the extend along the x-axis). Must be positive.
+ * @param length The length (the extend along the z-axis). Must be positive.
  */
 void
 StaticGeometryGl_setDataCeiling
 	(
 		Zeitgeist_State* state,
-		StaticGeometryGl* self
+		StaticGeometryGl* self,
+		Zeitgeist_Real32 breadth,
+		Zeitgeist_Real32 length
 	);
 
 StaticGeometryGl*
