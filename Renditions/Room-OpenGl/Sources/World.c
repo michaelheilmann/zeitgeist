@@ -252,6 +252,37 @@ StaticGeometryGl_setData
 	glBindVertexArray(0);
 }
 
+struct VERTEX {
+	idlib_vector_3_f32 position;
+	idlib_vector_3_f32 normal;
+	idlib_color_3_f32 ambientColor;
+};
+
+static void checkNormal(Zeitgeist_State* state, struct VERTEX const* vertices, idlib_vector_3_f32 const* n) {
+	idlib_vector_3_f32 x, y, z;
+
+	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
+	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
+	idlib_vector_3_f32_cross(&z, &x, &y);
+	idlib_vector_3_f32_normalize(&z, &z);
+	if (!idlib_vector_3_f32_are_equal(n, &z)) {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+
+	idlib_vector_3_f32 nn;
+	idlib_vector_3_f32_negate(&nn, n);
+
+	// the second vertex' normal must be the normal of the first vertex inverted. 
+	// However, the specification of triangle strips state, the normal of subsequent triangles is the normal of the first triangle.
+	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
+	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
+	idlib_vector_3_f32_cross(&z, &x, &y);
+	idlib_vector_3_f32_normalize(&z, &z);
+	if (!idlib_vector_3_f32_are_equal(&nn, &z)) {
+		Zeitgeist_State_raiseError(state, __FILE__, __LINE__, 1);
+	}
+}
+
 void
 StaticGeometryGl_setDataNorthWall
 	(
@@ -263,11 +294,6 @@ StaticGeometryGl_setDataNorthWall
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = { -1.f,  1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor },
 		{.position = { -1.f, -1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor, },
@@ -275,16 +301,9 @@ StaticGeometryGl_setDataNorthWall
 		{.position = {  1.f, -1.f, -1.f, }, .normal = { 0.f, 0.f, 1.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, 0.f, 0.f, 1.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
@@ -306,11 +325,6 @@ StaticGeometryGl_setDataSouthWall
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = {  1.f,  1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
 		{.position = {  1.f, -1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
@@ -318,16 +332,9 @@ StaticGeometryGl_setDataSouthWall
 		{.position = { -1.f, -1.f, +1.f, }, .normal = { 0.f, 0.f, -1.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, 0.f, 0.f, -1.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
@@ -349,11 +356,6 @@ StaticGeometryGl_setDataEastWall
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = { +1.f,  1.f, -1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
 		{.position = { +1.f, -1.f, -1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
@@ -361,16 +363,9 @@ StaticGeometryGl_setDataEastWall
 		{.position = { +1.f, -1.f, +1.f, }, .normal = { -1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, -1.f, 0.f, 0.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
@@ -392,11 +387,6 @@ StaticGeometryGl_setDataWestWall
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = { -1.f,  1.f, +1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor },
 		{.position = { -1.f, -1.f, +1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
@@ -404,16 +394,9 @@ StaticGeometryGl_setDataWestWall
 		{.position = { -1.f, -1.f, -1.f, }, .normal = { +1.f, 0.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, +1.f, 0.f, 0.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
@@ -435,11 +418,6 @@ StaticGeometryGl_setDataFloor
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = { -1.f, -1.f, -1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
 		{.position = { -1.f, -1.f,  1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
@@ -447,16 +425,9 @@ StaticGeometryGl_setDataFloor
 		{.position = {  1.f, -1.f,  1.f, }, .normal = { 0.f, 1.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, 0.f, +1.f, 0.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
@@ -478,11 +449,6 @@ StaticGeometryGl_setDataCeiling
 {
 	idlib_color_3_f32 ambientColor;
 	idlib_color_convert_3_u8_to_3_f32(&ambientColor, &idlib_colors_lightgray_3_u8);
-	struct VERTEX {
-		idlib_vector_3_f32 position;
-		idlib_vector_3_f32 normal;
-		idlib_color_3_f32 ambientColor;
-	};
 	struct VERTEX vertices[] = {
 		{.position = { -1.f, +1.f,  1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
 		{.position = { -1.f, +1.f, -1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
@@ -490,16 +456,9 @@ StaticGeometryGl_setDataCeiling
 		{.position = {  1.f, +1.f, -1.f, }, .normal = { 0.f, -1.f, 0.f, }, .ambientColor = ambientColor, },
 	};
 
-#if 0
-	idlib_vector_3_f32 x, y;
-	idlib_vector_3_f32_subtract(&x, &vertices[1].position, &vertices[0].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[2].position, &vertices[0].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-
-	idlib_vector_3_f32_subtract(&x, &vertices[2].position, &vertices[1].position);
-	idlib_vector_3_f32_subtract(&y, &vertices[3].position, &vertices[1].position);
-	idlib_vector_3_f32_cross(&x, &x, &y);
-#endif
+	idlib_vector_3_f32 n;
+	idlib_vector_3_f32_set(&n, 0.f, -1.f, 0.f);
+	checkNormal(state, &vertices[0], &n);
 
 	size_t numberOfVertices = sizeof(vertices) / sizeof(struct VERTEX);
 	StaticGeometryGl_setData(state, self, numberOfVertices, sizeof(vertices), vertices);
