@@ -7,6 +7,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/detect_instruction_set_architecture.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/detect_operating_system.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/detect_void_pointer_size.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/detect_compiler.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/detect_multi_target_generator.cmake)
 
 macro(begin_library)
 
@@ -18,6 +19,7 @@ macro(begin_library)
   detect_c_compiler(${name})
   detect_instruction_set_architecture(${name})
   detect_operating_system(${name})
+  detect_multi_target_generator(${name})
 
 endmacro()
 

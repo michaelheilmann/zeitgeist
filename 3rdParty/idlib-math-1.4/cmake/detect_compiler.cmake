@@ -1,10 +1,15 @@
 # Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
 # This file is licensed under the "zlib License".
 
-# Macro to define an enumeration of compilers:
-# ${target}_compiler_c_(id|string)_(unknown|clang|msvc|gcc)
-# Macro to define
-# ${target}.compiler_c_(id|string)
+# Macro to define an enumeration of compilers and detect what compiler is used.
+#
+# The enumeration constants ${target}_compiler_c_(id|string)_(unknown|clang|msvc|gcc) are defined where
+# ${target}.compiler_c_id_* are numeric ID, which are guaranteed to be unique, and ${target}.compiler_c_string_* are a human-readable strings which is merely descriptive.
+#
+# Next, this macro detects which compiler is used and defines
+# - ${target}.compiler_c_id to one of the compiler IDs ${target}_compiler_c_id_(unknown|clang|msvc|gcc)
+# - ${target}.compiler_c_string to one of the compiler names {target}.compiler_c_string_(unknown|clang|msvc|gcc)
+#
 # @param target The target.
 macro(detect_c_compiler target)
   # An unknown compiler.
