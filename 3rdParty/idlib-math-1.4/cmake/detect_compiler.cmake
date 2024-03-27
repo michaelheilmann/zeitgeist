@@ -1,4 +1,5 @@
 # Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
+# This file is licensed under the "zlib License".
 
 # Macro to define an enumeration of compilers:
 # ${target}_compiler_c_(id|string)_(unknown|clang|msvc|gcc)

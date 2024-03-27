@@ -1,3 +1,6 @@
+# Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
+# This file is licensed under the "zlib License".
+
 # For MSVC: Turn on several warnings.
 macro(configure_warnings_and_errors target)
 

@@ -1,4 +1,5 @@
 # Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
+# This file is licensed under the "zlib License".
 
 # Macro to define an enumeration of instruction set architectures
 # ${target}.instruction_set_architecture_(string|id)_(x86|x64)

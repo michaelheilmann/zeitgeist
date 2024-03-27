@@ -21,7 +21,7 @@ Matrix4R32_createTranslate
 	)
 {
 	Matrix4R32* self = Zeitgeist_allocateForeignObject(state, sizeof(Matrix4R32), NULL, NULL);
-	idlib_matrix_4x4_f32_set_translation(&self->m, &translate->v);
+	idlib_matrix_4x4_f32_set_translate(&self->m, &translate->v);
 	return self;
 }
 

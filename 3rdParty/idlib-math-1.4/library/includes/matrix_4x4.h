@@ -816,7 +816,7 @@ idlib_matrix_4x4_f32_set_look_at
   idlib_vector_3_f32 negae;
   negae = *operand1;
   idlib_vector_3_f32_negate(&negae, &negae);
-  idlib_matrix_4x4_f32_set_translation(&t, &negae);
+  idlib_matrix_4x4_f32_set_translate(&t, &negae);
 
   idlib_matrix_4x4_f32_multiply(target, &r, &t);
 }

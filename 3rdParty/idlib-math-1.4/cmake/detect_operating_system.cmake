@@ -1,4 +1,5 @@
 # Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
+# This file is licensed under the "zlib License".
 
 # Macro to define an enumeration of operating systems
 # ${target}.operating_system_(id|string)_(unknown|windows|unix|linux|macos|cygwin|msys|mingw|ios|ios_simulator)

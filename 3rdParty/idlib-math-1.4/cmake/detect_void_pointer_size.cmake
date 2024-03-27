@@ -1,4 +1,5 @@
 # Copyright (c) 2018-2024 Michael Heilmann. All rights reserved.
+# This file is licensed under the "zlib License".
 
 # Macro to define ${target}.sizeof_void_pointer.
 # @param target The target.
