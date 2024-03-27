@@ -8,6 +8,11 @@
 // exit, EXIT_FAILURE
 #include <stdlib.h>
 
+// assert
+#include <assert.h>
+
+#include "Zeitgeist.h"
+
 void
 Zeitgeist_Gc_Object_setBlack
 	(
@@ -49,8 +54,6 @@ Zeitgeist_Gc_Object_isGray
 		Zeitgeist_Gc_Object* object
 	)
 { return Zeitgeist_Gc_Color_Gray == object->color; }
-
-#include "Zeitgeist.h"
 
 void
 Zeitgeist_Gc_visitForeignObject
@@ -138,4 +141,50 @@ Zeitgeist_Gc_visitWeakReference
 	)
 {
 	Zeitgeist_Gc_Object_setBlack((Zeitgeist_Gc_Object*)weakReference);
+}
+
+void
+Zeitgeist_Gc_barrier
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Gc_Object* a,
+		Zeitgeist_Gc_Object* b
+	)
+{
+	Zeitgeist_Gc_Object* o = NULL;
+	if (Zeitgeist_Gc_Object_isBlack(a) && Zeitgeist_Gc_Object_isWhite(b)) {
+		o = b;
+	} else if (Zeitgeist_Gc_Object_isWhite(a) && Zeitgeist_Gc_Object_isBlack(b)) {
+		o = a;
+	}
+	if (NULL != o) {
+		assert(Zeitgeist_Gc_Object_isWhite(o));
+		switch (o->typeTag) {
+			case Zeitgeist_Gc_TypeTag_Map: {
+				((Zeitgeist_List*)o)->gclist = state->gc.gray;
+				state->gc.gray = o;
+				Zeitgeist_Gc_Object_setGray(o);
+			} break;
+			case Zeitgeist_Gc_TypeTag_ForeignObject: {
+				((Zeitgeist_ForeignObject*)o)->gclist = state->gc.gray;
+				state->gc.gray = o;
+				Zeitgeist_Gc_Object_setGray(o);
+			} break;
+			case Zeitgeist_ValueTag_List: {
+				((Zeitgeist_List*)o)->gclist = state->gc.gray;
+				state->gc.gray = o;
+				Zeitgeist_Gc_Object_setGray(o);
+			} break;
+			case Zeitgeist_ValueTag_String: {
+				Zeitgeist_Gc_Object_setBlack(o);
+			} break;
+			case Zeitgeist_ValueTag_WeakReference: {
+				Zeitgeist_Gc_Object_setBlack(o);
+			} break;
+			default: {
+				fprintf(stderr, "%s:%d: unreachable code reached\n", __FILE__, __LINE__);
+				exit(EXIT_FAILURE);
+			} break;
+		};
+	}
 }

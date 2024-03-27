@@ -225,4 +225,22 @@ Zeitgeist_Gc_visitWeakReference
 		Zeitgeist_WeakReference* weakReference
 	);
 
+/**
+ * @brief Ensure that the invariant "a black object may never refer to a white object" holds.
+ * @param state A pointer to the state.
+ * @param a A pointer to one object.
+ * @param b A pointer to another object.
+ * @remarks
+ * This function ensures the invariant as follows:
+ * - if a is black and b is white, then color b gray (or black).
+ * - if a is white and b is black, then color a gray (or black).
+ */
+void
+Zeitgeist_Gc_barrier
+	(
+		Zeitgeist_State* state,
+		Zeitgeist_Gc_Object* a,
+		Zeitgeist_Gc_Object* b
+	);
+
 #endif // ZEITGEIST_GC_H_INCLUDED
