@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-include(${CMAKE_SOURCE_DIR}/3rdparty/idlib-math-1.4/cmake/all.cmake)
+include(${CMAKE_SOURCE_DIR}/3rdParty/idlib-math-1.4/cmake/all.cmake)
 
 set(name ${project_name}-Hello-World)
 set(${name}.sources "")
