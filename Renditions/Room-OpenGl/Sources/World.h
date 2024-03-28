@@ -126,10 +126,13 @@ Player_update
 #define CEILING (6)
 
 /**
- * @since
- * 0.1
+ * @since 0.1
  * @brief
- * Retained mode representation of the building's geometry.
+ * The retained mode representation of a part of a building's geometry.
+ * A StaticGeometryGl object represents one of the following:
+ * - a floor
+ * - a ceiling
+ * - a west, north, east, or south walls
  */
 typedef struct StaticGeometryGl StaticGeometryGl;
 
@@ -148,7 +151,7 @@ struct StaticGeometryGl {
 	/// @brief The number of Bytes of this wall.
 	size_t numberOfBytes;
 	
-	/// @brief Either WALL_DIRECTION_NORTH, WALL_DIRECTION_EAST, WALL_DIRECTION_SOUTH, or WALL_DIRECTION_WEST.
+	/// @brief Either FLOOR or CEILING, WEST_WALL, NORTH_WALL, EAST_WALL, or SOUT_WALL.
 	uint8_t flags;
 
 	/// @brief The coordinate of the bottom side of the wall in the plane of the wall

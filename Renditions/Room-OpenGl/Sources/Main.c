@@ -86,16 +86,20 @@ static const GLchar* g_fragmentShader =
 	"in vec3 inputFragmentPosition;\n"
 	"in vec3 inputFragmentNormal;\n"
 	"in vec3 inputFragmentColor;\n"
+
+	/* diffuse lighting (color + direction) */
+	"uniform vec3 diffuseLightDirection = vec3(1, 1, 1);\n"
+	"uniform vec3 diffuseLightColor = vec3(1, 1, 1);\n"
+
+	/* ambient lighting (color) */
+	"uniform vec3 ambientLightColor = vec3(1, 1, 1);\n"
+
 	"void main() {\n"
-	"  vec3 diffuseLightPosition = vec3(+100., +100., +100.);\n"
-	"  vec3 diffuseLightColor = vec3(1., 1., 1.);\n"
-  "  vec3 ambientLightColor = vec3(1., 1., 1.);\n"
-	"  float ambientIntensity = 0.1f;\n"
 	"  vec3 n = normalize(inputFragmentNormal);\n"
-	"  vec3 d = normalize(diffuseLightPosition - inputFragmentPosition);\n"
+	"  vec3 d = normalize(diffuseLightDirection);\n"
 	"  float diffuseIntensity = max(dot(n, d), 0.0);\n"
 	"  vec3 diffuse = diffuseIntensity * diffuseLightColor;\n"
-	"  vec3 ambient = ambientIntensity * ambientLightColor;\n"
+	"  vec3 ambient = ambientLightColor;\n"
 	"  vec3 color = (ambient + diffuse) * inputFragmentColor;\n"
 	"  outputFragmentColor = vec4(color, 1.f);\n"
 	"}\n"
@@ -204,22 +208,14 @@ Zeitgeist_Rendition_update
 	projection = Matrix4R32_createPerspective(state, 90.f, viewportHeight > 0.f ? viewportWidth / viewportHeight : 16.f/9.f, 0.1f, 100.f);
 	bindMatrix4Uniform(state, g_programId, "projection", projection);
 	
-#if 0
-	GLint location;
-#endif
 	// The color (255, 204, 51) is the websafe color "sunglow".
 	bindVector3Uniform(state, g_programId, "meshColor", Vector3R32_create(state, 1.0f, 0.8f, 0.2f));
 
 	bindIntegerUniform(state, g_programId, "inputFragmentColorType", 1);
-#if 0
-	location = glGetUniformLocation(g_programId, "inputFragmentColorType");
-	if (-1 == location) {
-		fprintf(stderr, "%s:%d: unable to get uniform location of `%s`\n", __FILE__, __LINE__, "inputFragmentColorType");
-	} else {
-		GLint scalar = 1;
-		glUniform1i(location, scalar);
-	}
-#endif
+
+	bindVector3Uniform(state, g_programId, "ambientLightColor", Vector3R32_create(state, 1.f, 1.f, 1.f));
+	bindVector3Uniform(state, g_programId, "diffuseLightDirection", Vector3R32_create(state, 1.f, 1.f, 1.f));
+	bindVector3Uniform(state, g_programId, "diffuseLightColor", Vector3R32_create(state, 1.f, 1.f, 1.f));
 
 	Zeitgeist_Value sizeValue = Zeitgeist_List_getSize(state, g_world->geometries);
 	for (Zeitgeist_Integer i = 0, n = Zeitgeist_Value_getInteger(&sizeValue); i < n; ++i) {
